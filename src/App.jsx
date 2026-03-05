@@ -108,13 +108,27 @@ function getCrossInsight(results) {
 
 // ── PDF GENERATION ──
 function generatePDF(p) {
-  const script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-  script.onload = () => buildPDF(p);
-  document.head.appendChild(script);
+  // Load jsPDF and html2canvas in parallel
+  const loaded = { jspdf: false, h2c: false };
+  function tryBuild() {
+    if (loaded.jspdf && loaded.h2c) buildPDF(p);
+  }
+  if (!window.jspdf) {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload = () => { loaded.jspdf = true; tryBuild(); };
+    document.head.appendChild(s);
+  } else { loaded.jspdf = true; }
+  if (!window.html2canvas) {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = () => { loaded.h2c = true; tryBuild(); };
+    document.head.appendChild(s);
+  } else { loaded.h2c = true; }
+  tryBuild();
 }
 
-function buildPDF(p) {
+async function buildPDF(p) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, margin = 20, contentW = W - margin * 2;
@@ -144,6 +158,37 @@ function buildPDF(p) {
     setFont(9, 'bold', slate); doc.text(ORIENTATION_LABELS[p.results[d].placement]||p.results[d].placement, margin + contentW - 8, dy, {align:'right'});
     dy += 8;
   });
+  setFont(8, 'normal', midBlue); doc.text('Jen Nguyen · Executive Coaching · jnguyen.org', margin, 280);
+  drawRect(0, 290, W, 7, deepCharcoal);
+
+  // Wheel page
+  doc.addPage();
+  drawRect(0, 0, W, 297, [250, 249, 247]);
+  drawRect(0, 0, W, 2, slate);
+  setFont(8, 'normal', midBlue); doc.text('YOUR LEADERSHIP PATTERNS MAP', margin, 14);
+  setFont(16, 'normal', deepCharcoal); doc.text('Leadership Patterns Map', margin, 24);
+
+  // Capture wheel SVG from DOM
+  const wheelEl = document.getElementById('pdf-wheel');
+  if (wheelEl) {
+    try {
+      const canvas = await window.html2canvas(wheelEl, { scale: 2, backgroundColor: '#faf9f7', useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const imgW = 150, imgH = 150;
+      const imgX = (W - imgW) / 2;
+      doc.addImage(imgData, 'PNG', imgX, 30, imgW, imgH);
+    } catch(e) { console.error('Wheel capture error:', e); }
+  }
+
+  // Legend under wheel
+  let ly = 188;
+  setFont(7, 'bold', slate); doc.text('ORIENTATION KEY', margin, ly); ly += 6;
+  [['Protect Outcome',[232,230,226]],['Protect Process',[220,228,224]],['Protect Identity',[184,196,204]],['Protect System',[74,98,116]]].forEach(([label,color]) => {
+    drawRect(margin, ly-3, 8, 4, color);
+    setFont(7, 'normal', deepCharcoal); doc.text(label, margin+11, ly);
+    ly += 7;
+  });
+
   setFont(8, 'normal', midBlue); doc.text('Jen Nguyen · Executive Coaching · jnguyen.org', margin, 280);
   drawRect(0, 290, W, 7, deepCharcoal);
 
@@ -226,7 +271,7 @@ function Wheel({results}) {
   });
 
   return (
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center",margin:"16px 0"}}>
+    <div id="pdf-wheel" style={{display:"flex",flexDirection:"column",alignItems:"center",margin:"16px 0"}}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{maxWidth:"100%"}}>
         <defs>
           <filter id="tshadow"><feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#000" floodOpacity="0.4"/></filter>
