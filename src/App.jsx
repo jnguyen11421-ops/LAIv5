@@ -332,25 +332,33 @@ body {
 /* ── COVER PAGE ── */
 .cover-page {
   min-height: 100vh;
-  background: #1f2328;
-  color: #e8e6e2;
+  background: #ffffff;
+  color: #313130;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 72px 64px 48px;
+  padding: 0 0 48px;
+  border-top: 6px solid #1f2328;
 }
+.cover-top-bar {
+  background: #1f2328;
+  padding: 0 64px;
+  height: 8px;
+  display: none;
+}
+.cover-inner { padding: 64px 64px 0; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .cover-eyebrow {
   font-family: system-ui, sans-serif;
   font-size: 8pt;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #8596a2;
+  color: #4a6274;
   margin-bottom: 48px;
 }
 .cover-name {
   font-size: 36pt;
   font-weight: 300;
-  color: #e8e6e2;
+  color: #1f2328;
   margin-bottom: 10px;
   line-height: 1.1;
 }
@@ -361,26 +369,27 @@ body {
   font-weight: 300;
   margin-bottom: 48px;
 }
-.cover-rule { width: 48px; height: 1px; background: #4a6274; margin-bottom: 32px; }
+.cover-rule { width: 48px; height: 2px; background: #1f2328; margin-bottom: 32px; }
 .cover-quote {
   font-style: italic;
   font-size: 11pt;
-  color: #8596a2;
+  color: #4a6274;
   max-width: 480px;
   line-height: 1.7;
   margin-bottom: 56px;
 }
 .cover-summary {
-  background: #2a3038;
+  background: #f4f6f1;
+  border-left: 4px solid #1f2328;
   padding: 24px 28px;
-  margin-bottom: 32px;
+  margin: 0 64px 32px;
 }
 .cover-summary-label {
   font-family: system-ui, sans-serif;
   font-size: 7pt;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #8596a2;
+  color: #4a6274;
   margin-bottom: 16px;
 }
 .cover-summary-row {
@@ -388,17 +397,18 @@ body {
   justify-content: space-between;
   align-items: baseline;
   padding: 8px 0;
-  border-bottom: 1px solid #343b44;
+  border-bottom: 1px solid #e8e6e2;
   font-size: 9.5pt;
 }
 .cover-summary-row:last-child { border-bottom: none; }
-.cover-domain-name { color: #e8e6e2; font-weight: 300; }
-.cover-orient { color: #8596a2; font-family: system-ui, sans-serif; font-size: 8pt; font-weight: 500; }
+.cover-domain-name { color: #313130; font-weight: 300; }
+.cover-orient { color: #4a6274; font-family: system-ui, sans-serif; font-size: 8pt; font-weight: 600; }
 .cover-footer {
   font-family: system-ui, sans-serif;
   font-size: 7.5pt;
-  color: #4a6274;
+  color: #8596a2;
   letter-spacing: 0.06em;
+  padding: 0 64px;
 }
 
 /* ── INTRO PAGE ── */
@@ -709,37 +719,39 @@ body {
 /* ── SYNTHESIS PAGE ── */
 .synthesis-page {
   min-height: 100vh;
-  background: #1f2328;
-  padding: 64px 64px 48px;
-  color: #e8e6e2;
+  background: #ffffff;
+  padding: 0 0 48px;
+  color: #313130;
+  border-top: 6px solid #1f2328;
 }
-.synthesis-title { font-size: 22pt; font-weight: 300; color: #e8e6e2; margin-bottom: 32px; line-height: 1.2; }
+.synthesis-inner { padding: 48px 64px 0; }
+.synthesis-title { font-size: 22pt; font-weight: 300; color: #1f2328; margin-bottom: 32px; line-height: 1.2; }
 .synthesis-domain-grid { margin-bottom: 36px; }
 .synthesis-domain-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #2a3038;
+  padding: 11px 0;
+  border-bottom: 1px solid #e8e6e2;
 }
-.synthesis-domain-name { font-size: 10.5pt; font-weight: 300; color: #e8e6e2; }
+.synthesis-domain-name { font-size: 10.5pt; font-weight: 300; color: #313130; }
 .synthesis-tension { font-family: system-ui, sans-serif; font-size: 8pt; color: #8596a2; font-weight: 300; }
 .synthesis-orient-badge {
   font-family: system-ui, sans-serif;
   font-size: 7.5pt;
   font-weight: 600;
-  color: #e8e6e2;
+  color: #ffffff;
   background: #4a6274;
   padding: 4px 12px;
   white-space: nowrap;
 }
-.synthesis-section { margin-bottom: 28px; }
+.synthesis-section { margin-bottom: 24px; padding: 16px 20px; border-left: 3px solid #e8e6e2; }
 .synthesis-section-label {
   font-family: system-ui, sans-serif;
   font-size: 7.5pt;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #8596a2;
+  color: #4a6274;
   font-weight: 700;
   margin-bottom: 10px;
 }
@@ -747,17 +759,17 @@ body {
   font-family: system-ui, sans-serif;
   font-size: 9.5pt;
   line-height: 1.85;
-  color: #c8cdd2;
+  color: #313130;
   font-weight: 300;
 }
 .synthesis-footer {
-  margin-top: auto;
-  padding-top: 32px;
+  margin-top: 32px;
+  padding: 16px 64px 0;
   font-family: system-ui, sans-serif;
   font-size: 7.5pt;
-  color: #4a6274;
+  color: #8596a2;
   letter-spacing: 0.06em;
-  border-top: 1px solid #2a3038;
+  border-top: 1px solid #e8e6e2;
 }
 
 /* ── SCREEN: show section dividers ── */
@@ -768,12 +780,13 @@ body {
 
 /* ── PRINT ── */
 @media print {
-  @page { size: A4 portrait; margin: 0; }
-  html, body { background: white; }
+  @page { size: A4 portrait; margin: 14mm 16mm 14mm 16mm; }
+  html { font-size: 9pt; }
+  body { background: white; }
 
   .report-wrap { max-width: none; padding: 0; }
 
-  /* Each major page starts on a new page */
+  /* Each major section starts on a new page */
   .cover-page,
   .intro-page,
   .map-page,
@@ -784,49 +797,50 @@ body {
   }
   .cover-page { page-break-before: auto; break-before: auto; }
 
-  /* Avoid breaking inside key blocks */
+  /* Only avoid breaks on small, atomic blocks */
   .avoid-break,
-  .scenario-block,
-  .response-row,
   .orientation-row,
-  .synthesis-section {
+  .synthesis-section,
+  .pull-quote,
+  .map-continuum-wrap {
     page-break-inside: avoid;
     break-inside: avoid;
   }
 
-  /* Page heights */
+  /* Section headings stay with their first line */
+  .section-label {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Tighter padding in print */
   .cover-page, .intro-page, .map-page, .synthesis-page {
-    min-height: 297mm;
-    padding: 60px 64px 40px;
+    padding: 40px 48px 32px;
   }
+  .domain-section { padding: 0 0 32px; }
+  .domain-header { padding: 18px 48px; }
+  .section-block { padding: 0 48px; margin-bottom: 20px; }
+  .domain-continuum { padding: 0 48px; margin-bottom: 20px; }
 
-  /* Domain sections: full page padding */
-  .domain-section { padding: 0 0 40px; }
-  .domain-header { padding: 22px 64px; }
-  .section-block { padding: 0 64px; }
-  .section-divider { margin: 0 64px 24px; }
-  .domain-continuum { padding: 0 64px; }
+  /* Tighter body text in print */
+  .body-text { font-size: 9pt; line-height: 1.7; margin-bottom: 8px; }
+  .bullet-list li { font-size: 9pt; margin-bottom: 7px; }
+  .reflection-list li { font-size: 9pt; margin-bottom: 9px; }
+  .response-row { font-size: 8.5pt; padding: 6px 10px; }
+  .orientation-row { font-size: 9pt; padding: 7px 0; }
+  .section-label { margin-top: 18px; margin-bottom: 8px; }
+  .scenario-block { margin-bottom: 14px; }
+  .pull-quote { font-size: 11pt; padding: 12px 16px; margin: 10px 0; }
 
-  /* Footer on every printed page */
-  .page-footer {
-    display: block;
-    position: fixed;
-    bottom: 12mm;
-    left: 64px;
-    right: 64px;
-    font-family: system-ui, sans-serif;
-    font-size: 7pt;
-    color: #8596a2;
-    border-top: 1px solid #e8e6e2;
-    padding-top: 6px;
-  }
+  /* No footer for now — avoid fixed positioning issues */
+  .page-footer { display: none; }
 
-  /* Colors in print */
-  .cover-page { background: #1f2328 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* Force background colors */
+  .cover-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .intro-page { background: #f4f6f1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .map-page { background: #f8f7f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .domain-section { background: #f8f7f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .synthesis-page { background: #1f2328 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .synthesis-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
@@ -836,24 +850,24 @@ body {
 
   <!-- PAGE 1: COVER -->
   <div class="cover-page">
-    <div>
-      <p class="cover-eyebrow">Leadership Patterns Profile</p>
-      <h1 class="cover-name">${p.name}</h1>
-      <p class="cover-date">${date}</p>
-      <div class="cover-rule"></div>
-      <p class="cover-quote">"Leadership becomes visible when pressure makes tradeoffs unavoidable."</p>
-    </div>
-    <div>
-      <div class="cover-summary">
-        <p class="cover-summary-label">Domain Summary</p>
-        ${[1,2,3,4,5].map(d => `
-          <div class="cover-summary-row">
-            <span class="cover-domain-name">${DOMAIN_NAMES[d]}</span>
-            <span class="cover-orient">${ORIENTATION_LABELS[p.results[d].placement] || p.results[d].placement}</span>
-          </div>`).join('')}
+    <div class="cover-inner">
+      <div>
+        <p class="cover-eyebrow">Leadership Patterns Profile</p>
+        <h1 class="cover-name">${p.name}</h1>
+        <p class="cover-date">${date}</p>
+        <div class="cover-rule"></div>
+        <p class="cover-quote">"Leadership becomes visible when pressure makes tradeoffs unavoidable."</p>
       </div>
-      <p class="cover-footer">Jen Nguyen · Executive Coaching · jnguyen.org</p>
     </div>
+    <div class="cover-summary">
+      <p class="cover-summary-label">Domain Summary</p>
+      ${[1,2,3,4,5].map(d => `
+        <div class="cover-summary-row">
+          <span class="cover-domain-name">${DOMAIN_NAMES[d]}</span>
+          <span class="cover-orient">${ORIENTATION_LABELS[p.results[d].placement] || p.results[d].placement}</span>
+        </div>`).join('')}
+    </div>
+    <p class="cover-footer">Jen Nguyen · Executive Coaching · jnguyen.org</p>
   </div>
 
   <!-- PAGE 2: INTRODUCTION -->
@@ -933,35 +947,36 @@ body {
 
   <!-- FINAL PAGE: SYNTHESIS -->
   <div class="synthesis-page page-break-before">
-    <p class="page-eyebrow" style="color:#8596a2;font-family:system-ui,sans-serif;font-size:7.5pt;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:8px;">Your Leadership Pattern Summary</p>
-    <h2 class="synthesis-title">Pattern Summary</h2>
+    <div class="synthesis-inner">
+      <p class="page-eyebrow">Your Leadership Pattern Summary</p>
+      <h2 class="synthesis-title">Pattern Summary</h2>
 
-    <div class="synthesis-domain-grid">
-      ${[1,2,3,4,5].map(d => `
-        <div class="synthesis-domain-row">
-          <div>
-            <span class="synthesis-domain-name">${DOMAIN_NAMES[d]}</span>
-            <span class="synthesis-tension" style="margin-left:12px;">${DOMAIN_TENSIONS[d]}</span>
-          </div>
-          <span class="synthesis-orient-badge">${ORIENTATION_LABELS[p.results[d].placement] || p.results[d].placement}</span>
-        </div>`).join('')}
+      <div class="synthesis-domain-grid">
+        ${[1,2,3,4,5].map(d => `
+          <div class="synthesis-domain-row">
+            <div>
+              <span class="synthesis-domain-name">${DOMAIN_NAMES[d]}</span>
+              <span class="synthesis-tension" style="margin-left:12px;">${DOMAIN_TENSIONS[d]}</span>
+            </div>
+            <span class="synthesis-orient-badge">${ORIENTATION_LABELS[p.results[d].placement] || p.results[d].placement}</span>
+          </div>`).join('')}
+      </div>
+
+      <div class="synthesis-section">
+        <p class="synthesis-section-label">Where Your Patterns Cluster</p>
+        <p class="synthesis-body">${syn.cluster}</p>
+      </div>
+
+      <div class="synthesis-section">
+        <p class="synthesis-section-label">Where Tensions Appear</p>
+        <p class="synthesis-body">${syn.tension}</p>
+      </div>
+
+      <div class="synthesis-section">
+        <p class="synthesis-section-label">What Development May Look Like</p>
+        <p class="synthesis-body">${syn.development}</p>
+      </div>
     </div>
-
-    <div class="synthesis-section">
-      <p class="synthesis-section-label">Where Your Patterns Cluster</p>
-      <p class="synthesis-body">${syn.cluster}</p>
-    </div>
-
-    <div class="synthesis-section">
-      <p class="synthesis-section-label">Where Tensions Appear</p>
-      <p class="synthesis-body">${syn.tension}</p>
-    </div>
-
-    <div class="synthesis-section">
-      <p class="synthesis-section-label">What Development May Look Like</p>
-      <p class="synthesis-body">${syn.development}</p>
-    </div>
-
     <div class="synthesis-footer">Jen Nguyen · Executive Coaching · jnguyen.org</div>
   </div>
 
@@ -2173,25 +2188,36 @@ export default function App() {
             </div>
           )}
 
-          {reportTab==="cross"&&(
+          {reportTab==="cross"&&(()=>{
+            const syn = getSynthesis(selectedP.results);
+            return (
             <div>
-              <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:6}}>Cross-Domain Insight</h2>
-              <p style={{fontSize:13,color:C.midBlue,fontWeight:300,marginBottom:28}}>Pattern summary across all five domains.</p>
-              {[1,2,3,4,5].sort((a,b)=>(ORIENTATION_ORDER[selectedP.results[b].placement]||0)-(ORIENTATION_ORDER[selectedP.results[a].placement]||0)).map(d=>(
+              <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:6}}>Pattern Summary</h2>
+              <p style={{fontSize:13,color:C.midBlue,fontWeight:300,marginBottom:28}}>A synthesis of your leadership patterns across all five domains.</p>
+              {[1,2,3,4,5].map(d=>(
                 <div key={d} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 0",borderBottom:`1px solid ${C.warmWhite}`,gap:16}}>
                   <div>
-                    <div style={{fontSize:14,fontWeight:500,color:C.nearBlack}}>{LANG[d].name}</div>
-                    <div style={{fontSize:12,color:C.midBlue,marginTop:2,fontStyle:"italic",fontWeight:300}}>{LANG[d].tension}</div>
+                    <div style={{fontSize:14,fontWeight:500,color:C.nearBlack}}>{DOMAIN_NAMES[d]}</div>
+                    <div style={{fontSize:12,color:C.midBlue,marginTop:2,fontStyle:"italic",fontWeight:300}}>{DOMAIN_TENSIONS[d]}</div>
                   </div>
                   <OrientationBadge placement={selectedP.results[d].placement}/>
                 </div>
               ))}
-              <div style={{marginTop:28,padding:"24px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>
-                <p style={{fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:C.slate,fontWeight:500,marginBottom:10}}>Integrative Insight</p>
-                <p style={{fontSize:14,lineHeight:1.8,color:C.nearBlack,fontWeight:300}}>{getCrossInsight(selectedP.results)}</p>
+              <div style={{marginTop:32}}>
+                {[
+                  {label:"Where Your Patterns Cluster", text:syn.cluster},
+                  {label:"Where Tensions Appear", text:syn.tension},
+                  {label:"What Development May Look Like", text:syn.development},
+                ].map((s,i)=>(
+                  <div key={i} style={{marginBottom:24,padding:"20px 22px",background:i===0?C.lightSage:"transparent",borderLeft:`2px solid ${C.slate}`}}>
+                    <p style={{fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:10}}>{s.label}</p>
+                    <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>{s.text}</p>
+                  </div>
+                ))}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {reportTab==="path"&&(
             <div>
