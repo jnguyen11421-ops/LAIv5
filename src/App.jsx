@@ -108,27 +108,15 @@ function getCrossInsight(results) {
 
 // ── PDF GENERATION ──
 function generatePDF(p) {
-  // Load jsPDF and html2canvas in parallel
-  const loaded = { jspdf: false, h2c: false };
-  function tryBuild() {
-    if (loaded.jspdf && loaded.h2c) buildPDF(p);
-  }
   if (!window.jspdf) {
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    s.onload = () => { loaded.jspdf = true; tryBuild(); };
+    s.onload = () => buildPDF(p);
     document.head.appendChild(s);
-  } else { loaded.jspdf = true; }
-  if (!window.html2canvas) {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.onload = () => { loaded.h2c = true; tryBuild(); };
-    document.head.appendChild(s);
-  } else { loaded.h2c = true; }
-  tryBuild();
+  } else { buildPDF(p); }
 }
 
-async function buildPDF(p) {
+function buildPDF(p) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, margin = 20, contentW = W - margin * 2;
@@ -140,6 +128,107 @@ async function buildPDF(p) {
   function drawRect(x, y, w, h, color) { doc.setFillColor(...color); doc.rect(x, y, w, h, 'F'); }
   function wrappedText(text, x, y, maxW, lineH) {
     const lines = doc.splitTextToSize(text, maxW); doc.text(lines, x, y); return y + lines.length * lineH;
+  }
+
+  // ── Draw wheel in jsPDF ──
+  function drawWheel(cx, cy, doc, results) {
+    const toRad = d => d * Math.PI / 180;
+    const RINGS = [
+      { r: 18, rIn: 7,  bg: [220,218,212] },
+      { r: 32, rIn: 18, bg: [184,204,214] },
+      { r: 46, rIn: 32, bg: [138,170,190] },
+      { r: 58, rIn: 46, bg: [74, 110, 136] },
+    ];
+    const RING_IDX = {"1":0,"2a":1,"2b":2,"2b+":2,"3":3};
+    const DOMAINS = [
+      {id:1, name:"Contribution",      s:198, e:270},
+      {id:2, name:"Reasoning",         s:270, e:342},
+      {id:3, name:"Authority",         s:342, e:414},
+      {id:4, name:"Enterprise\nHealth",s:414, e:486},
+      {id:5, name:"Presence",          s:486, e:558},
+    ];
+    const GAP = 2;
+
+    function wedge(rO, rI, startDeg, endDeg, fillColor, strokeColor) {
+      const s = startDeg + GAP/2, e = endDeg - GAP/2;
+      const steps = 16;
+      const pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const a = toRad(s + (e - s) * i / steps);
+        pts.push([cx + rO * Math.cos(a), cy + rO * Math.sin(a)]);
+      }
+      for (let i = steps; i >= 0; i--) {
+        const a = toRad(s + (e - s) * i / steps);
+        pts.push([cx + rI * Math.cos(a), cy + rI * Math.sin(a)]);
+      }
+      doc.setFillColor(...fillColor);
+      if (strokeColor) { doc.setDrawColor(...strokeColor); doc.setLineWidth(0.3); }
+      else doc.setDrawColor(255,255,255);
+      doc.setLineWidth(0.2);
+      doc.moveTo(pts[0][0], pts[0][1]);
+      pts.slice(1).forEach(([x,y]) => doc.lineTo(x, y));
+      doc.close();
+      doc.fillStroke ? doc.fillStroke() : doc.fill();
+    }
+
+    // Draw base rings (dimmed) then gold active band
+    DOMAINS.forEach(({id, s, e}) => {
+      const placement = results[id]?.placement || "2a";
+      const activeIdx = RING_IDX[placement];
+      RINGS.forEach((ring, idx) => {
+        const alpha = idx === activeIdx ? 1 : 0.22;
+        const col = ring.bg.map(c => Math.round(c + (255 - c) * (1 - alpha)));
+        wedge(ring.r, ring.rIn, s, e, col, null);
+      });
+      // Gold active band
+      const ar = RINGS[activeIdx];
+      wedge(ar.r, ar.rIn, s, e, [200, 168, 74], [168, 136, 48]);
+    });
+
+    // Ring dividers
+    doc.setDrawColor(180,176,166); doc.setLineWidth(0.2);
+    RINGS.forEach(ring => {
+      doc.circle(cx, cy, ring.r, 'S');
+    });
+    doc.circle(cx, cy, RINGS[0].rIn, 'S');
+
+    // Slice dividers
+    DOMAINS.forEach(({s}) => {
+      const a = toRad(s);
+      doc.line(cx + RINGS[0].rIn * Math.cos(a), cy + RINGS[0].rIn * Math.sin(a),
+               cx + RINGS[3].r * Math.cos(a),   cy + RINGS[3].r * Math.sin(a));
+    });
+
+    // Center circle
+    doc.setFillColor(250,249,247); doc.setDrawColor(180,176,166); doc.setLineWidth(0.3);
+    doc.circle(cx, cy, RINGS[0].rIn, 'FD');
+
+    // Domain name labels outside wheel
+    DOMAINS.forEach(({id, name, s, e}) => {
+      const mid = (s + e) / 2;
+      const a = toRad(mid);
+      const labelR = RINGS[3].r + 10;
+      const lx = cx + labelR * Math.cos(a);
+      const ly = cy + labelR * Math.sin(a);
+      const lines = name.split('\n');
+      setFont(5.5, 'bold', deepCharcoal);
+      lines.forEach((line, i) => {
+        const offset = (i - (lines.length - 1) / 2) * 5;
+        doc.text(line, lx, ly + offset, { align: 'center', baseline: 'middle' });
+      });
+    });
+
+    // Orientation ring labels
+    const ringLabels = ["PROTECT\nOUTCOME","PROTECT\nPROCESS","PROTECT\nIDENTITY","PROTECT\nSYSTEM"];
+    RINGS.forEach((ring, i) => {
+      const midR = (ring.r + ring.rIn) / 2;
+      const lines = ringLabels[i].split('\n');
+      setFont(4, 'bold', [255,255,255]);
+      lines.forEach((line, li) => {
+        const offset = (li - (lines.length - 1) / 2) * 3.5;
+        doc.text(line, cx, cy - midR + offset, { align: 'center', baseline: 'middle' });
+      });
+    });
   }
 
   // Cover
@@ -167,25 +256,14 @@ async function buildPDF(p) {
   drawRect(0, 0, W, 2, slate);
   setFont(8, 'normal', midBlue); doc.text('YOUR LEADERSHIP PATTERNS MAP', margin, 14);
   setFont(16, 'normal', deepCharcoal); doc.text('Leadership Patterns Map', margin, 24);
+  drawWheel(W / 2, 120, doc, p.results);
 
-  // Capture wheel SVG from DOM
-  const wheelEl = document.getElementById('pdf-wheel');
-  if (wheelEl) {
-    try {
-      const canvas = await window.html2canvas(wheelEl, { scale: 2, backgroundColor: '#faf9f7', useCORS: true });
-      const imgData = canvas.toDataURL('image/png');
-      const imgW = 150, imgH = 150;
-      const imgX = (W - imgW) / 2;
-      doc.addImage(imgData, 'PNG', imgX, 30, imgW, imgH);
-    } catch(e) { console.error('Wheel capture error:', e); }
-  }
-
-  // Legend under wheel
-  let ly = 188;
-  setFont(7, 'bold', slate); doc.text('ORIENTATION KEY', margin, ly); ly += 6;
-  [['Protect Outcome',[232,230,226]],['Protect Process',[220,228,224]],['Protect Identity',[184,196,204]],['Protect System',[74,98,116]]].forEach(([label,color]) => {
-    drawRect(margin, ly-3, 8, 4, color);
-    setFont(7, 'normal', deepCharcoal); doc.text(label, margin+11, ly);
+  // Legend
+  let ly = 200;
+  setFont(7, 'bold', slate); doc.text('ORIENTATION KEY', margin, ly); ly += 7;
+  [['Protect Outcome',[220,218,212]],['Protect Process',[184,204,214]],['Protect Identity',[138,170,190]],['Protect System',[74,110,136]],['Current Orientation',[200,168,74]]].forEach(([label,color]) => {
+    drawRect(margin, ly-3.5, 9, 4.5, color);
+    setFont(7, 'normal', deepCharcoal); doc.text(label, margin+12, ly);
     ly += 7;
   });
 
