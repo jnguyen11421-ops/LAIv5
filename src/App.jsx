@@ -103,66 +103,259 @@ const LANG = {
 
 
 // ── SYNTHESIS (rule-based) ──
-function getSynthesis(results) {
-  const pl = d => results[d].placement;
-  const ord = d => ORIENTATION_ORDER[pl(d)] || 0;
-  const high = [1,2,3,4,5].filter(d => ord(d) >= 2);
-  const low  = [1,2,3,4,5].filter(d => ord(d) <= 1);
+// ── SYNTHESIS CONTENT ──
+const SYNTHESIS_CONTENT = {
+  clusters: {
+    process_dominant: {
+      title: "Process-anchored leadership",
+      text: "Your profile suggests that when leadership gets tense, you often default to staying close to how work is unfolding. You are likely to trust your judgment more when you have visibility into the process, can track how decisions are developing, and can see whether standards are holding. This often creates strong reliability, consistency, and quality control. The tradeoff is that leadership can remain more closely tied to your visibility than to the systems or people carrying the work forward."
+    },
+    system_dominant: {
+      title: "System-oriented leadership",
+      text: "Your profile suggests that when leadership moments become difficult, you often default to the underlying logic, structure, or system shaping the work. You are likely to trust decisions more when the reasoning is clear, the architecture makes sense, and the broader system can hold complexity without oversimplifying it. This often creates strong judgment, learning, and long-range thinking. The tradeoff is that others may not always know when to move from exploration into commitment or action."
+    },
+    identity_dominant: {
+      title: "Identity-aware leadership",
+      text: "Your profile suggests that when leadership gets tense, you often default to how your leadership stance is being understood by others. You are likely to pay close attention to trust, credibility, interpretation, and how your response lands across different audiences. This often creates thoughtful communication, political awareness, and steadiness in complex situations. The tradeoff is that too much energy can go into managing how leadership is understood rather than fully stepping into the tension itself."
+    },
+    outcome_dominant: {
+      title: "Outcome-driven leadership",
+      text: "Your profile suggests that when pressure rises, you often default to the result that needs to be protected or achieved. You are likely to trust your footing most when the direction is clear, the stakes are named, and movement toward the outcome is visible. This often creates decisiveness, momentum, and strong ownership. The tradeoff is that urgency can narrow reflection and reduce space for others to shape the work."
+    },
+    mixed_process_identity: {
+      title: "Careful, high-accountability leadership",
+      text: "Your profile suggests a pattern of staying close to both execution and interpretation when leadership gets tense. You may rely on visibility into the work while also paying close attention to how your leadership stance is understood by others. This often creates reliability, thoughtfulness, and strong situational awareness. The tradeoff is that leadership can become more effortful, because you are carrying both the work itself and the social meaning of the work at the same time."
+    },
+    mixed_process_system: {
+      title: "Structured, high-judgment leadership",
+      text: "Your profile suggests a pattern of combining strong reasoning with close process visibility. You are likely to value both sound logic and a clear view into how work is unfolding. This often creates thoughtful decisions and dependable execution. The tradeoff is that decision quality may stay high while ownership spreads more slowly, because leadership still relies partly on your proximity to the work."
+    },
+    mixed_identity_system: {
+      title: "Reflective, complex-systems leadership",
+      text: "Your profile suggests a pattern of holding both systemic complexity and social interpretation in view when leadership gets tense. You may be skilled at seeing the larger logic of a situation while also tracking how people are receiving the moment. This often creates nuanced judgment and strong relational awareness. The tradeoff is that leadership can become overmanaged if too much attention goes to both the system and the meaning others are making of it."
+    },
+    balanced_profile: {
+      title: "Mixed leadership profile",
+      text: "Your profile suggests that you do not rely on one leadership pattern across every domain. Instead, your defaults shift depending on the kind of pressure you are carrying. This is common in experienced leaders. It means your development is less about changing your whole style and more about noticing which pattern you reach for in which kind of moment."
+    }
+  },
+  leverage: {
+    contribution: {
+      title: "Developmental leverage: Contribution",
+      text: "The strongest developmental leverage in your profile appears in Contribution. This domain matters because it shapes how you experience your value as leadership becomes less visible and more distributed. A shift here would likely have effects beyond contribution itself: it can change how much oversight you need, how easily authority spreads through others, and how much your leadership depends on staying close to the work. The key question is whether you can trust your influence even when your involvement is no longer visible."
+    },
+    reasoning: {
+      title: "Developmental leverage: Reasoning",
+      text: "The strongest developmental leverage in your profile appears in Reasoning. This domain matters because it shapes how you make sense of uncertainty, explain decisions, and invite others into complex thinking. A shift here would likely affect not only your decisions, but also the quality of dialogue around you. The key question is whether your current reasoning habits create enough room to examine the assumptions built into how you are framing the problem."
+    },
+    authority: {
+      title: "Developmental leverage: Authority",
+      text: "The strongest developmental leverage in your profile appears in Authority. This domain matters because it shapes whether leadership capacity stays concentrated around you or becomes more widely held across the team or system. A shift here would likely affect scale, ownership, and the pace at which others grow into judgment. The key question is whether your current oversight gives the system what it truly needs, or whether some of it mainly helps you feel reassured."
+    },
+    loyalty: {
+      title: "Developmental leverage: Loyalty",
+      text: "The strongest developmental leverage in your profile appears in Loyalty. This domain matters because it shapes how you carry the tension between your people and the larger system. A shift here would likely affect trust, alignment, and how clearly you can hold difficult decisions without overexplaining or overcorrecting. The key question is whether you can stay present to the cost of a decision without needing to manage how your leadership stance is interpreted."
+    },
+    presence: {
+      title: "Developmental leverage: Presence",
+      text: "The strongest developmental leverage in your profile appears in Presence. This domain matters because it shapes what happens in real time when challenge, disagreement, or emotional intensity enters the room. A shift here would likely affect not only your own steadiness, but also how much openness and learning difficult conversations can hold. The key question is whether you can stay curious a little longer before moving to manage, explain, or resolve the moment."
+    }
+  },
+  risks: {
+    reasoning_system_authority_process: {
+      title: "Pressure risk",
+      text: "One tension in your profile is that you may invite openness in how decisions are reasoned through while still staying relatively close to how authority is carried out. In practice, this can create a system where thinking is transparent but decision ownership does not spread as fully as it could. Under pressure, others may understand the logic but still look to you to hold the work together."
+    },
+    contribution_process_authority_process: {
+      title: "Pressure risk",
+      text: "A clear pressure pattern in your profile is proximity to execution. In both contribution and authority, you may rely on staying close enough to the work to know it is on track. This often supports strong standards and reliability. Under pressure, though, it can make scale harder because leadership confidence remains tied to your ongoing visibility into how the work is unfolding."
+    },
+    loyalty_identity_presence_identity: {
+      title: "Pressure risk",
+      text: "A clear pressure pattern in your profile is careful management of how leadership is understood in relationally charged moments. In both loyalty and presence, you may pay close attention to credibility, trust, and how your response is being interpreted. This often helps you navigate difficult situations thoughtfully. Under pressure, though, it can pull energy away from the deeper issue in the room and toward managing the meaning of the moment."
+    },
+    process_plus_identity: {
+      title: "Pressure risk",
+      text: "A broader tension in your profile is that leadership may become effortful in two directions at once: staying close to the work and staying aware of how your leadership stance is being received. This often creates conscientious leadership. Under pressure, though, it can mean you are carrying both execution and interpretation at the same time, which increases load and can slow the spread of ownership."
+    },
+    system_plus_identity: {
+      title: "Pressure risk",
+      text: "A broader tension in your profile is the pull to hold both systemic complexity and social interpretation at once. This can make you thoughtful, nuanced, and hard to destabilize. Under pressure, though, too much energy can go into understanding the whole system and tracking how the moment is being read, leaving less room for simplicity, clarity, or direct movement."
+    },
+    outcome_plus_process: {
+      title: "Pressure risk",
+      text: "A broader tension in your profile is the pull to protect both the result and the path the work is taking. This can create strong execution discipline and follow-through. Under pressure, though, it can narrow room for experimentation and increase the chance that you re-enter the work before others have fully grown into ownership."
+    },
+    identity_plus_system_plus_process: {
+      title: "Pressure risk",
+      text: "Your profile suggests that when stakes rise, you may work hard to keep the system sound, the process visible, and your leadership stance credible all at once. This can make you highly responsible and hard to catch off guard. Under pressure, though, that combination can become heavy: too much leadership load stays with you because you are holding structure, execution, and interpretation simultaneously."
+    },
+    balanced_general: {
+      title: "Pressure risk",
+      text: "Because your profile is mixed across domains, the main risk is not one fixed blind spot but a pattern of shifting defaults depending on the situation. Under pressure, this can make your leadership harder for others to predict. The developmental task is not to eliminate that flexibility, but to become more conscious of which pattern you are defaulting to in which kind of moment."
+    }
+  },
+  questions: {
+    contribution: "Where does your leadership still depend on staying close enough to the work to feel confident in its direction?",
+    reasoning: "What assumptions are built into the way you are currently framing the problem?",
+    authority: "Where would reducing oversight create more real ownership rather than more risk?",
+    loyalty: "What becomes possible when you stop managing how a difficult decision will be interpreted?",
+    presence: "What might you notice if you stayed curious a little longer before moving to explain, manage, or resolve the moment?",
+    general_process: "Where are you still using visibility as a substitute for trust?",
+    general_identity: "Where are you spending energy managing interpretation rather than staying with the leadership tension itself?",
+    general_system: "Where does strong thinking need to turn into clearer authority or action?"
+  }
+};
 
-  // Cluster analysis
-  const allHigh = high.length >= 4;
-  const allLow  = low.length >= 4;
-  const mixed   = high.length >= 2 && low.length >= 2;
+// Domain index to key map
+const DOMAIN_KEYS = {1:"contribution", 2:"reasoning", 3:"authority", 4:"loyalty", 5:"presence"};
 
-  let cluster = "";
-  if (allHigh) {
-    cluster = "Your results show a consistent pattern across most domains. In high-pressure leadership moments, your identity tends to stabilize around system-level thinking — attending to structures, processes, and broader organizational health rather than outcomes or personal visibility. This is a relatively integrated leadership profile.";
-  } else if (allLow) {
-    cluster = "Your results show a consistent pattern of staying closely connected to outcomes and execution across most domains. In high-pressure moments, your leadership identity tends to anchor in direct involvement — ensuring results land as intended, maintaining proximity to decisions, and retaining close oversight.";
-  } else if (mixed) {
-    const highNames = high.map(d => DOMAIN_NAMES[d]).join(", ");
-    const lowNames  = low.map(d => DOMAIN_NAMES[d]).join(", ");
-    cluster = `Your results show different orientations across domains. You tend to operate from a system or identity orientation in ${highNames}, while defaulting to outcome or process proximity in ${lowNames}. This kind of mixed profile is typical — leadership identity rarely stabilizes in the same place across all pressures.`;
+// Orientation to bucket map
+const ORIENT_BUCKET = {
+  "1": "outcome",
+  "2a": "process",
+  "2b": "identity",
+  "2b+": "identity",
+  "3": "system"
+};
+
+// ── SELECTOR FUNCTION ──
+// ── LAYER 2: SYNTHESIS SELECTOR ──
+
+// Orientation bucket translator
+const toBucket = placement => ORIENT_BUCKET[placement] || "outcome";
+
+// ── CONFIGURABLE RULES ──
+// Each rule: { test: (profile, counts) => bool, key: string }
+// Selector walks the array and returns the first match.
+
+const CLUSTER_RULES = [
+  // Specific domain combinations first
+  {
+    test: (p, c) => p.reasoning === "system" && p.authority === "process" && (c.process||0) >= 2,
+    key: "mixed_process_system"
+  },
+  {
+    test: (p, c) => p.loyalty === "identity" && p.presence === "identity" && (c.identity||0) >= 2 && (c.process||0) >= 1,
+    key: "mixed_process_identity"
+  },
+  // Count-based dominance
+  { test: (p, c) => (c.process||0)   >= 3, key: "process_dominant"  },
+  { test: (p, c) => (c.system||0)    >= 3, key: "system_dominant"   },
+  { test: (p, c) => (c.identity||0)  >= 3, key: "identity_dominant" },
+  { test: (p, c) => (c.outcome||0)   >= 3, key: "outcome_dominant"  },
+  // Fallback — always matches
+  { test: () => true, key: "balanced_profile" }
+];
+
+const RISK_RULES = [
+  // Specific high-value domain combinations in priority order
+  {
+    test: (p) => p.reasoning === "system" && p.authority === "process",
+    key: "reasoning_system_authority_process"
+  },
+  {
+    test: (p) => p.contribution === "process" && p.authority === "process",
+    key: "contribution_process_authority_process"
+  },
+  {
+    test: (p) => p.loyalty === "identity" && p.presence === "identity",
+    key: "loyalty_identity_presence_identity"
+  },
+  // Broader combination patterns
+  {
+    test: (p, c) => (c.identity||0) >= 1 && (c.system||0) >= 1 && (c.process||0) >= 1,
+    key: "identity_plus_system_plus_process"
+  },
+  { test: (p, c) => (c.process||0)  >= 1 && (c.identity||0) >= 1, key: "process_plus_identity" },
+  { test: (p, c) => (c.system||0)   >= 1 && (c.identity||0) >= 1, key: "system_plus_identity"  },
+  { test: (p, c) => (c.outcome||0)  >= 1 && (c.process||0)  >= 1, key: "outcome_plus_process"  },
+  // Fallback — always matches
+  { test: () => true, key: "balanced_general" }
+];
+
+const QUESTION_RULES = [
+  // Match leverage domain directly if a question exists for it
+  // (resolved dynamically in selector — these handle the general fallbacks)
+  { test: (p, c) => (c.process||0)  >= 2, key: "general_process"  },
+  { test: (p, c) => (c.identity||0) >= 2, key: "general_identity" },
+  { test: (p, c) => (c.system||0)   >= 2, key: "general_system"   },
+  // Fallback — always matches
+  { test: () => true, key: "general_process" }
+];
+
+// ── RULE RUNNER ──
+function runRules(rules, profile, counts) {
+  const match = rules.find(r => r.test(profile, counts));
+  return match ? match.key : null;
+}
+
+// ── SELECTOR FUNCTION ──
+function getSynthesis(results, leverageDomain) {
+  const SC = SYNTHESIS_CONTENT;
+
+  // Layer 1 → profile (domain number → placement string)
+  const profile = {
+    contribution: results[1].placement,
+    reasoning:    results[2].placement,
+    authority:    results[3].placement,
+    loyalty:      results[4].placement,
+    presence:     results[5].placement,
+  };
+
+  // Translate placements to orientation buckets for count-based rules
+  const bucketProfile = Object.fromEntries(
+    Object.entries(profile).map(([k, v]) => [k, toBucket(v)])
+  );
+
+  // Count bucket frequencies
+  const counts = Object.values(bucketProfile).reduce((acc, b) => {
+    acc[b] = (acc[b]||0) + 1; return acc;
+  }, {});
+
+  // Run rules to get keys
+  const clusterKey = runRules(CLUSTER_RULES, bucketProfile, counts);
+
+  // Leverage: accept explicit override, otherwise auto-detect lowest orientation-order domain
+  let leverageKey;
+  if (leverageDomain && SC.leverage[leverageDomain]) {
+    leverageKey = leverageDomain;
   } else {
-    cluster = "Your results show a moderately consistent pattern with some variation across domains. This reflects how most leaders operate — similar orientations in some areas, different ones in others depending on where pressure activates different defaults.";
+    const lowestDomain = [1,2,3,4,5].reduce((a, b) =>
+      (ORIENTATION_ORDER[results[a].placement]||0) <= (ORIENTATION_ORDER[results[b].placement]||0) ? a : b
+    );
+    leverageKey = DOMAIN_KEYS[lowestDomain];
   }
 
-  // Tension analysis
-  let tension = "";
-  const d1ord = ord(1), d3ord = ord(3);
-  const d2ord = ord(2), d5ord = ord(5);
-  const d4ord = ord(4);
+  const riskKey = runRules(RISK_RULES, bucketProfile, counts);
 
-  if (d3ord <= 1 && d2ord >= 2) {
-    tension = "One notable tension in your profile: you tend toward transparency in how you reason through decisions (Reasoning), but remain closely connected to delegated authority structures (Authority). These two patterns can pull in opposite directions — transparent reasoning invites others into the decision process, while proximity to authority can narrow who actually shapes decisions.";
-  } else if (d5ord >= 2 && d4ord <= 1) {
-    tension = "One notable tension in your profile: you tend toward curiosity and openness in interpersonal pressure (Presence), but remain closely protective of your team's interests when organizational tradeoffs arise (Loyalty). Leaders in this position sometimes find it easier to stay open in one-on-one conversations than in decisions that require placing organizational priorities above their people.";
-  } else if (d1ord <= 1 && d3ord >= 2) {
-    tension = "One pattern worth noting: you tend to stay closely connected to outcomes in Contribution — wanting your work to land with your involvement visible — while distributing authority more readily in Authority. As responsibility grows, these two patterns often need to move together. Leaders who trust their systems to carry decisions sometimes find it harder to trust those same systems to carry their contribution.";
-  } else if (d2ord <= 1 && d5ord >= 2) {
-    tension = "One pattern worth noting: you tend to stay curious and open under interpersonal pressure (Presence), but move toward certainty and advocacy when reasoning through decisions (Reasoning). This kind of split sometimes reflects a leader who is more comfortable with relational ambiguity than analytical ambiguity.";
-  } else {
-    tension = "Your profile does not show a sharp tension between specific domains. The most useful development focus is usually the domain where your current orientation most constrains the leadership challenges you face now — not necessarily the one where the gap is largest.";
-  }
+  // Question: match leverage domain first, then run general rules
+  const questionKey = (SC.questions[leverageKey])
+    ? leverageKey
+    : runRules(QUESTION_RULES, bucketProfile, counts);
 
-  // Development direction
-  let development = "";
-  const lowestDomain = [1,2,3,4,5].reduce((a, b) => ord(a) <= ord(b) ? a : b);
-  const lowestName = DOMAIN_NAMES[lowestDomain];
-  const lowestOrientation = ORIENTATION_LABELS[pl(lowestDomain)];
+  // ── LAYER 3: CONTENT ASSEMBLY ──
+  const cluster  = SC.clusters[clusterKey];
+  const leverage = SC.leverage[leverageKey];
+  const risk     = SC.risks[riskKey];
+  const question = SC.questions[questionKey];
 
-  if (allHigh) {
-    development = "At this level of integration, the developmental edge is often subtle. The frameworks, systems, and composure that allow you to operate with openness can themselves become sources of attachment. Growth often involves noticing when your own structures — analytical, relational, or organizational — shape what you are able to see.";
-  } else {
-    development = `The domain most likely to be worth examining closely is ${lowestName}, where your results sit at ${lowestOrientation}. This is where a shift in orientation may have the most direct effect on how you operate at scale. That said, development is most useful when it connects to a real leadership challenge you are currently navigating — not simply the domain where the score is lowest.`;
-  }
+  // Integrative sentence connecting leverage domain to cluster pattern
+  const integrativeMap = {
+    contribution: "How you experience your contribution shapes everything downstream: how much oversight feels necessary, how readily authority moves to others, and whether your leadership depends on your presence in the work.",
+    reasoning:    "How you reason through decisions shapes the quality of conversation around you — and whether others can engage with complexity or mainly follow your lead.",
+    authority:    "How authority moves through your team determines whether your leadership scales — or whether capacity quietly accumulates back toward you under pressure.",
+    loyalty:      "How you hold the tension between your people and the organization shapes whether difficult decisions land with clarity or get softened in ways that cost trust over time.",
+    presence:     "How you respond when pressure enters the room shapes whether difficult conversations open up or close down — and whether the people around you feel they can bring the real issue forward."
+  };
+  const integrative = integrativeMap[leverageKey] || "";
 
-  return { cluster, tension, development };
+  return { cluster, leverage, risk, question, integrative };
 }
 
 // ── HTML PDF GENERATION ──
 function generatePDF(p) {
-  const syn = getSynthesis(p.results);
+  const syn = getSynthesis(p.results, null);
   const date = new Date(p.completedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   function orientBadge(placement) {
@@ -771,6 +964,38 @@ body {
   letter-spacing: 0.06em;
   border-top: 1px solid #e8e6e2;
 }
+.synthesis-integrative {
+  font-family: system-ui, sans-serif;
+  font-size: 9pt;
+  line-height: 1.75;
+  color: #4a6274;
+  font-weight: 300;
+  font-style: italic;
+  margin-top: 6px;
+}
+.synthesis-question {
+  margin: 24px 0 0;
+  padding: 18px 22px;
+  background: #1f2328;
+  border-left: 4px solid #c8a84a;
+}
+.synthesis-question-label {
+  font-family: system-ui, sans-serif;
+  font-size: 7pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8596a2;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.synthesis-question-text {
+  font-family: Georgia, serif;
+  font-size: 11pt;
+  line-height: 1.7;
+  color: #e8e6e2;
+  font-weight: 300;
+  font-style: italic;
+}
 
 /* ── SCREEN: show section dividers ── */
 @media screen {
@@ -963,18 +1188,24 @@ body {
       </div>
 
       <div class="synthesis-section">
-        <p class="synthesis-section-label">Where Your Patterns Cluster</p>
-        <p class="synthesis-body">${syn.cluster}</p>
+        <p class="synthesis-section-label">${syn.cluster.title}</p>
+        <p class="synthesis-body">${syn.cluster.text}</p>
       </div>
 
       <div class="synthesis-section">
-        <p class="synthesis-section-label">Where Tensions Appear</p>
-        <p class="synthesis-body">${syn.tension}</p>
+        <p class="synthesis-section-label">${syn.leverage.title}</p>
+        <p class="synthesis-body">${syn.leverage.text}</p>
+        <p class="synthesis-integrative">${syn.integrative}</p>
       </div>
 
       <div class="synthesis-section">
-        <p class="synthesis-section-label">What Development May Look Like</p>
-        <p class="synthesis-body">${syn.development}</p>
+        <p class="synthesis-section-label">${syn.risk.title}</p>
+        <p class="synthesis-body">${syn.risk.text}</p>
+      </div>
+
+      <div class="synthesis-question">
+        <p class="synthesis-question-label">A question worth sitting with</p>
+        <p class="synthesis-question-text">${syn.question}</p>
       </div>
     </div>
     <div class="synthesis-footer">Jen Nguyen · Executive Coaching · jnguyen.org</div>
@@ -2189,7 +2420,7 @@ export default function App() {
           )}
 
           {reportTab==="cross"&&(()=>{
-            const syn = getSynthesis(selectedP.results);
+            const syn = getSynthesis(selectedP.results, null);
             return (
             <div>
               <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:6}}>Pattern Summary</h2>
@@ -2205,15 +2436,20 @@ export default function App() {
               ))}
               <div style={{marginTop:32}}>
                 {[
-                  {label:"Where Your Patterns Cluster", text:syn.cluster},
-                  {label:"Where Tensions Appear", text:syn.tension},
-                  {label:"What Development May Look Like", text:syn.development},
+                  {label:syn.cluster.title, text:syn.cluster.text},
+                  {label:syn.leverage.title, text:syn.leverage.text, integrative:syn.integrative},
+                  {label:syn.risk.title, text:syn.risk.text},
                 ].map((s,i)=>(
                   <div key={i} style={{marginBottom:24,padding:"20px 22px",background:i===0?C.lightSage:"transparent",borderLeft:`2px solid ${C.slate}`}}>
                     <p style={{fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:10}}>{s.label}</p>
-                    <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>{s.text}</p>
+                    <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:s.integrative?8:0}}>{s.text}</p>
+                    {s.integrative&&<p style={{fontSize:13,lineHeight:1.75,color:C.midBlue,fontWeight:300,fontStyle:"italic"}}>{s.integrative}</p>}
                   </div>
                 ))}
+                <div style={{marginTop:8,padding:"18px 22px",background:C.deepCharcoal}}>
+                  <p style={{fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:C.midBlue,fontWeight:600,marginBottom:8}}>A question worth sitting with</p>
+                  <p style={{fontFamily:"Georgia,serif",fontSize:15,lineHeight:1.7,color:C.warmWhite,fontWeight:300,fontStyle:"italic"}}>{syn.question}</p>
+                </div>
               </div>
             </div>
             );
