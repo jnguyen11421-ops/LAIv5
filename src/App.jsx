@@ -55,39 +55,46 @@ function scoreAll(responses) {
 
 const ORIENTATION_LABELS = {"1":"Protect Outcome","2a":"Protect Process","2b":"Protect Identity","2b+":"Protect Identity","3":"Protect System"};
 const ORIENTATION_ORDER = {"1":0,"2a":1,"2b":2,"2b+":2,"3":3};
-const DOMAIN_NAMES = {1:"Contribution",2:"Reasoning",3:"Authority",4:"Enterprise Health",5:"Presence"};
-const DOMAIN_TENSIONS = {1:"Visibility vs Contribution",2:"Being Right vs Transparent Reasoning",3:"Control vs System Trust",4:"Team Loyalty vs Enterprise Responsibility",5:"Reaction vs Inquiry"};
+const DOMAIN_NAMES = {1:"Contribution",2:"Reasoning",3:"Authority",4:"Loyalty",5:"Presence"};
+const DOMAIN_TENSIONS = {1:"Visibility ↔ Impact",2:"Correctness ↔ Transparent Reasoning",3:"Direct Control ↔ System Trust",4:"Your People ↔ The Whole",5:"Reaction ↔ Curiosity"};
+const DOMAIN_POLES = {
+  1:{left:"Visibility",right:"Impact"},
+  2:{left:"Correctness",right:"Transparent Reasoning"},
+  3:{left:"Direct Control",right:"System Trust"},
+  4:{left:"Your People",right:"The Whole"},
+  5:{left:"Reaction",right:"Curiosity"},
+};
 
 const LANG = {
-  1:{ name:"Contribution", tension:"Visibility vs Contribution", question:"Where does your sense of value settle when credit or visibility shifts?",
+  1:{ name:"Contribution", tension:"Visibility ↔ Impact", question:"Where does your sense of value settle when credit or visibility shifts?",
     "1":{ pattern:"Your responses indicate that you may rely on direct involvement to feel confident in your contribution. When credit or visibility becomes ambiguous, there can be a pull to stay connected to the work because proximity makes your impact easier to see and trust.", bullets:["You tend to stay close to high-stakes work even after handing it off","When credit becomes unclear, you may feel a pull to reconnect to the outcome","Your contribution feels most concrete when your involvement is visible"], edge:"Further development in this domain often involves separating the value of your contribution from your proximity to the outcome. Framing direction, shaping decisions, and designing the approach carry real value even when they are not visible." },
     "2a":{ pattern:"Your responses indicate that you may rely on quality oversight to maintain confidence in delegated work. Staying close enough to monitor progress helps ensure standards hold and problems are caught early.", bullets:["You maintain oversight structures even when work has been formally delegated","Confidence comes from knowing the work is progressing well rather than from receiving credit","Delegation occurs, but some form of monitoring loop usually remains"], edge:"Further development often involves trusting that the value of your upstream contribution — the direction, frameworks, and conditions you established — continues to hold even when you are no longer closely monitoring the work." },
     "2b":{ pattern:"Your responses indicate that contribution may be tied to operating at the level you believe leadership should occur. Delegation is genuine, but attention often goes to whether your leadership contribution is understood or recognized appropriately.", bullets:["You are attentive to how your involvement or absence is interpreted by senior leadership","When credit is ambiguous, you may clarify context so upstream thinking remains visible","Delegation is real, but how it reflects on your leadership still occupies attention"], edge:"Further development often involves anchoring your sense of contribution in the durability and influence of your thinking rather than in whether others clearly recognize where it originated." },
     "2b+":{ pattern:"Your responses indicate a mixed pattern. In some situations your contribution feels stable regardless of visibility, while in others attention still shifts toward how the contribution is recognized.", bullets:["Contribution feels stable in lower-visibility situations","When visibility stakes increase, attention may shift toward recognition","This shift is most noticeable in high-profile work"], edge:"Further development often involves extending the contribution stability you demonstrate in lower-stakes situations to moments where visibility and recognition carry greater weight." },
     "3":{ pattern:"Your responses indicate that contribution feels stable when you can see that the thinking you introduced continues shaping decisions, even when your role is no longer visible.", bullets:["Lack of visibility in outcomes does not create restlessness","You pay more attention to whether your thinking continues to hold than to who receives credit","When credit goes elsewhere, attention shifts to whether the work is understood correctly"], edge:"Further development often involves noticing when attachment shifts from visibility to the quality of your own thinking. Frameworks and ideas are useful tools, but they do not need to become the measure of your value." }
   },
-  2:{ name:"Reasoning", tension:"Being Right vs Transparent Reasoning", question:"Do you protect your recommendation, or the integrity of the reasoning process?",
+  2:{ name:"Reasoning", tension:"Correctness ↔ Transparent Reasoning", question:"Do you protect your recommendation, or the integrity of the reasoning process?",
     "1":{ pattern:"Your responses indicate that you may rely on the strength of your recommendation to carry credibility under pressure. When analysis becomes ambiguous or your position is challenged, the instinct may be to strengthen the case rather than surface the uncertainty.", bullets:["Mixed or ambiguous data tends to be resolved toward a preferred conclusion","Challenges to the recommendation can feel like challenges to competence","Under pressure, the instinct is to defend the position rather than reopen the reasoning"], edge:"Further development often involves separating credibility from correctness. Naming uncertainty or tradeoffs openly can strengthen trust in the decision process rather than weaken it." },
     "2a":{ pattern:"Your responses indicate that you may rely on thorough analysis and risk coverage to maintain decision credibility. Ensuring the reasoning is well supported helps protect against being wrong when stakes are high.", bullets:["Risk documentation and downside analysis are central to how decisions are presented","Before committing publicly, you mentally review whether the reasoning holds","Challenges are addressed by reinforcing the analytical structure"], edge:"Further development often involves being willing to name where your recommendation may fall short, not just where it is strong." },
     "2b":{ pattern:"Your responses indicate that decision credibility may come from demonstrating analytical rigor. The reasoning is structured and balanced, but it may still be organized in ways that keep the preferred conclusion viable.", bullets:["Recommendations are presented as balanced while still guiding toward a preferred outcome","Under challenge, the instinct is to demonstrate the rigor of the analysis","Frameworks and criteria are applied carefully but often point toward similar conclusions"], edge:"Further development often involves allowing decision criteria to lead wherever they point, even when the outcome is not the one you would choose." },
     "2b+":{ pattern:"Your responses indicate a mixed pattern. In some situations your reasoning process is fully visible, while in others the pull to protect the preferred conclusion becomes stronger.", bullets:["Reasoning tends to be open in lower-stakes decisions","Under political or reputational pressure, the instinct to defend the conclusion increases","This is most noticeable when your own framework produces an outcome you do not prefer"], edge:"Further development often involves maintaining the same openness to the reasoning process even when the credibility stakes are high." },
     "3":{ pattern:"Your responses indicate that decision credibility is grounded in the integrity of the reasoning process rather than the outcome it produces. When analysis points somewhere unexpected, you are willing to follow it.", bullets:["You name risks in your preferred option as clearly as its strengths","When analysis produces an unexpected result, you follow it rather than revise it","Challenges to your reasoning create curiosity about what others may be seeing"], edge:"Further development often involves recognizing that the frameworks you use to analyze decisions are not neutral tools. They shape which factors become visible in the analysis." }
   },
-  3:{ name:"Authority", tension:"Control vs System Trust", question:"What happens when someone else's imperfect decision lands under your name?",
+  3:{ name:"Authority", tension:"Direct Control ↔ System Trust", question:"What happens when someone else's imperfect decision lands under your name?",
     "1":{ pattern:"Your responses indicate that you may experience accountability for delegated work as personal responsibility for the outcome. When delegated work drifts or creates friction, the instinct may be to step back in directly to ensure it lands well.", bullets:["When delegated work begins to drift, the instinct is to re-engage directly","High-visibility work or client relationships can be difficult to fully release after handoff","Delegated work is often measured against the standard you would personally apply"], edge:"Further development often involves separating accountability for outcomes from involvement in every decision that affects them." },
     "2a":{ pattern:"Your responses indicate that you may rely on monitoring structures to maintain accountability for delegated work. Staying close enough to catch problems early helps ensure issues do not surface unexpectedly.", bullets:["Delegated work includes checkpoints, approvals, or structured updates","When something surfaces unexpectedly, oversight tends to increase","You remain available as a backstop even when authority has formally transferred"], edge:"Further development often involves trusting that the authority structure you designed can absorb imperfect decisions without requiring immediate intervention." },
     "2b":{ pattern:"Your responses indicate that delegation is genuine but carefully managed. Authority is transferred, while enough visibility remains to intervene if something begins creating avoidable friction.", bullets:["You encourage autonomy while maintaining informal visibility into decisions","When friction appears, you may quietly correct course while managing how the situation is interpreted","How your delegation approach reflects on your leadership remains important"], edge:"Further development often involves releasing narrative management alongside operational oversight." },
     "2b+":{ pattern:"Your responses indicate a mixed pattern. In some situations authority transfers cleanly, while in others oversight or involvement increases when reputational risk rises.", bullets:["Delegation operates smoothly in stable conditions","When stakes rise, the pull toward oversight increases","This shift is most visible when visible imperfection could reflect on your leadership"], edge:"Further development often involves extending the authority transfer you demonstrate in lower-risk situations to moments where imperfection may be visible." },
     "3":{ pattern:"Your responses indicate that accountability is grounded in the design of the authority structure rather than in proximity to individual decisions. When delegated work produces friction, the focus shifts to whether the system is functioning as intended.", bullets:["Imperfect outcomes are treated as information about the system rather than as personal failure","When issues arise, attention goes to structure rather than to individual correction","You distinguish between outcomes you would have chosen differently and outcomes that signal a real system gap"], edge:"Further development often involves noticing when systems designed to prevent failure become overly restrictive and begin reclaiming authority they were meant to distribute." }
   },
-  4:{ name:"Enterprise Health", tension:"Team Loyalty vs Enterprise Responsibility", question:"Where does your loyalty settle when your team absorbs the cost of an enterprise decision?",
+  4:{ name:"Loyalty", tension:"Your People ↔ The Whole", question:"Where does your loyalty settle when your team absorbs the cost of an enterprise decision?",
     "1":{ pattern:"Your responses indicate that your leadership instincts may be closely tied to your team's success. When enterprise decisions disadvantage your team, the instinct may be to advocate strongly on their behalf and protect them from the impact.", bullets:["In cross-functional decisions, your first instinct is to advocate for your team's position","When team members express frustration with enterprise decisions, you may move quickly to reassure or defend them","Enterprise decisions that disadvantage your team can feel like a direct challenge to your leadership"], edge:"Further development often involves holding your team's interests as an important input to enterprise decisions rather than as the primary destination." },
     "2a":{ pattern:"Your responses indicate that you may try to balance team advocacy with enterprise responsibility. When enterprise decisions affect your team, the focus often shifts toward minimizing the impact while still supporting the broader decision.", bullets:["You look for ways to protect your team's core needs while supporting enterprise priorities","When enterprise decisions affect your team, you may negotiate how the change is implemented","You often consider what resources or support would be needed before signaling full agreement"], edge:"Further development often involves allowing enterprise priorities to guide decisions even when the cost to your team cannot be softened." },
     "2b":{ pattern:"Your responses indicate that you are attentive to how enterprise decisions are interpreted by both your team and senior leadership. Significant attention may go toward explaining or framing difficult decisions so that your leadership stance is understood.", bullets:["When enterprise decisions disadvantage your team, you focus on explaining the reasoning clearly","You consider how both your team and senior leadership will interpret your response","Tension between team loyalty and enterprise responsibility is often managed through careful positioning"], edge:"Further development often involves holding the cost of difficult decisions without needing to manage how they are interpreted." },
     "2b+":{ pattern:"Your responses indicate a mixed pattern. Enterprise priorities are clear in some situations, while in others the instinct to protect your team becomes stronger when the impact is direct.", bullets:["Enterprise thinking is clear in lower-stakes situations","When the cost to your team becomes visible, the instinct to advocate or reframe increases","The tension is most noticeable when the impact on your team is immediate and personal"], edge:"Further development often involves extending the enterprise orientation you demonstrate in lower-stakes decisions to situations where the cost to your team is real and visible." },
     "3":{ pattern:"Your responses indicate that enterprise health is a primary reference point for leadership decisions. When enterprise priorities require difficult tradeoffs, you are willing to make the decision and hold the cost openly.", bullets:["You make enterprise decisions even when they disadvantage your own team","When team members express frustration, you acknowledge the impact rather than quickly reframing it","You hold the tension between team loyalty and enterprise responsibility without trying to resolve it too quickly"], edge:"Further development often involves noticing when enterprise logic moves faster than the human experience of the people affected by the decision." }
   },
-  5:{ name:"Presence", tension:"Reaction vs Inquiry", question:"When pressure rises, do you react immediately or become curious about what the moment is revealing?",
+  5:{ name:"Presence", tension:"Reaction ↔ Curiosity", question:"When pressure rises, do you react immediately or become curious about what the moment is revealing?",
     "1":{ pattern:"Your responses indicate that interpersonal pressure may trigger a strong instinct to resolve the situation quickly. When challenged or confronted, the immediate focus often goes to correcting the issue, defending the position, or restoring clarity.", bullets:["Interpersonal challenges can feel like direct challenges to the decision, position, or relationship","When someone pushes back publicly, the instinct may be to respond quickly or defend the position","Emotional activation and behavioral response tend to occur close together"], edge:"Further development often involves creating a small pause between activation and response so you can choose how to engage rather than reacting immediately." },
     "2a":{ pattern:"Your responses indicate that you may manage interpersonal pressure through self-control. The priority becomes ensuring that your internal reaction does not disrupt the conversation or create visible damage.", bullets:["Under pressure, significant energy goes into managing how your reaction appears","Composure may require deliberate effort","Attention often goes to keeping the reaction contained rather than exploring what it may be revealing"], edge:"Further development often involves shifting from managing the reaction to becoming curious about it and the information it may carry." },
     "2b":{ pattern:"Your responses indicate that interpersonal pressure may lead to careful social calibration. You regulate your own reaction while also paying attention to how your response will be interpreted by others.", bullets:["Under pressure, you consider how your response will be received by others in the room","When receiving difficult feedback, you may first evaluate whether it is accurate","Attention often goes to responding well rather than exploring what the pressure might reveal"], edge:"Further development often involves putting the management agenda aside and responding more directly to what is actually happening in the interaction." },
@@ -250,22 +257,53 @@ function buildPDF(p) {
   setFont(8, 'normal', midBlue); doc.text('Jen Nguyen · Executive Coaching · jnguyen.org', margin, 280);
   drawRect(0, 290, W, 7, deepCharcoal);
 
-  // Wheel page
+  // Patterns Map page — linear continuums
   doc.addPage();
   drawRect(0, 0, W, 297, [250, 249, 247]);
   drawRect(0, 0, W, 2, slate);
   setFont(8, 'normal', midBlue); doc.text('YOUR LEADERSHIP PATTERNS MAP', margin, 14);
-  setFont(16, 'normal', deepCharcoal); doc.text('Leadership Patterns Map', margin, 24);
-  drawWheel(W / 2, 120, doc, p.results);
+  setFont(18, 'normal', deepCharcoal); doc.text('Leadership Patterns Map', margin, 26);
+  setFont(8, 'normal', midBlue);
+  const introLines = doc.splitTextToSize('Each line reflects the tension your leadership navigates in that domain — and where you tend to default.', contentW);
+  doc.text(introLines, margin, 35);
 
-  // Legend
-  let ly = 200;
-  setFont(7, 'bold', slate); doc.text('ORIENTATION KEY', margin, ly); ly += 7;
-  [['Protect Outcome',[220,218,212]],['Protect Process',[184,204,214]],['Protect Identity',[138,170,190]],['Protect System',[74,110,136]],['Current Orientation',[200,168,74]]].forEach(([label,color]) => {
-    drawRect(margin, ly-3.5, 9, 4.5, color);
-    setFont(7, 'normal', deepCharcoal); doc.text(label, margin+12, ly);
-    ly += 7;
+  const BAR_TOP = 48;
+  const BAR_GAP = 30;
+  const BAR_H = 3;
+  const BAR_W = contentW;
+  const POS_PCT = {"1":0,"2a":0.33,"2b":0.58,"2b+":0.58,"3":0.85};
+
+  [1,2,3,4,5].forEach((d, i) => {
+    const placement = p.results[d].placement;
+    const pct = POS_PCT[placement] || 0;
+    const barY = BAR_TOP + i * BAR_GAP;
+    const poles = DOMAIN_POLES[d];
+
+    // Domain label + orientation
+    setFont(8, 'bold', deepCharcoal); doc.text(DOMAIN_NAMES[d], margin, barY - 5);
+    setFont(7, 'normal', slate); doc.text(ORIENTATION_LABELS[placement]||placement, margin + contentW, barY - 5, {align:'right'});
+
+    // Track
+    drawRect(margin, barY, BAR_W, BAR_H, warmWhite);
+    // Fill
+    drawRect(margin, barY, BAR_W * pct, BAR_H, [180, 196, 210]);
+    // Marker
+    const markerX = margin + BAR_W * pct;
+    doc.setFillColor(200, 168, 74); doc.setDrawColor(168, 136, 48); doc.setLineWidth(0.4);
+    doc.circle(markerX, barY + BAR_H/2, 3, 'FD');
+
+    // Pole labels
+    setFont(6.5, 'normal', midBlue);
+    doc.text(poles.left, margin, barY + BAR_H + 5);
+    doc.text(poles.right, margin + contentW, barY + BAR_H + 5, {align:'right'});
   });
+
+  drawRect(margin, BAR_TOP + 5 * BAR_GAP + 4, contentW, 0.5, warmWhite);
+  let noteY = BAR_TOP + 5 * BAR_GAP + 14;
+  drawRect(margin, noteY - 4, 1.5, 16, slate);
+  setFont(7, 'normal', midBlue);
+  const noteLines = doc.splitTextToSize('These patterns reflect where your leadership currently tends to default when responsibility becomes difficult to carry. The goal is not to evaluate capability, but to make these tendencies visible.', contentW - 8);
+  doc.text(noteLines, margin + 6, noteY);
 
   setFont(8, 'normal', midBlue); doc.text('Jen Nguyen · Executive Coaching · jnguyen.org', margin, 280);
   drawRect(0, 290, W, 7, deepCharcoal);
@@ -511,7 +549,7 @@ function IntroPage() {
       {/* Where responsibility shows up */}
       <div style={{marginBottom:36}}>
         <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.16em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:8}}>Where Leadership Responsibility Shows Up</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580,marginBottom:20}}>Leadership responsibility appears in several different parts of a leader's role. This inventory examines five areas where leadership patterns become most visible.</p>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580,marginBottom:20}}>The five domains represent leadership tensions that become most visible when responsibility increases and tradeoffs cannot be avoided.</p>
 
         <div style={{border:`1px solid ${C.warmWhite}`,marginBottom:20}}>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",background:C.deepCharcoal,padding:"10px 16px"}}>
@@ -519,11 +557,11 @@ function IntroPage() {
             <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:C.warmWhite}}>CORE LEADERSHIP TENSION</span>
           </div>
           {[
-            {d:"Contribution",     t:"Visibility vs contribution"},
-            {d:"Reasoning",        t:"Being right vs transparent reasoning"},
-            {d:"Authority",        t:"Control vs system trust"},
-            {d:"Enterprise Health",t:"Team loyalty vs enterprise responsibility"},
-            {d:"Presence",         t:"Reaction vs inquiry"},
+            {d:"Contribution", t:"Visibility ↔ Impact"},
+            {d:"Reasoning",    t:"Correctness ↔ Transparent Reasoning"},
+            {d:"Authority",    t:"Direct Control ↔ System Trust"},
+            {d:"Loyalty",      t:"Your People ↔ The Whole"},
+            {d:"Presence",     t:"Reaction ↔ Curiosity"},
           ].map(({d,t},i)=>(
             <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",padding:"11px 16px",borderTop:`1px solid ${C.warmWhite}`,background:i%2===0?C.offWhite:C.lightSage}}>
               <span style={{fontFamily:"system-ui,sans-serif",fontSize:13,fontWeight:600,color:C.nearBlack}}>{d}</span>
@@ -572,7 +610,7 @@ function DomainPage({domain,placement}) {
         <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>{pl.edge}</p>
       </div>
       <div style={{background:C.lightSage,padding:"18px 22px"}}>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:C.slate,fontWeight:500,marginBottom:6}}>Leadership Tension</p>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:C.slate,fontWeight:500,marginBottom:6}}>Leadership Continuum</p>
         <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,color:C.nearBlack,fontWeight:400}}>{lang.tension}</p>
         <p style={{fontFamily:"system-ui,sans-serif",fontSize:13,color:C.midBlue,fontWeight:300,marginTop:4,lineHeight:1.6}}>{lang.question}</p>
       </div>
@@ -745,7 +783,7 @@ export default function App() {
         </div>
         <div style={{background:C.lightSage,padding:"64px 64px 64px 52px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
           <p style={{fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:C.midBlue,fontWeight:500,marginBottom:24}}>What this measures</p>
-          {[{t:"Leadership Patterns Under Pressure",d:"Each domain represents a place where leadership patterns become visible when responsibility becomes consequential and the right answer is not obvious."},{t:"Five Domains",d:"Contribution · Reasoning · Authority · Enterprise Health · Presence"},{t:"Developmental Architecture",d:"Results show where your leadership patterns currently stabilize — and where the next developmental shift typically occurs."}].map((b,i)=>(
+          {[{t:"Leadership Patterns Under Pressure",d:"Each domain represents a place where leadership patterns become visible when responsibility becomes consequential and the right answer is not obvious."},{t:"Five Domains",d:"Contribution · Reasoning · Authority · Loyalty · Presence"},{t:"Developmental Architecture",d:"Results show where your leadership patterns currently stabilize — and where the next developmental shift typically occurs."}].map((b,i)=>(
             <div key={i} style={{borderLeft:`2px solid ${C.slate}40`,paddingLeft:18,marginBottom:22}}>
               <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:400,color:C.deepCharcoal,marginBottom:4}}>{b.t}</div>
               <div style={{fontSize:13,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{b.d}</div>
@@ -833,7 +871,7 @@ export default function App() {
   if(screen==="report"&&selectedP) {
     const REPORT_TABS=[
       ["intro","How Leadership Changes"],
-      ["map","Architecture Map"],
+      ["map","Patterns Map"],
       ["domain","Domain Profiles"],
       ["cross","Cross-Domain Insight"],
       ["path","Development Path"],
@@ -858,17 +896,34 @@ export default function App() {
           {reportTab==="map"&&(
             <div>
               <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:8}}>Your Leadership Patterns Map</h2>
-              <p style={{fontSize:14,color:C.midBlue,lineHeight:1.7,fontWeight:300,marginBottom:24,maxWidth:560}}>The map below shows the patterns you tend to rely on when leadership responsibility intensifies.</p>
-              <Wheel results={selectedP.results}/>
-              <div style={{display:"flex",flexDirection:"column",gap:14,maxWidth:620,marginTop:8}}>
-                <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>Each section represents a different part of leadership where pressure often reveals how leaders operate — contributing value, making decisions, sharing authority, balancing team and enterprise needs, and responding in difficult interactions.</p>
-                <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>Your placement in each domain reflects the orientation you most often rely on when trade-offs cannot be avoided and responsibility becomes harder to carry.</p>
-                <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>No single pattern is inherently right or wrong. Each represents a different way leaders steady themselves when pressure increases.</p>
-                <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>Most leaders show different patterns in different domains. The map highlights where your leadership tends to rely on direct involvement, oversight, reputation management, or system design when the stakes are high.</p>
+              <p style={{fontSize:14,color:C.midBlue,lineHeight:1.7,fontWeight:300,marginBottom:32,maxWidth:560}}>Each line represents a leadership tension that becomes more visible when the stakes are high. The dot shows where your responses most often landed along that continuum.</p>
+              <div style={{display:"flex",flexDirection:"column",gap:28,maxWidth:640}}>
+                {[1,2,3,4,5].map(d=>{
+                  const placement=selectedP.results[d].placement;
+                  const pos=ORIENTATION_ORDER[placement]||0;
+                  const pct=[0,33,58,58,85][pos];
+                  const poles=DOMAIN_POLES[d];
+                  return (
+                    <div key={d}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
+                        <span style={{fontSize:12,fontWeight:600,color:C.nearBlack,letterSpacing:"0.03em"}}>{DOMAIN_NAMES[d]}</span>
+                        <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{ORIENTATION_LABELS[placement]}</span>
+                      </div>
+                      <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:6}}>
+                        <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:`linear-gradient(to right,${C.warmWhite},${C.slate})`,borderRadius:3}}/>
+                        <div style={{position:"absolute",top:"50%",left:`${pct}%`,transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:C.gold,border:`2px solid ${C.goldDark}`,boxShadow:"0 1px 3px rgba(0,0,0,0.15)"}}/>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between"}}>
+                        <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.left}</span>
+                        <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.right}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div style={{height:1,background:C.warmWhite,margin:"28px 0"}}/>
-              <div style={{background:C.lightSage,padding:"20px 24px",borderLeft:`2px solid ${C.slate}`,maxWidth:620}}>
-                <p style={{fontSize:14,lineHeight:1.8,color:C.nearBlack,fontWeight:300}}>The goal of this map is not to evaluate leadership capability, but to make these patterns visible.</p>
+              <div style={{height:1,background:C.warmWhite,margin:"36px 0"}}/>
+              <div style={{background:C.lightSage,padding:"20px 24px",borderLeft:`2px solid ${C.slate}`,maxWidth:640}}>
+                <p style={{fontSize:14,lineHeight:1.8,color:C.nearBlack,fontWeight:300}}>These patterns are not fixed. They reflect where your leadership currently tends to default when responsibility becomes difficult to carry. The goal is not to evaluate capability, but to make these tendencies visible.</p>
               </div>
             </div>
           )}
