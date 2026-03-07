@@ -6,48 +6,331 @@ const C = {
   gold: "#c8a84a", goldDark: "#a88830",
 };
 
+// ── ASSESSMENT ITEMS ──
+// Format:
+//   forced-choice: [id, domain, block, "forced", scenario, prompt, [A,B,C,D], [orientA,orientB,orientC,orientD]]
+//   single:        [id, domain, block, "single",  scenario, prompt, [A,B,C,D], [orientA,orientB,orientC,orientD]]
+//   paired:        [id, domain, block, "paired",  null,     prompt, [A,B],     [orientA,orientB]]
+
 const ITEMS = [
-  ["D1-1",1,1,"vignette","A major initiative you originally designed is now being executed by your team. In a senior meeting, a team member presents the work confidently and the discussion moves forward without reference to your role.","Where does your attention go first?",["Whether the thinking behind the work is holding up in how others are using it.","Whether the work is being represented accurately and at the standard I expect.","A pull to add context so the group understands how the thinking developed.","Whether people in the room understand the role I played in shaping the work."],["3","2a","1","2b"]],
-  ["D2-1",2,1,"vignette","You are preparing a recommendation for a senior leadership decision. The analysis generally supports your preferred option, but some of the data complicates the story.","Where does your attention go first?",["Examining whether the mixed data suggests the recommendation itself should change.","Presenting the analysis in a way that demonstrates balanced and rigorous thinking.","Making sure the risks are fully documented so the reasoning is defensible.","Strengthening the case so the recommendation is clear and convincing."],["3","2b","2a","1"]],
-  ["D3-1",3,1,"vignette","A capable direct report makes a decision on an important issue without consulting you. The decision works, but it is not the one you would have made.","Where does your attention go first?",["To whether the system I set up is functioning as intended.","To stepping in so the next decision aligns more closely with my judgment.","To whether I need tighter checkpoints so I stay closer to decisions like this.","To how the decision reflects on the leadership structure I've created."],["3","1","2a","2b"]],
-  ["D4-1",4,1,"vignette","A senior leadership decision requires one function to absorb a meaningful budget reduction so another can expand. The analysis points to your area.","Where does your attention go first?",["Thinking about how the decision will affect my credibility with both my team and leadership.","Evaluating whether the decision serves the organization as a whole.","Making the strongest case for protecting my team.","Looking for ways to negotiate the impact on my group."],["2b","3","1","2a"]],
-  ["D5-1",5,1,"vignette","A peer publicly challenges your recommendation in a leadership meeting.","Where does your attention go first?",["Becoming curious about what the challenge might be revealing about the situation.","Reinforcing the logic of my position.","Thinking about how to respond in a way that maintains credibility.","Making sure my reaction doesn't appear defensive."],["3","1","2b","2a"]],
-  ["D1-2",1,2,"vignette","You step back from a high-stakes project you previously led. A few weeks later the team delivers a result that works, but it is not how you would have approached it.","What happens internally first?",["I find myself asking whether my approach would actually have produced a better result.","I want to step back in to make sure future work stays aligned with how it should be done.","I notice how the difference might reflect on my leadership of the work.","I think about whether I need clearer checkpoints or guidance going forward."],["3","1","2b","2a"]],
-  ["D2-2",2,2,"vignette","You build a framework to evaluate several strategic options. When applied consistently, it produces a different conclusion than the one you initially believed was strongest.","What happens internally first?",["I acknowledge the result and follow the framework even though it wasn't the outcome I expected.","I look for factors the framework may not have captured correctly.","I want to re-examine the analysis before accepting a conclusion I don't fully trust.","I feel a pull to explain why my original recommendation still makes sense."],["3","2b","2a","1"]],
-  ["D3-2",3,2,"vignette","A delegated project produces a visible mistake that reflects on your team.","What happens internally first?",["I think about how the situation will be interpreted by others.","I look at whether the system is working overall rather than focusing on a single decision.","I want to understand how the oversight structure missed this.","I want to step in quickly so the issue is corrected."],["2b","3","2a","1"]],
-  ["D4-2",4,2,"vignette","A team member says privately: \"It feels like leadership doesn't understand how hard this decision is on us.\"","What happens internally first?",["I think about how to explain the broader reasoning behind the decision.","I sit with the possibility that the decision may genuinely feel unfair from their perspective.","I want to reassure them that the decision wasn't made lightly.","I focus on helping them understand why the decision was necessary."],["2b","3","2a","1"]],
-  ["D5-2",5,2,"vignette","During a difficult conversation, a colleague says: \"It feels like you're not really hearing me.\"","What happens internally first?",["I concentrate on staying calm and measured in my response.","I become curious about what they are experiencing that I may not see yet.","I consider how my response will come across.","I clarify the issue so the conversation can move forward."],["2a","3","2b","1"]],
-  ["D1-3",1,2,"paired",null,"Which statement resonates more?",["I feel most confident when I can see that the thinking I contributed is shaping decisions, whether or not it is attributed to me.","I feel most confident in my contribution when the people who matter know what I brought to the work."],["3","2b"]],
-  ["D2-3",2,2,"paired",null,"Which statement is closer to your experience?",["The most important part of a recommendation is making the reasoning behind it fully visible.","A well-structured argument should be able to stand on its own."],["3","2b"]],
-  ["D3-3",3,2,"paired",null,"Which resonates more?",["Delegation works best when people are trusted to make decisions within the structure we built.","Delegation works best when I maintain enough oversight to catch problems early."],["3","2a"]],
-  ["D4-3",4,2,"paired",null,"Which statement resonates more?",["My responsibility is to make decisions that serve the organization as a whole.","My responsibility is to advocate strongly for my team."],["3","1"]],
-  ["D5-3",5,2,"paired",null,"When tension rises in a conversation:",["I try to understand what the tension might be revealing about the issue or relationship.","I concentrate on managing my reaction so the situation stays constructive."],["3","2a"]],
-  ["D1-4",1,3,"paired",null,"When a major outcome succeeds without your involvement being visible:",["I mostly pay attention to whether the approach we set up is continuing to work over time.","I tend to review how the work unfolded to make sure the quality held."],["3","2a"]],
-  ["D2-4",2,3,"paired",null,"In high-stakes decisions:",["I focus on making sure the reasoning is transparent enough that others can see the tradeoffs clearly.","I focus on making sure the recommendation is solid and defensible."],["3","2a"]],
-  ["D3-4",3,3,"paired",null,"When someone leads work you previously owned:",["I focus on whether the system I designed is enabling good decisions.","I still feel responsible for staying close enough to ensure quality."],["3","1"]],
-  ["D4-4",4,3,"paired",null,"When an enterprise decision disadvantages your team:",["I focus on holding both the decision and its impact openly with the team.","I work to soften the impact wherever possible."],["3","2a"]],
-  ["D5-4",5,3,"paired",null,"Under sustained pressure:",["I rely on my ability to remain composed and steady.","I pay attention to what my reactions might be signaling about the situation."],["2b","3"]],
+  // ── DOMAIN 1: CONTRIBUTION ──
+  ["D1-Q1", 1, 1, "forced",
+    "You delegated a high-visibility project to a senior manager. The final presentation goes well and your involvement isn't mentioned.",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to understand how the work unfolded after it left my hands.",
+     "Part of me wants to reconnect with the work to see exactly how it happened.",
+     "I find myself thinking about how the presentation shapes how my leadership is seen.",
+     "I'm mostly interested in whether the approach we set up will keep working without me."],
+    ["2a", "1", "2b", "3"]],
+
+  ["D1-Q2", 1, 2, "single",
+    "A team member presents work that clearly builds on ideas you introduced earlier.",
+    "Which response is most like you?",
+    ["I'm curious how the work evolved after the initial direction.",
+     "I'm thinking about whether people understand the context behind the work.",
+     "I'm interested in whether the thinking is continuing to shape decisions.",
+     "I'm wondering whether the checkpoints on this project were strong enough."],
+    ["1", "2b", "3", "2a"]],
+
+  ["D1-Q3", 1, 3, "forced",
+    "You step away from a project and the team runs it successfully without you.",
+    "Select the response MOST like you / LEAST like you",
+    ["I'm interested in whether the structure we set up continues to guide the work.",
+     "I want to review how the work unfolded.",
+     "I'm aware of how my absence from the work might be interpreted.",
+     "Part of me wants to stay connected to the details."],
+    ["3", "2a", "2b", "1"]],
+
+  ["D1-Q4", 1, 4, "single",
+    "When credit for work is unclear in a leadership setting:",
+    "Which response is most like you?",
+    ["I pay attention to whether people understand the thinking behind the work.",
+     "I'm curious how the work itself unfolded.",
+     "I'm mostly interested in whether the ideas are continuing to influence decisions.",
+     "I start thinking about whether the oversight structure was strong enough."],
+    ["2b", "1", "3", "2a"]],
+
+  ["D1-Q5", 1, 5, "paired",
+    null,
+    "Which statement resonates more with your experience?",
+    ["I feel most confident when the thinking I contributed continues shaping decisions, even if no one connects it back to me.",
+     "I feel most confident when the people who matter understand what I contributed."],
+    ["3", "2b"]],
+
+  // ── DOMAIN 2: REASONING ──
+  ["D2-Q6", 2, 1, "forced",
+    "You're presenting a recommendation to senior leadership. The data supporting your view is mixed.",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to clarify the reasoning behind the recommendation.",
+     "I feel a pull to strengthen the case for the direction I believe is right.",
+     "I'm thinking about how the recommendation will be interpreted by the group.",
+     "I'm wondering whether our decision process surfaced the full picture."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D2-Q7", 2, 2, "single",
+    "Someone challenges the logic of your recommendation.",
+    "Which response is most like you?",
+    ["I'm curious whether their challenge reveals something we missed.",
+     "I want to reinforce the reasoning behind the recommendation.",
+     "I'm thinking about how my response will land in the room.",
+     "I'm wondering whether our decision process allowed this confusion."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D2-Q8", 2, 3, "forced",
+    "When presenting a difficult recommendation:",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to make sure the reasoning is clear and transparent.",
+     "I focus on making the strongest possible case for the conclusion.",
+     "I'm aware of how the recommendation reflects on my leadership.",
+     "I'm thinking about whether the decision structure we used is sound."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D2-Q9", 2, 4, "single",
+    "A recommendation you supported produces unexpected results.",
+    "Which response is most like you?",
+    ["I want to understand how the reasoning led us there.",
+     "I'm thinking about whether the outcome still works.",
+     "I'm paying attention to how the decision reflects on leadership.",
+     "I'm wondering whether the decision process needs adjustment."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D2-Q10", 2, 5, "paired",
+    null,
+    "Which statement resonates more?",
+    ["I feel most settled when I've explained the reasoning clearly.",
+     "I feel most settled when I know the conclusion is correct."],
+    ["3", "1"]],
+
+  // ── DOMAIN 3: AUTHORITY ──
+  ["D3-Q11", 3, 1, "forced",
+    "A VP on your team makes a call on a client issue without consulting you.",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to understand how they reasoned through the decision.",
+     "I feel a pull to step back into the situation.",
+     "I'm thinking about how the decision reflects on my leadership.",
+     "I'm wondering whether our oversight structure should be tighter."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D3-Q12", 3, 2, "single",
+    "A project you delegated drifts slightly from the direction you expected.",
+    "Which response is most like you?",
+    ["I step closer to the work to redirect it.",
+     "I want to understand how the team interpreted the direction.",
+     "I'm thinking about how the shift will be perceived.",
+     "I want to see where the process allowed the drift."],
+    ["1", "3", "2b", "2a"]],
+
+  ["D3-Q13", 3, 3, "forced",
+    "A team member makes a visible mistake on a project you delegated.",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to understand how the decision was made.",
+     "I feel the pull to step in and fix the situation.",
+     "I'm thinking about how the situation reflects on leadership.",
+     "I'm wondering whether the oversight structure should have caught this earlier."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D3-Q14", 3, 4, "single",
+    "A direct report asks for guidance on a decision they technically own.",
+    "Which response is most like you?",
+    ["I ask how they're thinking about the decision.",
+     "I feel a pull to shape the outcome.",
+     "I think about how my response will influence their perception of my leadership.",
+     "I wonder whether our decision process is clear enough."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D3-Q15", 3, 5, "paired",
+    null,
+    "Which statement resonates more?",
+    ["I'm most comfortable when I know delegated work is still visible to me.",
+     "I'm most comfortable when people I've developed make decisions without needing me."],
+    ["2a", "3"]],
+
+  // ── DOMAIN 4: LOYALTY ──
+  ["D4-Q16", 4, 1, "forced",
+    "A cross-functional decision disadvantages your team but benefits the organization.",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to make sure my team's interests are represented.",
+     "I'm thinking about how my stance will be interpreted by both sides.",
+     "I'm curious whether the reasoning behind the decision holds up.",
+     "I'm wondering whether the decision process surfaced all perspectives."],
+    ["1", "2b", "3", "2a"]],
+
+  ["D4-Q17", 4, 2, "single",
+    "A team member tells you leadership doesn't seem to understand what the decision is costing them.",
+    "Which response is most like you?",
+    ["I want to explain the broader reasoning behind the decision.",
+     "I feel the pull to protect my team's position.",
+     "I think about how to respond in a way that maintains trust.",
+     "I wonder whether the decision process fully captured the impact."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D4-Q18", 4, 3, "forced",
+    "You support a decision that benefits the organization but frustrates your team.",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to help the team understand the reasoning.",
+     "I feel the tension of the team absorbing the cost.",
+     "I'm aware of how my stance will be interpreted.",
+     "I'm interested in whether the broader system benefits from the decision."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D4-Q19", 4, 4, "single",
+    "Two leaders disagree about how resources should be allocated.",
+    "Which response is most like you?",
+    ["I focus on what produces the best outcome overall.",
+     "I want to make sure my team's position is protected.",
+     "I'm aware of how my position will be interpreted.",
+     "I'm curious whether the decision framework is clear."],
+    ["3", "1", "2b", "2a"]],
+
+  ["D4-Q20", 4, 5, "paired",
+    null,
+    "Which resonates more?",
+    ["My role is to represent my people strongly in leadership discussions.",
+     "My role is to make decisions that serve the whole system."],
+    ["1", "3"]],
+
+  // ── DOMAIN 5: PRESENCE ──
+  ["D5-Q21", 5, 1, "forced",
+    "A colleague challenges your recommendation in a leadership meeting.",
+    "Select the response MOST like you / LEAST like you",
+    ["I feel a pull to defend the position.",
+     "I'm curious what their challenge might reveal.",
+     "I'm thinking about how the exchange is landing with the group.",
+     "I'm wondering whether we framed the problem correctly."],
+    ["1", "3", "2b", "2a"]],
+
+  ["D5-Q22", 5, 2, "single",
+    "During a tense conversation with a direct report:",
+    "Which response is most like you?",
+    ["I focus on resolving the issue.",
+     "I'm curious what the tension might be revealing.",
+     "I'm paying attention to how my response is landing.",
+     "I'm thinking about how the conversation is structured."],
+    ["1", "3", "2b", "2a"]],
+
+  ["D5-Q23", 5, 3, "forced",
+    "Someone says: \"You don't seem fully present in this conversation.\"",
+    "Select the response MOST like you / LEAST like you",
+    ["I want to clarify what they mean.",
+     "I feel the pull to explain my perspective.",
+     "I'm thinking about how my presence is being interpreted.",
+     "I'm curious what might actually be happening in the interaction."],
+    ["2a", "1", "2b", "3"]],
+
+  ["D5-Q24", 5, 4, "single",
+    "You feel frustrated in a leadership conversation.",
+    "Which response is most like you?",
+    ["I try to resolve the issue quickly.",
+     "I notice the reaction and stay curious about it.",
+     "I'm aware of how my reaction might be perceived.",
+     "I think about whether the conversation structure is contributing."],
+    ["1", "3", "2b", "2a"]],
+
+  ["D5-Q25", 5, 5, "paired",
+    null,
+    "Which resonates more?",
+    ["Under pressure I focus on staying composed and handling the situation.",
+     "Under pressure I become curious about what the tension might be revealing."],
+    ["1", "3"]],
 ];
+
+// ── SCORING ──
+// Higher-order tiebreak: system > identity > process > outcome
+const HIGHER_ORDER = ["3", "2b", "2a", "1"];
 
 function scoreAll(responses) {
   const results = {};
-  [1,2,3,4,5].forEach(d => {
-    const dr = responses.filter(r => r.domain === d);
-    const counts = {};
-    dr.forEach(r => { counts[r.score] = (counts[r.score]||0) + 1; });
-    const s1   = counts["1"]  || 0;
-    const s2a  = counts["2a"] || 0;
-    const s2b  = (counts["2b"] || 0) + (counts["2"] || 0);
-    const s3   = counts["3"]  || 0;
-    const total = dr.length || 1;
-    let placement;
-    if (s3 / total >= 0.5)       placement = "3";
-    else if (s3 >= 2 && s2b >= 1) placement = "2b+";
-    else if (s2b > s2a && s2b > s1) placement = "2b";
-    else if (s2a >= s1)           placement = "2a";
-    else                          placement = "1";
-    results[d] = { placement };
+
+  [1,2,3,4,5].forEach(domain => {
+    const domainItems = ITEMS.filter(item => item[1] === domain);
+    const scores = { "1": 0, "2a": 0, "2b": 0, "3": 0 };
+
+    domainItems.forEach(item => {
+      const [id, , , type, , , options, orients] = item;
+      const resp = responses.find(r => r.id === id);
+      if (!resp) return;
+
+      if (type === "single" || type === "paired") {
+        // +1 to selected orientation
+        const orient = orients[resp.selected];
+        if (orient) scores[orient] = (scores[orient] || 0) + 1;
+
+      } else if (type === "forced") {
+        // MOST = +2, LEAST = -1
+        const mostOrient  = orients[resp.most];
+        const leastOrient = orients[resp.least];
+        if (mostOrient)  scores[mostOrient]  = (scores[mostOrient]  || 0) + 2;
+        if (leastOrient) scores[leastOrient] = (scores[leastOrient] || 0) - 1;
+      }
+    });
+
+    // ── PLACEMENT LOGIC ──
+    // Step 1: find highest score
+    const maxScore = Math.max(...Object.values(scores));
+
+    // Step 2: transitional check — identity highest, system exactly 1 behind
+    if (scores["2b"] === maxScore && scores["3"] === maxScore - 1) {
+      results[domain] = { placement: "2b+", scores };
+      return;
+    }
+
+    // Step 3: find all orientations tied at max
+    const tied = Object.entries(scores)
+      .filter(([, v]) => v === maxScore)
+      .map(([k]) => k);
+
+    if (tied.length === 1) {
+      results[domain] = { placement: tied[0], scores };
+      return;
+    }
+
+    // Step 4: tiebreak — MOST count, then LEAST count, then higher-order
+    const domainResps = responses.filter(r => {
+      const item = ITEMS.find(it => it[0] === r.id);
+      return item && item[1] === domain && item[3] === "forced";
+    });
+
+    // Count MOST selections per orientation among tied
+    const mostCounts = {};
+    tied.forEach(o => { mostCounts[o] = 0; });
+    domainResps.forEach(r => {
+      const item = ITEMS.find(it => it[0] === r.id);
+      if (!item) return;
+      const mostOrient = item[7][r.most];
+      if (tied.includes(mostOrient)) mostCounts[mostOrient]++;
+    });
+
+    const maxMost = Math.max(...tied.map(o => mostCounts[o]));
+    const afterMost = tied.filter(o => mostCounts[o] === maxMost);
+
+    if (afterMost.length === 1) {
+      results[domain] = { placement: afterMost[0], scores };
+      return;
+    }
+
+    // Count LEAST selections (fewer = better — this leader avoided this orientation)
+    const leastCounts = {};
+    afterMost.forEach(o => { leastCounts[o] = 0; });
+    domainResps.forEach(r => {
+      const item = ITEMS.find(it => it[0] === r.id);
+      if (!item) return;
+      const leastOrient = item[7][r.least];
+      if (afterMost.includes(leastOrient)) leastCounts[leastOrient]++;
+    });
+
+    const minLeast = Math.min(...afterMost.map(o => leastCounts[o]));
+    const afterLeast = afterMost.filter(o => leastCounts[o] === minLeast);
+
+    if (afterLeast.length === 1) {
+      results[domain] = { placement: afterLeast[0], scores };
+      return;
+    }
+
+    // Higher-order tiebreak: system > identity > process > outcome
+    const winner = HIGHER_ORDER.find(o => afterLeast.includes(o));
+    results[domain] = { placement: winner || afterLeast[0], scores };
   });
+
   return results;
 }
 
@@ -2130,6 +2413,8 @@ export default function App() {
   const [qIndex,setQIndex]=useState(0);
   const [responses,setResponses]=useState([]);
   const [selected,setSelected]=useState(null);
+  const [mostSel,setMostSel]=useState(null);
+  const [leastSel,setLeastSel]=useState(null);
   const [animKey,setAnimKey]=useState(0);
   const [coachView,setCoachView]=useState("results");
   const [selectedP,setSelectedP]=useState(null);
@@ -2164,7 +2449,10 @@ export default function App() {
           pMap[r.email]={name:r.name,email:r.email,completed:r.completed,completedAt:r.completed_at,results:r.results};
         });
         if(Object.keys(pMap).length===0){
-          const demo={name:"Alex Rivera",email:"demo@example.com",completed:true,completedAt:new Date().toISOString(),results:scoreAll(ITEMS.map((item,i)=>({itemId:item[0],domain:item[1],type:item[2],selected:i%item[6].length,score:item[7][i%item[7].length]})))};
+          const demo={name:"Alex Rivera",email:"demo@example.com",completed:true,completedAt:new Date().toISOString(),results:scoreAll(ITEMS.map((item,i)=>{
+            if(item[3]==="forced") return {id:item[0],domain:item[1],most:0,least:3};
+            return {id:item[0],domain:item[1],selected:0};
+          }))};
           pMap["demo@example.com"]=demo;
           await sbUpsert("participants",{email:demo.email,name:demo.name,completed:demo.completed,completed_at:demo.completedAt,results:demo.results});
         }
@@ -2188,7 +2476,7 @@ export default function App() {
         const p={name:r.name,email:r.email,completed:r.completed,completedAt:r.completed_at,results:r.results};
         setCurrentUser(p);
         setParticipants(prev=>({...prev,[p.email]:p}));
-        p.completed?setScreen("complete"):(setQIndex(0),setResponses([]),setSelected(null),setAnimKey(k=>k+1),setScreen("assessment"));
+        p.completed?setScreen("complete"):(setQIndex(0),setResponses([]),setSelected(null),setMostSel(null),setLeastSel(null),setAnimKey(k=>k+1),setScreen("assessment"));
         return;
       }
     } catch(e){ console.error("Login error:",e); }
@@ -2209,14 +2497,24 @@ export default function App() {
       if(!invite.permanent) setInvites(prev=>({...prev,[code]:{...prev[code],used:true}}));
     } catch(e){ console.error("Register error:",e); }
     setCurrentUser(p);
-    setQIndex(0);setResponses([]);setSelected(null);setAnimKey(k=>k+1);
+    setQIndex(0);setResponses([]);setSelected(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
     setScreen("assessment");
   }
 
   async function handleNext(){
-    if(selected===null)return;
     const item=ITEMS[qIndex];
-    const nr=[...responses,{itemId:item[0],domain:item[1],type:item[2],selected,score:item[7][selected]}];
+    const type=item[3];
+    // Validate by type
+    if(type==="forced"&&(mostSel===null||leastSel===null))return;
+    if((type==="single"||type==="paired")&&selected===null)return;
+    // Build response record
+    let resp;
+    if(type==="forced"){
+      resp={id:item[0],domain:item[1],most:mostSel,least:leastSel};
+    } else {
+      resp={id:item[0],domain:item[1],selected};
+    }
+    const nr=[...responses,resp];
     setResponses(nr);
     if(qIndex+1>=ITEMS.length){
       const results=scoreAll(nr);
@@ -2228,7 +2526,7 @@ export default function App() {
       } catch(e){ console.error("Save error:",e); }
       setScreen("complete");
     } else {
-      setQIndex(i=>i+1);setSelected(null);setAnimKey(k=>k+1);
+      setQIndex(i=>i+1);setSelected(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
     }
   }
 
@@ -2317,18 +2615,41 @@ export default function App() {
         <div key={animKey} style={{width:"100%",maxWidth:660,animation:"fadeUp 0.3s ease"}}>
           {item[4]&&<div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:22,padding:"18px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>{item[4]}</div>}
           <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:400,color:C.deepCharcoal,marginBottom:22,lineHeight:1.45}}>{item[5]}</div>
-          {item[3]==="paired"&&<p style={{fontSize:13,color:C.midBlue,fontStyle:"italic",marginBottom:12,fontWeight:300}}>Which statement is closer to your experience?</p>}
-          <div style={{display:"flex",flexDirection:"column",gap:9}}>
-            {item[6].map((opt,i)=>(
-              <div key={i} onClick={()=>setSelected(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${selected===i?C.slate:C.warmWhite}`,cursor:"pointer",background:selected===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
-                <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${selected===i?C.slate:C.midBlue}`,color:selected===i?C.offWhite:C.midBlue,background:selected===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
-                <div style={{fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack,paddingTop:2}}>{opt}</div>
+          {item[3]==="forced"?(
+            <div>
+              <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:8}}>
+                <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600}}>MOST</span>
+                <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.midBlue,fontWeight:600}}>LEAST</span>
               </div>
-            ))}
-          </div>
+              <div style={{display:"flex",flexDirection:"column",gap:9}}>
+                {item[6].map((opt,i)=>{
+                  const isMost=mostSel===i, isLeast=leastSel===i;
+                  return (
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"12px 14px",border:`1px solid ${isMost||isLeast?C.slate:C.warmWhite}`,background:isMost?C.lightSage:isLeast?"#fdf6f0":C.offWhite,transition:"all 0.15s"}}>
+                      <div style={{fontSize:10,fontWeight:600,color:C.midBlue,width:18,flexShrink:0}}>{["A","B","C","D"][i]}</div>
+                      <div style={{flex:1,fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack}}>{opt}</div>
+                      <div style={{display:"flex",gap:8,flexShrink:0}}>
+                        <div onClick={()=>{if(leastSel===i)return;setMostSel(isMost?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isMost?C.slate:C.warmWhite}`,background:isMost?C.slate:"transparent",cursor:leastSel===i?"not-allowed":"pointer",opacity:leastSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isMost?C.offWhite:C.midBlue}}>✓</div>
+                        <div onClick={()=>{if(mostSel===i)return;setLeastSel(isLeast?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isLeast?C.midBlue:C.warmWhite}`,background:isLeast?"#8596a220":"transparent",cursor:mostSel===i?"not-allowed":"pointer",opacity:mostSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isLeast?C.slate:C.midBlue}}>✗</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:9}}>
+              {item[6].map((opt,i)=>(
+                <div key={i} onClick={()=>setSelected(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${selected===i?C.slate:C.warmWhite}`,cursor:"pointer",background:selected===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
+                  <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${selected===i?C.slate:C.midBlue}`,color:selected===i?C.offWhite:C.midBlue,background:selected===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
+                  <div style={{fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack,paddingTop:2}}>{opt}</div>
+                </div>
+              ))}
+            </div>
+          )}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:24}}>
             <span style={{fontSize:12,color:C.midBlue,letterSpacing:"0.06em"}}>{qIndex+1} of {ITEMS.length}</span>
-            <Btn variant="dark" onClick={handleNext} style={{opacity:selected!==null?1:0.35,pointerEvents:selected!==null?"auto":"none"}}>{qIndex===ITEMS.length-1?"Submit":"Continue"} →</Btn>
+            <Btn variant="dark" onClick={handleNext} style={{opacity:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?1:0.35,pointerEvents:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?"auto":"none"}}>{qIndex===ITEMS.length-1?"Submit":"Continue"} →</Btn>
           </div>
         </div>
       </div>
