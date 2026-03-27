@@ -1,4 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
+import { ITEMS_SOURCE, ITEMS } from './items';
+import { LANG } from './lang';
+import { SYNTHESIS_CONTENT, CLUSTER_RULES, RISK_RULES, QUESTION_RULES, getSynthesis, DOMAIN_KEYS, ORIENT_BUCKET, ORIENTATION_ORDER } from './synthesis';
+
 
 const C = {
   warmWhite: "#e8e6e2", lightSage: "#f4f6f1", midBlue: "#8596a2",
@@ -6,257 +10,27 @@ const C = {
   gold: "#c8a84a", goldDark: "#a88830",
 };
 
-// ── ASSESSMENT ITEMS ──
-// Format:
-//   forced-choice: [id, domain, block, "forced", scenario, prompt, [A,B,C,D], [orientA,orientB,orientC,orientD]]
-//   single:        [id, domain, block, "single",  scenario, prompt, [A,B,C,D], [orientA,orientB,orientC,orientD]]
-//   paired:        [id, domain, block, "paired",  null,     prompt, [A,B],     [orientA,orientB]]
-
-const ITEMS = [
-  // ── DOMAIN 1: CONTRIBUTION ──
-  ["D1-Q1", 1, 1, "forced",
-    "You delegated a high-visibility project to a senior manager. The final presentation goes well and your involvement isn't mentioned.",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to understand how the work unfolded after it left my hands.",
-     "Part of me wants to reconnect with the work to see exactly how it happened.",
-     "I find myself thinking about how the presentation shapes how my leadership is seen.",
-     "I'm mostly interested in whether the approach we set up will keep working without me."],
-    ["2a", "1", "2b", "3"]],
-
-  ["D1-Q2", 1, 2, "single",
-    "A team member presents work that clearly builds on ideas you introduced earlier.",
-    "Which response is most like you?",
-    ["I'm curious how the work evolved after the initial direction.",
-     "I'm thinking about whether people understand the context behind the work.",
-     "I'm interested in whether the thinking is continuing to shape decisions.",
-     "I'm wondering whether the checkpoints on this project were strong enough."],
-    ["1", "2b", "3", "2a"]],
-
-  ["D1-Q3", 1, 3, "forced",
-    "You step away from a project and the team runs it successfully without you.",
-    "Select the response MOST like you / LEAST like you",
-    ["I'm interested in whether the structure we set up continues to guide the work.",
-     "I want to review how the work unfolded.",
-     "I'm aware of how my absence from the work might be interpreted.",
-     "Part of me wants to stay connected to the details."],
-    ["3", "2a", "2b", "1"]],
-
-  ["D1-Q4", 1, 4, "single",
-    "When credit for work is unclear in a leadership setting:",
-    "Which response is most like you?",
-    ["I pay attention to whether people understand the thinking behind the work.",
-     "I'm curious how the work itself unfolded.",
-     "I'm mostly interested in whether the ideas are continuing to influence decisions.",
-     "I start thinking about whether the oversight structure was strong enough."],
-    ["2b", "1", "3", "2a"]],
-
-  ["D1-Q5", 1, 5, "paired",
-    null,
-    "Which statement resonates more with your experience?",
-    ["I feel most confident when the thinking I contributed continues shaping decisions, even if no one connects it back to me.",
-     "I feel most confident when the people who matter understand what I contributed."],
-    ["3", "2b"]],
-
-  // ── DOMAIN 2: REASONING ──
-  ["D2-Q6", 2, 1, "forced",
-    "You're presenting a recommendation to senior leadership. The data supporting your view is mixed.",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to clarify the reasoning behind the recommendation.",
-     "I feel a pull to strengthen the case for the direction I believe is right.",
-     "I'm thinking about how the recommendation will be interpreted by the group.",
-     "I'm wondering whether our decision process surfaced the full picture."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D2-Q7", 2, 2, "single",
-    "Someone challenges the logic of your recommendation.",
-    "Which response is most like you?",
-    ["I'm curious whether their challenge reveals something we missed.",
-     "I want to reinforce the reasoning behind the recommendation.",
-     "I'm thinking about how my response will land in the room.",
-     "I'm wondering whether our decision process allowed this confusion."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D2-Q8", 2, 3, "forced",
-    "When presenting a difficult recommendation:",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to make sure the reasoning is clear and transparent.",
-     "I focus on making the strongest possible case for the conclusion.",
-     "I'm aware of how the recommendation reflects on my leadership.",
-     "I'm thinking about whether the decision structure we used is sound."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D2-Q9", 2, 4, "single",
-    "A recommendation you supported produces unexpected results.",
-    "Which response is most like you?",
-    ["I want to understand how the reasoning led us there.",
-     "I'm thinking about whether the outcome still works.",
-     "I'm paying attention to how the decision reflects on leadership.",
-     "I'm wondering whether the decision process needs adjustment."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D2-Q10", 2, 5, "paired",
-    null,
-    "Which statement resonates more?",
-    ["I feel most settled when I've explained the reasoning clearly.",
-     "I feel most settled when I know the conclusion is correct."],
-    ["3", "1"]],
-
-  // ── DOMAIN 3: AUTHORITY ──
-  ["D3-Q11", 3, 1, "forced",
-    "A VP on your team makes a call on a client issue without consulting you.",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to understand how they reasoned through the decision.",
-     "I feel a pull to step back into the situation.",
-     "I'm thinking about how the decision reflects on my leadership.",
-     "I'm wondering whether our oversight structure should be tighter."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D3-Q12", 3, 2, "single",
-    "A project you delegated drifts slightly from the direction you expected.",
-    "Which response is most like you?",
-    ["I step closer to the work to redirect it.",
-     "I want to understand how the team interpreted the direction.",
-     "I'm thinking about how the shift will be perceived.",
-     "I want to see where the process allowed the drift."],
-    ["1", "3", "2b", "2a"]],
-
-  ["D3-Q13", 3, 3, "forced",
-    "A team member makes a visible mistake on a project you delegated.",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to understand how the decision was made.",
-     "I feel the pull to step in and fix the situation.",
-     "I'm thinking about how the situation reflects on leadership.",
-     "I'm wondering whether the oversight structure should have caught this earlier."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D3-Q14", 3, 4, "single",
-    "A direct report asks for guidance on a decision they technically own.",
-    "Which response is most like you?",
-    ["I ask how they're thinking about the decision.",
-     "I feel a pull to shape the outcome.",
-     "I think about how my response will influence their perception of my leadership.",
-     "I wonder whether our decision process is clear enough."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D3-Q15", 3, 5, "paired",
-    null,
-    "Which statement resonates more?",
-    ["I'm most comfortable when I know delegated work is still visible to me.",
-     "I'm most comfortable when people I've developed make decisions without needing me."],
-    ["2a", "3"]],
-
-  // ── DOMAIN 4: LOYALTY ──
-  ["D4-Q16", 4, 1, "forced",
-    "A cross-functional decision disadvantages your team but benefits the organization.",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to make sure my team's interests are represented.",
-     "I'm thinking about how my stance will be interpreted by both sides.",
-     "I'm curious whether the reasoning behind the decision holds up.",
-     "I'm wondering whether the decision process surfaced all perspectives."],
-    ["1", "2b", "3", "2a"]],
-
-  ["D4-Q17", 4, 2, "single",
-    "A team member tells you leadership doesn't seem to understand what the decision is costing them.",
-    "Which response is most like you?",
-    ["I want to explain the broader reasoning behind the decision.",
-     "I feel the pull to protect my team's position.",
-     "I think about how to respond in a way that maintains trust.",
-     "I wonder whether the decision process fully captured the impact."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D4-Q18", 4, 3, "forced",
-    "You support a decision that benefits the organization but frustrates your team.",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to help the team understand the reasoning.",
-     "I feel the tension of the team absorbing the cost.",
-     "I'm aware of how my stance will be interpreted.",
-     "I'm interested in whether the broader system benefits from the decision."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D4-Q19", 4, 4, "single",
-    "Two leaders disagree about how resources should be allocated.",
-    "Which response is most like you?",
-    ["I focus on what produces the best outcome overall.",
-     "I want to make sure my team's position is protected.",
-     "I'm aware of how my position will be interpreted.",
-     "I'm curious whether the decision framework is clear."],
-    ["3", "1", "2b", "2a"]],
-
-  ["D4-Q20", 4, 5, "paired",
-    null,
-    "Which resonates more?",
-    ["My role is to represent my people strongly in leadership discussions.",
-     "My role is to make decisions that serve the whole system."],
-    ["1", "3"]],
-
-  // ── DOMAIN 5: PRESENCE ──
-  ["D5-Q21", 5, 1, "forced",
-    "A colleague challenges your recommendation in a leadership meeting.",
-    "Select the response MOST like you / LEAST like you",
-    ["I feel a pull to defend the position.",
-     "I'm curious what their challenge might reveal.",
-     "I'm thinking about how the exchange is landing with the group.",
-     "I'm wondering whether we framed the problem correctly."],
-    ["1", "3", "2b", "2a"]],
-
-  ["D5-Q22", 5, 2, "single",
-    "During a tense conversation with a direct report:",
-    "Which response is most like you?",
-    ["I focus on resolving the issue.",
-     "I'm curious what the tension might be revealing.",
-     "I'm paying attention to how my response is landing.",
-     "I'm thinking about how the conversation is structured."],
-    ["1", "3", "2b", "2a"]],
-
-  ["D5-Q23", 5, 3, "forced",
-    "Someone says: \"You don't seem fully present in this conversation.\"",
-    "Select the response MOST like you / LEAST like you",
-    ["I want to clarify what they mean.",
-     "I feel the pull to explain my perspective.",
-     "I'm thinking about how my presence is being interpreted.",
-     "I'm curious what might actually be happening in the interaction."],
-    ["2a", "1", "2b", "3"]],
-
-  ["D5-Q24", 5, 4, "single",
-    "You feel frustrated in a leadership conversation.",
-    "Which response is most like you?",
-    ["I try to resolve the issue quickly.",
-     "I notice the reaction and stay curious about it.",
-     "I'm aware of how my reaction might be perceived.",
-     "I think about whether the conversation structure is contributing."],
-    ["1", "3", "2b", "2a"]],
-
-  ["D5-Q25", 5, 5, "paired",
-    null,
-    "Which resonates more?",
-    ["Under pressure I focus on staying composed and handling the situation.",
-     "Under pressure I become curious about what the tension might be revealing."],
-    ["1", "3"]],
-];
-
 // ── SCORING ──
+// Orientation scores use string keys: "outcome", "process", "identity", "system"
 // Higher-order tiebreak: system > identity > process > outcome
-const HIGHER_ORDER = ["3", "2b", "2a", "1"];
+const HIGHER_ORDER = ["system", "identity", "process", "outcome"];
 
 function scoreAll(responses) {
   const results = {};
 
   [1,2,3,4,5].forEach(domain => {
-    const domainItems = ITEMS.filter(item => item[1] === domain);
-    const scores = { "1": 0, "2a": 0, "2b": 0, "3": 0 };
+    const domainItems = ITEMS_SOURCE.filter(item => item[1] === domain);
+    const scores = { outcome: 0, process: 0, identity: 0, system: 0 };
 
     domainItems.forEach(item => {
-      const [id, , , type, , , options, orients] = item;
+      const [id, , , type, , , , orients] = item;
       const resp = responses.find(r => r.id === id);
       if (!resp) return;
 
       if (type === "single" || type === "paired") {
-        // +1 to selected orientation
         const orient = orients[resp.selected];
         if (orient) scores[orient] = (scores[orient] || 0) + 1;
-
       } else if (type === "forced") {
-        // MOST = +2, LEAST = -1
         const mostOrient  = orients[resp.most];
         const leastOrient = orients[resp.least];
         if (mostOrient)  scores[mostOrient]  = (scores[mostOrient]  || 0) + 2;
@@ -265,36 +39,29 @@ function scoreAll(responses) {
     });
 
     // ── PLACEMENT LOGIC ──
-    // Step 1: find highest score
     const maxScore = Math.max(...Object.values(scores));
 
-    // Step 2: transitional check — identity highest, system exactly 1 behind
-    if (scores["2b"] === maxScore && scores["3"] === maxScore - 1) {
-      results[domain] = { placement: "2b+", scores };
-      return;
-    }
-
-    // Step 3: find all orientations tied at max
     const tied = Object.entries(scores)
       .filter(([, v]) => v === maxScore)
       .map(([k]) => k);
 
     if (tied.length === 1) {
-      results[domain] = { placement: tied[0], scores };
+      // Map string key to placement code
+      const placementMap = { outcome: "1", process: "2a", identity: "2b", system: "3" };
+      results[domain] = { placement: placementMap[tied[0]] || tied[0], scores };
       return;
     }
 
-    // Step 4: tiebreak — MOST count, then LEAST count, then higher-order
+    // Tiebreak: MOST count
     const domainResps = responses.filter(r => {
-      const item = ITEMS.find(it => it[0] === r.id);
+      const item = ITEMS_SOURCE.find(it => it[0] === r.id);
       return item && item[1] === domain && item[3] === "forced";
     });
 
-    // Count MOST selections per orientation among tied
     const mostCounts = {};
     tied.forEach(o => { mostCounts[o] = 0; });
     domainResps.forEach(r => {
-      const item = ITEMS.find(it => it[0] === r.id);
+      const item = ITEMS_SOURCE.find(it => it[0] === r.id);
       if (!item) return;
       const mostOrient = item[7][r.most];
       if (tied.includes(mostOrient)) mostCounts[mostOrient]++;
@@ -304,15 +71,16 @@ function scoreAll(responses) {
     const afterMost = tied.filter(o => mostCounts[o] === maxMost);
 
     if (afterMost.length === 1) {
-      results[domain] = { placement: afterMost[0], scores };
+      const placementMap = { outcome: "1", process: "2a", identity: "2b", system: "3" };
+      results[domain] = { placement: placementMap[afterMost[0]] || afterMost[0], scores };
       return;
     }
 
-    // Count LEAST selections (fewer = better — this leader avoided this orientation)
+    // Tiebreak: LEAST count (fewer = better)
     const leastCounts = {};
     afterMost.forEach(o => { leastCounts[o] = 0; });
     domainResps.forEach(r => {
-      const item = ITEMS.find(it => it[0] === r.id);
+      const item = ITEMS_SOURCE.find(it => it[0] === r.id);
       if (!item) return;
       const leastOrient = item[7][r.least];
       if (afterMost.includes(leastOrient)) leastCounts[leastOrient]++;
@@ -322,20 +90,22 @@ function scoreAll(responses) {
     const afterLeast = afterMost.filter(o => leastCounts[o] === minLeast);
 
     if (afterLeast.length === 1) {
-      results[domain] = { placement: afterLeast[0], scores };
+      const placementMap = { outcome: "1", process: "2a", identity: "2b", system: "3" };
+      results[domain] = { placement: placementMap[afterLeast[0]] || afterLeast[0], scores };
       return;
     }
 
-    // Higher-order tiebreak: system > identity > process > outcome
+    // Higher-order tiebreak
     const winner = HIGHER_ORDER.find(o => afterLeast.includes(o));
-    results[domain] = { placement: winner || afterLeast[0], scores };
+    const placementMap = { outcome: "1", process: "2a", identity: "2b", system: "3" };
+    results[domain] = { placement: placementMap[winner] || placementMap[afterLeast[0]], scores };
   });
 
   return results;
 }
 
-const ORIENTATION_LABELS = {"1":"Protect Outcome","2a":"Protect Process","2b":"Protect Identity","2b+":"Protect Identity","3":"Protect System"};
-const ORIENTATION_ORDER = {"1":0,"2a":1,"2b":2,"2b+":2,"3":3};
+const ORIENTATION_LABELS = {"1":"Execution Mode","2a":"Orchestration Mode","2b":"Navigation Mode","3":"Integration Mode"};
+const ORIENTATION_ORDER = {"1":0,"2a":1,"2b":2,"3":3};
 const DOMAIN_NAMES = {1:"Contribution",2:"Reasoning",3:"Authority",4:"Loyalty",5:"Presence"};
 const DOMAIN_TENSIONS = {1:"Visibility ↔ Impact",2:"Correctness ↔ Transparency",3:"Direct Control ↔ System Trust",4:"Your People ↔ The Whole",5:"Reaction ↔ Curiosity"};
 const DOMAIN_POLES = {
@@ -346,298 +116,13 @@ const DOMAIN_POLES = {
   5:{left:"Reaction",right:"Curiosity"},
 };
 
-const LANG = {
-  1:{ name:"Contribution", tension:"Visibility ↔ Impact", question:"Where does your sense of value settle when credit or visibility shifts?",
-    "1":{ pattern:"Your responses indicate that you may rely on direct involvement to feel confident in your contribution. When credit or visibility becomes ambiguous, there can be a pull to stay connected to the work because your sense of contribution is most stable when you are directly involved in the work and close to the outcome.", bullets:["You tend to stay close to high-stakes work even after handing it off","When credit becomes unclear, you may feel a pull to reconnect to the outcome","Your contribution feels most concrete when your involvement is visible"], edge:"Further development in this domain often involves separating the value of your contribution from your proximity to the outcome. Framing direction, shaping decisions, and designing the approach carry real value even when they are not visible." },
-    "2a":{ pattern:"Your responses indicate that you may rely on quality oversight to maintain confidence in delegated work. Staying close enough to monitor progress helps ensure standards hold and problems are caught early.", bullets:["You maintain oversight structures even when work has been formally delegated","Confidence comes from knowing the work is progressing well rather than from receiving credit","Delegation occurs, but some form of monitoring loop usually remains"], edge:"Further development often involves trusting that the value of your upstream contribution — the direction, frameworks, and conditions you established — continues to hold even when you are no longer closely monitoring the work." },
-    "2b":{ pattern:"Your responses indicate that contribution may be tied to operating at the level you believe your leadership role requires. Delegation is genuine, but attention often goes to whether your leadership contribution is understood or recognized appropriately.", bullets:["You are attentive to how your involvement or absence is interpreted by senior leadership","When credit is ambiguous, you may clarify context so upstream thinking remains visible","Delegation is real, but how it reflects on your leadership still occupies attention"], edge:"Further development often involves anchoring your sense of contribution in the durability and influence of your thinking rather than in whether others clearly recognize where it originated." },
-    "2b+":{ pattern:"Your responses indicate a mixed pattern. In some situations your contribution feels stable regardless of visibility, while in others attention still shifts toward how the contribution is recognized.", bullets:["Contribution feels stable in lower-visibility situations","When visibility stakes increase, attention may shift toward recognition","This shift is most noticeable in high-profile work"], edge:"Further development often involves extending the contribution stability you demonstrate in lower-stakes situations to moments where visibility and recognition carry greater weight." },
-    "3":{ pattern:"Your responses indicate that your sense of contribution is stable when you can see that the thinking you brought to a situation is shaping outcomes, regardless of whether your role is visible.", bullets:["Lack of visibility in outcomes does not create restlessness","You track whether the thinking you introduced is shaping decisions and outcomes over time","When credit goes elsewhere, attention shifts to whether the work is understood correctly"], edge:"Further development often involves noticing when attachment shifts from visibility to the quality of your own thinking. Frameworks and ideas are useful tools, but they do not need to become the measure of your value." }
-  },
-  2:{ name:"Reasoning", tension:"Correctness ↔ Transparency", question:"Do you protect your conclusion, or make your reasoning visible enough for others to engage with it?",
-    "1":{ pattern:"Your responses indicate that the correctness of your recommendation becomes the primary focus under pressure. When analysis becomes ambiguous or your position is challenged, the instinct may be to strengthen the case rather than surface the uncertainty.", bullets:["Mixed or ambiguous data tends to be resolved toward a preferred conclusion","Challenges to the recommendation can feel like challenges to competence","Under pressure, the instinct is to defend the position rather than reopen the reasoning"], edge:"Further development often involves separating credibility from always being correct. Naming uncertainty or tradeoffs openly can strengthen trust in the decision process rather than weaken it." },
-    "2a":{ pattern:"Your responses indicate that decision credibility is anchored in defensibility and analytical coverage. Ensuring the reasoning is well supported helps protect against being wrong when stakes are high.", bullets:["Risk documentation and downside analysis are central to how decisions are presented","Before committing publicly, you mentally review whether the reasoning holds","Challenges are addressed by reinforcing the analytical structure"], edge:"Further development often involves being willing to name where your recommendation may fall short, not just where it is strong." },
-    "2b":{ pattern:"Your responses indicate that decision credibility may come from demonstrating analytical rigor. The analysis is genuinely structured, but often organized in ways that keep the preferred conclusion viable while still appearing balanced.", bullets:["Recommendations are presented as balanced while still guiding toward a preferred outcome","Under challenge, the instinct is to demonstrate the rigor of the analysis","Frameworks and criteria are applied carefully but often point toward similar conclusions"], edge:"Further development often involves allowing decision criteria to lead wherever they point, even when the outcome is not the one you would choose." },
-    "2b+":{ pattern:"Your responses indicate a mixed pattern. In some situations your reasoning process is fully visible, while in others the pull to protect the preferred conclusion becomes stronger.", bullets:["Reasoning tends to be open in lower-stakes decisions","Under political or reputational pressure, the instinct to defend the conclusion increases","This is most noticeable when your own framework produces an outcome you do not prefer"], edge:"Further development often involves maintaining the same openness to the reasoning process even when the credibility stakes are high." },
-    "3":{ pattern:"Your responses indicate that decision credibility is anchored in making the reasoning process transparent and followable. When analysis points somewhere unexpected, you are willing to follow it.", bullets:["You name risks in your preferred option with the same clarity you bring to its strengths","When analysis produces an unexpected result, you follow it rather than revise it","Challenges to your reasoning create curiosity about what others may be seeing"], edge:"Further development often involves recognizing that the frameworks you bring to decisions shape what becomes visible in the reasoning process." }
-  },
-  3:{ name:"Authority", tension:"Direct Control ↔ System Trust", question:"What happens when someone else's imperfect decision lands under your name?",
-    "1":{ pattern:"Your responses indicate that you may experience accountability for delegated work as personal responsibility for the outcome, which can create a pull to step back into the decision. When delegated work drifts or creates friction, the instinct may be to step back in directly to ensure it lands well.", bullets:["When delegated work begins to drift, the instinct is to re-engage directly","High-visibility work or client relationships can be difficult to fully release after handoff","Delegated work is often measured against the standard you would personally apply"], edge:"Further development often involves separating accountability for outcomes from involvement in every decision that affects them." },
-    "2a":{ pattern:"Your responses indicate that accountability for delegated work is maintained through monitoring and oversight. Staying close enough to catch problems early helps ensure issues do not surface unexpectedly.", bullets:["Delegated work includes checkpoints, approvals, or structured updates","When something surfaces unexpectedly, oversight tends to increase","You remain available as a backstop even when authority has formally transferred"], edge:"Further development often involves trusting that the authority structure you designed can absorb imperfect decisions without requiring immediate intervention." },
-    "2b":{ pattern:"Your responses indicate that delegation is genuine, but attention remains on how the delegation appears and whether any resulting friction reflects on your judgment. Authority is transferred, while enough visibility remains to intervene if something begins creating avoidable friction.", bullets:["You encourage autonomy while maintaining informal visibility into decisions","When friction appears, you may quietly correct course while managing how the situation is interpreted","How your delegation approach reflects on your leadership remains important"], edge:"Further development often involves releasing narrative management alongside operational oversight." },
-    "2b+":{ pattern:"Your responses indicate a mixed pattern. In some situations authority transfers cleanly, while in others oversight or involvement increases when reputational risk rises.", bullets:["Delegation operates smoothly in stable conditions","When stakes rise, the pull toward oversight increases","This shift is most visible when visible imperfection could reflect on your leadership"], edge:"Further development often involves extending the authority transfer you demonstrate in lower-risk situations to moments where imperfection may be visible." },
-    "3":{ pattern:"Your responses indicate that accountability is located in the design of the authority structure rather than in direct involvement in individual decisions. When delegated work produces friction, the focus shifts to whether the system is functioning as intended.", bullets:["Visible imperfection in delegated work is treated as part of how the system operates rather than as a failure requiring immediate intervention","When issues arise, attention goes to structure rather than to individual correction","You distinguish between outcomes you would have chosen differently and outcomes that signal a real system gap"], edge:"Further development often involves noticing when the systems you have designed can become so structured that they begin limiting the judgment and authority they were meant to enable." }
-  },
-  4:{ name:"Loyalty", tension:"Your People ↔ The Whole", question:"Where does your loyalty anchor when the needs of your people and the needs of the whole organization diverge?",
-    "1":{ pattern:"Your responses indicate that your leadership identity is closely tied to protecting the people closest to you. When enterprise decisions disadvantage your team, the instinct may be to advocate strongly on their behalf and protect them from the impact.", bullets:["When priorities conflict, the instinct is to advocate strongly for the people closest to you.","When team members express frustration with enterprise decisions, you may move quickly to reassure or defend them","Enterprise decisions that disadvantage your team can feel like a direct challenge to your leadership"], edge:"Further development often involves holding your team's interests as an important input to enterprise decisions rather than as the primary destination." },
-    "2a":{ pattern:"Your responses indicate that you may try to balance protecting your people's interests while demonstrating awareness of the broader organization. When enterprise decisions affect your team, the focus often shifts toward minimizing the impact while still supporting the broader decision.", bullets:["You look for ways to protect your team's core needs while supporting enterprise priorities","When enterprise decisions affect your team, you may negotiate how the change is implemented","You often consider what resources or support would be needed before signaling full agreement"], edge:"Further development often involves allowing enterprise priorities to guide decisions even when the cost to your team cannot be softened." },
-    "2b":{ pattern:"Your responses indicate that being seen as someone who can balance loyalty to your people with responsibility to the broader organization is important to how you lead. Significant attention may go toward explaining or framing difficult decisions so that your leadership stance is understood.", bullets:["When organizational decisions disadvantage your people, you focus on explaining the reasoning clearly","You consider how both your team and senior leadership will interpret your response","Tension between team loyalty and enterprise responsibility is often managed through careful positioning"], edge:"Further development often involves holding the cost of difficult decisions without needing to manage how they are interpreted." },
-    "2b+":{ pattern:"Your responses indicate a mixed pattern. Enterprise priorities are clear in some situations, while in others the instinct to protect your team becomes stronger when the impact is direct.", bullets:["Enterprise thinking is clear in lower-stakes situations","When the cost to your team becomes visible, the instinct to advocate or reframe increases","The tension is most noticeable when the impact on your team is immediate and personal"], edge:"Further development often involves extending the enterprise orientation you demonstrate in lower-stakes decisions to situations where the cost to your team is real and visible." },
-    "3":{ pattern:"Your responses indicate that responsibility for the health of the whole organization becomes a genuine identity anchor. When enterprise priorities require difficult tradeoffs, you are willing to make the decision and hold the cost openly.", bullets:["You sometimes make decisions that disadvantage your people or team","When team members express frustration, you acknowledge the impact rather than quickly reframing it","You hold the tension between team loyalty and enterprise responsibility without trying to resolve it too quickly"], edge:"Further development often involves noticing when enterprise logic moves faster than the human experience of the people affected by the decision." }
-  },
-  5:{ name:"Presence", tension:"Reaction ↔ Curiosity", question:"When pressure rises, do you react immediately or become curious about what the moment might be revealing?",
-    "1":{ pattern:"Your responses indicate that interpersonal pressure produces an immediate pull to respond, resolve, or defend a position. When challenged or confronted, the immediate focus often goes to correcting the issue, defending the position, or restoring clarity.", bullets:["Interpersonal challenges can feel like direct challenges to the decision, position, or relationship","When someone pushes back publicly, the instinct may be to respond quickly or defend the position","Emotional activation and behavioral response tend to occur close together"], edge:"Further development often involves creating a small pause between activation and response so you can choose how to engage rather than reacting immediately." },
-    "2a":{ pattern:"Your responses indicate that interpersonal pressure is managed through self-containment and reaction control. The priority becomes ensuring that your internal reaction does not disrupt the conversation or create visible damage.", bullets:["Under pressure, significant energy goes into managing how your reaction appears","Composure may require deliberate effort","Attention often goes to keeping the reaction contained rather than exploring what it may be revealing"], edge:"Further development often involves shifting from managing the reaction to becoming curious about it and the information it may carry." },
-    "2b":{ pattern:"Your responses indicate that interpersonal pressure is managed through social calibration and careful attention to how your response will be perceived. You regulate your own reaction while also paying attention to how your response will be interpreted by others.", bullets:["Under pressure, you consider how your response will be received by others in the room","When receiving difficult feedback, you may first evaluate whether it is accurate","Attention often goes to responding well rather than exploring what the pressure might reveal"], edge:"Further development often involves putting the management agenda aside and responding more directly to what is actually happening in the interaction." },
-    "2b+":{ pattern:"Your responses indicate a mixed pattern. In some situations you are genuinely curious about interpersonal dynamics, while in others the instinct to manage the reaction or response becomes stronger.", bullets:["Curiosity about emotional dynamics appears in lower-stakes conversations","When feedback or pressure becomes more personal, the instinct to manage the response increases","This shift is most visible when the pressure involves feedback about you directly"], edge:"Further development often involves bringing the curiosity you demonstrate in lower-pressure situations into moments where the interpersonal stakes are higher." },
-    "3":{ pattern:"Your responses indicate that interpersonal pressure often produces curiosity about what the moment might be revealing rather than a need to manage the reaction. Emotional activation becomes a source of information about what may actually be happening in the situation.", bullets:["Interpersonal tension leads to curiosity about what may be underneath it","When someone challenges you directly, you can remain open to the possibility that their perspective may hold information","You are able to notice the difference between what you feel and how you choose to respond"], edge:"Further development often involves noticing when steadiness or composure unintentionally creates distance from others in the moment." }
-  }
-};
-
-
-// ── SYNTHESIS (rule-based) ──
-// ── SYNTHESIS CONTENT ──
-const SYNTHESIS_CONTENT = {
-  clusters: {
-    process_dominant: {
-      title: "Process-anchored leadership",
-      text: "Your profile suggests that when leadership gets tense, you often default to staying close to how work is unfolding. You are likely to trust your judgment more when you have visibility into the process, can track how decisions are developing, and can see whether standards are holding. This often creates strong reliability, consistency, and quality control. The tradeoff is that leadership can remain more closely tied to your visibility than to the systems or people carrying the work forward."
-    },
-    system_dominant: {
-      title: "System-oriented leadership",
-      text: "Your profile suggests that when leadership moments become difficult, you often default to the underlying logic, structure, or system shaping the work. You are likely to trust decisions more when the reasoning is clear, the architecture makes sense, and the broader system can hold complexity without oversimplifying it. This often creates strong judgment, learning, and long-range thinking. The tradeoff is that others may not always know when to move from exploration into commitment or action."
-    },
-    identity_dominant: {
-      title: "Identity-aware leadership",
-      text: "Your profile suggests that when leadership gets tense, you often default to how your leadership stance is being understood by others. You are likely to pay close attention to trust, credibility, interpretation, and how your response lands across different audiences. This often creates thoughtful communication, political awareness, and steadiness in complex situations. The tradeoff is that too much energy can go into managing how leadership is understood rather than fully stepping into the tension itself."
-    },
-    outcome_dominant: {
-      title: "Outcome-driven leadership",
-      text: "Your profile suggests that when pressure rises, you often default to the result that needs to be protected or achieved. You are likely to trust your footing most when the direction is clear, the stakes are named, and movement toward the outcome is visible. This often creates decisiveness, momentum, and strong ownership. The tradeoff is that urgency can narrow reflection and reduce space for others to shape the work."
-    },
-    mixed_process_identity: {
-      title: "Careful, high-accountability leadership",
-      text: "Your profile suggests a pattern of staying close to both execution and interpretation when leadership gets tense. You may rely on visibility into the work while also paying close attention to how your leadership stance is understood by others. This often creates reliability, thoughtfulness, and strong situational awareness. The tradeoff is that leadership can become more effortful, because you are carrying both the work itself and the social meaning of the work at the same time."
-    },
-    mixed_process_system: {
-      title: "Structured, high-judgment leadership",
-      text: "Your profile suggests a pattern of combining strong reasoning with close process visibility. You are likely to value both sound logic and a clear view into how work is unfolding. This often creates thoughtful decisions and dependable execution. The tradeoff is that decision quality may stay high while ownership spreads more slowly, because leadership still relies partly on your proximity to the work."
-    },
-    mixed_identity_system: {
-      title: "Reflective, complex-systems leadership",
-      text: "Your profile suggests a pattern of holding both systemic complexity and social interpretation in view when leadership gets tense. You may be skilled at seeing the larger logic of a situation while also tracking how people are receiving the moment. This often creates nuanced judgment and strong relational awareness. The tradeoff is that leadership can become overmanaged if too much attention goes to both the system and the meaning others are making of it."
-    },
-    balanced_profile: {
-      title: "Mixed leadership profile",
-      text: "Your profile suggests that you do not rely on one leadership pattern across every domain. Instead, your defaults shift depending on the kind of pressure you are carrying. This is common in experienced leaders. It means your development is less about changing your whole style and more about noticing which pattern you reach for in which kind of moment."
-    }
-  },
-  leverage: {
-    contribution: {
-      title: "Developmental leverage: Contribution",
-      text: "The strongest developmental leverage in your profile appears in Contribution. This domain matters because it shapes how you experience your value as leadership becomes less visible and more distributed. A shift here would likely have effects beyond contribution itself: it can change how much oversight you need, how easily authority spreads through others, and how much your leadership depends on staying close to the work. The key question is whether you can trust your influence even when your involvement is no longer visible."
-    },
-    reasoning: {
-      title: "Developmental leverage: Reasoning",
-      text: "The strongest developmental leverage in your profile appears in Reasoning. This domain matters because it shapes how you make sense of uncertainty, explain decisions, and invite others into complex thinking. A shift here would likely affect not only your decisions, but also the quality of dialogue around you. The key question is whether your current reasoning habits create enough room to examine the assumptions built into how you are framing the problem."
-    },
-    authority: {
-      title: "Developmental leverage: Authority",
-      text: "The strongest developmental leverage in your profile appears in Authority. This domain matters because it shapes whether leadership capacity stays concentrated around you or becomes more widely held across the team or system. A shift here would likely affect scale, ownership, and the pace at which others grow into judgment. The key question is whether your current oversight gives the system what it truly needs, or whether some of it mainly helps you feel reassured."
-    },
-    loyalty: {
-      title: "Developmental leverage: Loyalty",
-      text: "The strongest developmental leverage in your profile appears in Loyalty. This domain matters because it shapes how you carry the tension between your people and the larger system. A shift here would likely affect trust, alignment, and how clearly you can hold difficult decisions without overexplaining or overcorrecting. The key question is whether you can stay present to the cost of a decision without needing to manage how your leadership stance is interpreted."
-    },
-    presence: {
-      title: "Developmental leverage: Presence",
-      text: "The strongest developmental leverage in your profile appears in Presence. This domain matters because it shapes what happens in real time when challenge, disagreement, or emotional intensity enters the room. A shift here would likely affect not only your own steadiness, but also how much openness and learning difficult conversations can hold. The key question is whether you can stay curious a little longer before moving to manage, explain, or resolve the moment."
-    }
-  },
-  risks: {
-    reasoning_system_authority_process: {
-      title: "Pressure risk",
-      text: "One tension in your profile is that you may invite openness in how decisions are reasoned through while still staying relatively close to how authority is carried out. In practice, this can create a system where thinking is transparent but decision ownership does not spread as fully as it could. Under pressure, others may understand the logic but still look to you to hold the work together."
-    },
-    contribution_process_authority_process: {
-      title: "Pressure risk",
-      text: "A clear pressure pattern in your profile is proximity to execution. In both contribution and authority, you may rely on staying close enough to the work to know it is on track. This often supports strong standards and reliability. Under pressure, though, it can make scale harder because leadership confidence remains tied to your ongoing visibility into how the work is unfolding."
-    },
-    loyalty_identity_presence_identity: {
-      title: "Pressure risk",
-      text: "A clear pressure pattern in your profile is careful management of how leadership is understood in relationally charged moments. In both loyalty and presence, you may pay close attention to credibility, trust, and how your response is being interpreted. This often helps you navigate difficult situations thoughtfully. Under pressure, though, it can pull energy away from the deeper issue in the room and toward managing the meaning of the moment."
-    },
-    process_plus_identity: {
-      title: "Pressure risk",
-      text: "A broader tension in your profile is that leadership may become effortful in two directions at once: staying close to the work and staying aware of how your leadership stance is being received. This often creates conscientious leadership. Under pressure, though, it can mean you are carrying both execution and interpretation at the same time, which increases load and can slow the spread of ownership."
-    },
-    system_plus_identity: {
-      title: "Pressure risk",
-      text: "A broader tension in your profile is the pull to hold both systemic complexity and social interpretation at once. This can make you thoughtful, nuanced, and hard to destabilize. Under pressure, though, too much energy can go into understanding the whole system and tracking how the moment is being read, leaving less room for simplicity, clarity, or direct movement."
-    },
-    outcome_plus_process: {
-      title: "Pressure risk",
-      text: "A broader tension in your profile is the pull to protect both the result and the path the work is taking. This can create strong execution discipline and follow-through. Under pressure, though, it can narrow room for experimentation and increase the chance that you re-enter the work before others have fully grown into ownership."
-    },
-    identity_plus_system_plus_process: {
-      title: "Pressure risk",
-      text: "Your profile suggests that when stakes rise, you may work hard to keep the system sound, the process visible, and your leadership stance credible all at once. This can make you highly responsible and hard to catch off guard. Under pressure, though, that combination can become heavy: too much leadership load stays with you because you are holding structure, execution, and interpretation simultaneously."
-    },
-    balanced_general: {
-      title: "Pressure risk",
-      text: "Because your profile is mixed across domains, the main risk is not one fixed blind spot but a pattern of shifting defaults depending on the situation. Under pressure, this can make your leadership harder for others to predict. The developmental task is not to eliminate that flexibility, but to become more conscious of which pattern you are defaulting to in which kind of moment."
-    }
-  },
-  questions: {
-    contribution: "Where does your leadership still depend on staying close enough to the work to feel confident in its direction?",
-    reasoning: "What assumptions are built into the way you are currently framing the problem?",
-    authority: "Where would reducing oversight create more real ownership rather than more risk?",
-    loyalty: "What becomes possible when you stop managing how a difficult decision will be interpreted?",
-    presence: "What might you notice if you stayed curious a little longer before moving to explain, manage, or resolve the moment?",
-    general_process: "Where are you still using visibility as a substitute for trust?",
-    general_identity: "Where are you spending energy managing interpretation rather than staying with the leadership tension itself?",
-    general_system: "Where does strong thinking need to turn into clearer authority or action?"
-  }
-};
-
-// Domain index to key map
-const DOMAIN_KEYS = {1:"contribution", 2:"reasoning", 3:"authority", 4:"loyalty", 5:"presence"};
-
-// Orientation to bucket map
-const ORIENT_BUCKET = {
-  "1": "outcome",
-  "2a": "process",
-  "2b": "identity",
-  "2b+": "identity",
-  "3": "system"
-};
-
-// ── SELECTOR FUNCTION ──
-// ── LAYER 2: SYNTHESIS SELECTOR ──
-
-// Orientation bucket translator
-const toBucket = placement => ORIENT_BUCKET[placement] || "outcome";
-
-// ── CONFIGURABLE RULES ──
-// Each rule: { test: (profile, counts) => bool, key: string }
-// Selector walks the array and returns the first match.
-
-const CLUSTER_RULES = [
-  // Specific domain combinations first
-  {
-    test: (p, c) => p.reasoning === "system" && p.authority === "process" && (c.process||0) >= 2,
-    key: "mixed_process_system"
-  },
-  {
-    test: (p, c) => p.loyalty === "identity" && p.presence === "identity" && (c.identity||0) >= 2 && (c.process||0) >= 1,
-    key: "mixed_process_identity"
-  },
-  // Count-based dominance
-  { test: (p, c) => (c.process||0)   >= 3, key: "process_dominant"  },
-  { test: (p, c) => (c.system||0)    >= 3, key: "system_dominant"   },
-  { test: (p, c) => (c.identity||0)  >= 3, key: "identity_dominant" },
-  { test: (p, c) => (c.outcome||0)   >= 3, key: "outcome_dominant"  },
-  // Fallback — always matches
-  { test: () => true, key: "balanced_profile" }
-];
-
-const RISK_RULES = [
-  // Specific high-value domain combinations in priority order
-  {
-    test: (p) => p.reasoning === "system" && p.authority === "process",
-    key: "reasoning_system_authority_process"
-  },
-  {
-    test: (p) => p.contribution === "process" && p.authority === "process",
-    key: "contribution_process_authority_process"
-  },
-  {
-    test: (p) => p.loyalty === "identity" && p.presence === "identity",
-    key: "loyalty_identity_presence_identity"
-  },
-  // Broader combination patterns
-  {
-    test: (p, c) => (c.identity||0) >= 1 && (c.system||0) >= 1 && (c.process||0) >= 1,
-    key: "identity_plus_system_plus_process"
-  },
-  { test: (p, c) => (c.process||0)  >= 1 && (c.identity||0) >= 1, key: "process_plus_identity" },
-  { test: (p, c) => (c.system||0)   >= 1 && (c.identity||0) >= 1, key: "system_plus_identity"  },
-  { test: (p, c) => (c.outcome||0)  >= 1 && (c.process||0)  >= 1, key: "outcome_plus_process"  },
-  // Fallback — always matches
-  { test: () => true, key: "balanced_general" }
-];
-
-const QUESTION_RULES = [
-  // Match leverage domain directly if a question exists for it
-  // (resolved dynamically in selector — these handle the general fallbacks)
-  { test: (p, c) => (c.process||0)  >= 2, key: "general_process"  },
-  { test: (p, c) => (c.identity||0) >= 2, key: "general_identity" },
-  { test: (p, c) => (c.system||0)   >= 2, key: "general_system"   },
-  // Fallback — always matches
-  { test: () => true, key: "general_process" }
-];
-
-// ── RULE RUNNER ──
-function runRules(rules, profile, counts) {
-  const match = rules.find(r => r.test(profile, counts));
-  return match ? match.key : null;
-}
-
-// ── SELECTOR FUNCTION ──
-function getSynthesis(results, leverageDomain) {
-  const SC = SYNTHESIS_CONTENT;
-
-  // Layer 1 → profile (domain number → placement string)
-  const profile = {
-    contribution: results[1].placement,
-    reasoning:    results[2].placement,
-    authority:    results[3].placement,
-    loyalty:      results[4].placement,
-    presence:     results[5].placement,
-  };
-
-  // Translate placements to orientation buckets for count-based rules
-  const bucketProfile = Object.fromEntries(
-    Object.entries(profile).map(([k, v]) => [k, toBucket(v)])
-  );
-
-  // Count bucket frequencies
-  const counts = Object.values(bucketProfile).reduce((acc, b) => {
-    acc[b] = (acc[b]||0) + 1; return acc;
-  }, {});
-
-  // Run rules to get keys
-  const clusterKey = runRules(CLUSTER_RULES, bucketProfile, counts);
-
-  // Leverage: accept explicit override, otherwise auto-detect lowest orientation-order domain
-  let leverageKey;
-  if (leverageDomain && SC.leverage[leverageDomain]) {
-    leverageKey = leverageDomain;
-  } else {
-    const lowestDomain = [1,2,3,4,5].reduce((a, b) =>
-      (ORIENTATION_ORDER[results[a].placement]||0) <= (ORIENTATION_ORDER[results[b].placement]||0) ? a : b
-    );
-    leverageKey = DOMAIN_KEYS[lowestDomain];
-  }
-
-  const riskKey = runRules(RISK_RULES, bucketProfile, counts);
-
-  // Question: match leverage domain first, then run general rules
-  const questionKey = (SC.questions[leverageKey])
-    ? leverageKey
-    : runRules(QUESTION_RULES, bucketProfile, counts);
-
-  // ── LAYER 3: CONTENT ASSEMBLY ──
-  const cluster  = SC.clusters[clusterKey];
-  const leverage = SC.leverage[leverageKey];
-  const risk     = SC.risks[riskKey];
-  const question = SC.questions[questionKey];
-
-  // Integrative sentence connecting leverage domain to cluster pattern
-  const integrativeMap = {
-    contribution: "How you experience your contribution shapes everything downstream: how much oversight feels necessary, how readily authority moves to others, and whether your leadership depends on your presence in the work.",
-    reasoning:    "How you reason through decisions shapes the quality of conversation around you — and whether others can engage with complexity or mainly follow your lead.",
-    authority:    "How authority moves through your team determines whether your leadership scales — or whether capacity quietly accumulates back toward you under pressure.",
-    loyalty:      "How you hold the tension between your people and the organization shapes whether difficult decisions land with clarity or get softened in ways that cost trust over time.",
-    presence:     "How you respond when pressure enters the room shapes whether difficult conversations open up or close down — and whether the people around you feel they can bring the real issue forward."
-  };
-  const integrative = integrativeMap[leverageKey] || "";
-
-  return { cluster, leverage, risk, question, integrative };
-}
-
 // ── HTML PDF GENERATION ──
 function generatePDF(p) {
+  // Build filename: LASTNAME_FIRSTINITIAL_LPP (e.g. Rivera_A_LPP)
+  const nameParts = p.name.trim().split(/\s+/);
+  const lastName = nameParts[nameParts.length - 1];
+  const firstInitial = nameParts.length > 1 ? nameParts[0][0] : '';
+  const pdfFilename = [lastName, firstInitial, 'LPP'].filter(Boolean).join('_');
   const syn = getSynthesis(p.results, null);
   const date = new Date(p.completedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -647,7 +132,7 @@ function generatePDF(p) {
 
   function continuumBar(domain, placement) {
     const poles = DOMAIN_POLES[domain];
-    const pct = { "1": 0, "2a": 33, "2b": 58, "2b+": 58, "3": 85 }[placement] || 0;
+    const pct = { "1": 15, "2a": 38, "2b": 63, "3": 85 }[placement] || 0;
     return `
       <div class="continuum-wrap">
         <div class="continuum-labels-top">
@@ -681,13 +166,17 @@ function generatePDF(p) {
   }
 
   function domainSection(domainId) {
+    const DOMAIN_KEYS = { 1: "contribution", 2: "reasoning", 3: "authority", 4: "loyalty", 5: "presence" };
     const placement = p.results[domainId].placement;
-    const dc = DOMAIN_CONTENT[domainId];
+    const dc = DOMAIN_CONTENT[DOMAIN_KEYS[domainId]];
     const oc = ORIENTATION_CONTENT[domainId];
-    const orient = oc[placement] || oc["2b"];
-    const isTransitional = placement === "2b+";
+    const orient = oc[placement];
+    const assets = dc.assets[{ "1": "execution", "2a": "orchestration", "2b": "navigation", "3": "integration" }[placement]];
     const poles = DOMAIN_POLES[domainId];
-    const pct = { "1": 0, "2a": 33, "2b": 58, "2b+": 58, "3": 85 }[placement] || 0;
+    const pct = { "1": 15, "2a": 38, "2b": 63, "3": 85 }[placement] || 0;
+    const orientLabel = ORIENTATION_LABELS[placement] || placement;
+    const framingLine = dc.framingLine.replace("[Mode]", orientLabel.replace(" Mode", ""));
+    const otherOrients = ["1", "2a", "2b", "3"].filter(k => k !== placement);
 
     return `
     <section class="domain-section page-break-before">
@@ -696,7 +185,7 @@ function generatePDF(p) {
           <h2 class="domain-title">${DOMAIN_NAMES[domainId]}</h2>
           <p class="domain-tension">Leadership tension: ${DOMAIN_TENSIONS[domainId]}</p>
         </div>
-        <div class="domain-header-badge">${ORIENTATION_LABELS[placement] || placement}</div>
+        <div class="domain-header-badge">${orientLabel}</div>
       </div>
 
       <div class="domain-continuum">
@@ -712,72 +201,47 @@ function generatePDF(p) {
 
       <div class="section-block avoid-break">
         <h3 class="section-label">About This Domain</h3>
-        ${dc.description.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
+        ${dc.about.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
       </div>
 
       <div class="section-block avoid-break">
-        <h3 class="section-label">The Four Leadership Orientations</h3>
-        <div class="orientation-table">
-          ${dc.orientations.map(o => `
-            <div class="orientation-row">
-              <span class="orientation-label-cell">${o.label}</span>
-              <span class="orientation-desc-cell">${o.desc}</span>
+        <h3 class="section-label">Your Orientation: ${orientLabel}</h3>
+        <p class="body-text">${orient.pattern}</p>
+      </div>
+
+      <div class="section-block avoid-break">
+        <h3 class="section-label">What This Looks Like</h3>
+        <div class="assets-table">
+          <div class="assets-table-header">
+            <span class="assets-col-head">What this orientation makes possible</span>
+            <span class="assets-col-head">What it costs</span>
+          </div>
+          <div class="assets-table-body">
+            ${assets.possible.map((item, i) => `
+            <div class="assets-row">
+              <span class="assets-cell">${item}</span>
+              <span class="assets-cell">${assets.costs[i] || ''}</span>
             </div>`).join('')}
+          </div>
         </div>
-        ${dc.orientationsNote ? `<p class="body-text note-text">${dc.orientationsNote}</p>` : ''}
-      </div>
-
-      <div class="section-block">
-        <h3 class="section-label">When This Pattern Shows Up</h3>
-        <p class="body-text">${dc.scenarios.intro}</p>
-        ${scenarioBlock(dc.scenarios.s1)}
-        ${scenarioBlock(dc.scenarios.s2)}
-        ${dc.scenarios.closing ? `<p class="body-text">${dc.scenarios.closing}</p>` : ''}
       </div>
 
       <div class="section-block avoid-break">
-        <h3 class="section-label">Your Orientation: ${isTransitional ? "Protect Identity (Emerging System Orientation)" : ORIENTATION_LABELS[placement]}</h3>
-        ${isTransitional ? `<div class="transitional-box">${orient.transitional.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}</div>` : ''}
-        ${orient.intro.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
+        <h3 class="section-label">A Leadership Moment</h3>
+        <p class="body-text scenario-text">${dc.scenario}</p>
+        <p class="body-text framing-line">${framingLine}</p>
+        <p class="body-text">${dc.primary[{ "1": "execution", "2a": "orchestration", "2b": "navigation", "3": "integration" }[placement]]}</p>
+        <h4 class="secondary-header">How other orientations might respond</h4>
+        ${otherOrients.map(k => `
+          <div class="secondary-response">
+            <span class="secondary-orient-label">${ORIENTATION_LABELS[k]}:</span>
+            <span class="secondary-orient-text">${dc.secondary[{ "1": "execution", "2a": "orchestration", "2b": "navigation", "3": "integration" }[k]]}</span>
+          </div>`).join('')}
       </div>
 
       <div class="section-block avoid-break">
-        <h3 class="section-label">What This Looks Like in Practice</h3>
-        <ul class="bullet-list">
-          ${orient.bullets.map(b => `<li>${b}</li>`).join('')}
-        </ul>
-        ${orient.bulletsNote ? `<p class="body-text note-text">${orient.bulletsNote}</p>` : ''}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">What This Orientation Makes Possible</h3>
-        ${orient.possible.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">What the Next Shift Looks Like</h3>
-        ${orient.shift.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">Working With This Pattern</h3>
-        <p class="body-text">${orient.reflection.intro}</p>
-        <p class="body-text">You might explore:</p>
-        <ol class="reflection-list">
-          ${orient.reflection.questions.map(q => `<li>${q}</li>`).join('')}
-        </ol>
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">Leadership Moment to Practice</h3>
-        ${dc.moment.text.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
-        <div class="pull-quote">${dc.moment.question}</div>
-        ${dc.moment.closing ? `<p class="body-text">${dc.moment.closing}</p>` : ''}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">Cross-Domain Insight</h3>
-        ${dc.crossDomain.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
+        <h3 class="section-label">Questions to Sit With</h3>
+        <p class="body-text reflection-question">${dc.question}</p>
       </div>
     </section>`;
   }
@@ -786,7 +250,7 @@ function generatePDF(p) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Leadership Patterns Profile — ${p.name}</title>
+<title>${pdfFilename}</title>
 <style>
 /* ── BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1093,17 +557,52 @@ body {
   margin-bottom: 10px;
 }
 .note-text { font-style: italic; color: #4a6274; }
-.orientation-table { margin-bottom: 8px; }
-.orientation-row {
+.assets-table { margin-bottom: 8px; border-top: 1px solid #e8e6e2; }
+.assets-table-header {
   display: grid;
-  grid-template-columns: 160px 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
-  padding: 9px 0;
+  padding: 7px 0;
+  font-family: system-ui, sans-serif;
+  font-size: 8.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4a5568;
   border-bottom: 1px solid #e8e6e2;
+}
+.assets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f0ede8;
   font-family: system-ui, sans-serif;
   font-size: 9.5pt;
 }
-.orientation-label-cell { font-weight: 600; color: #1f2328; }
+.assets-cell { color: #1f2328; line-height: 1.45; }
+.scenario-text { font-style: italic; color: #3a4450; margin-bottom: 10px; }
+.framing-line { font-weight: 600; margin-bottom: 6px; }
+.secondary-header {
+  font-family: system-ui, sans-serif;
+  font-size: 9pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #4a5568;
+  margin-top: 14px;
+  margin-bottom: 8px;
+}
+.secondary-response {
+  padding: 6px 0;
+  border-bottom: 1px solid #f0ede8;
+  font-family: system-ui, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.5;
+}
+.secondary-orient-label { font-weight: 600; color: #1f2328; margin-right: 6px; }
+.secondary-orient-text { color: #3a4450; }
+.reflection-question { font-style: italic; color: #1f2328; }
 .orientation-desc-cell { font-weight: 300; color: #313130; line-height: 1.6; }
 .scenario-block { margin-bottom: 18px; }
 .scenario-title {
@@ -1389,7 +888,7 @@ body {
     </div>
     <div class="intro-block">
       <p>Each domain describes a tension that leaders regularly encounter as responsibility grows. Your responses placed your current orientation somewhere along that tension for each domain.</p>
-      <p>The four orientations — Protect Outcome, Protect Process, Protect Identity, and Protect System — reflect different ways leaders anchor their leadership identity under pressure. Each orientation has genuine strengths. Each also has a developmental edge.</p>
+      <p>The four orientations — Execution Mode, Orchestration Mode, Navigation Mode, and Integration Mode — reflect different ways leaders anchor their leadership identity under pressure. Each orientation has genuine strengths. Each also has a developmental edge.</p>
     </div>
     <div class="domain-intro-table">
       ${[1,2,3,4,5].map(d => `
@@ -1409,25 +908,25 @@ body {
     <h2 class="page-title">Your Leadership Patterns</h2>
     <div class="orientation-legend">
       <div class="legend-item">
-        <div class="legend-label">Protect Outcome</div>
+        <div class="legend-label">Execution Mode</div>
         <div class="legend-sub">Direct connection to results</div>
       </div>
       <div class="legend-item">
-        <div class="legend-label">Protect Process</div>
+        <div class="legend-label">Orchestration Mode</div>
         <div class="legend-sub">Visibility into how work unfolds</div>
       </div>
       <div class="legend-item">
-        <div class="legend-label">Protect Identity</div>
+        <div class="legend-label">Navigation Mode</div>
         <div class="legend-sub">How leadership is understood</div>
       </div>
       <div class="legend-item">
-        <div class="legend-label">Protect System</div>
+        <div class="legend-label">Integration Mode</div>
         <div class="legend-sub">Architecture and structure</div>
       </div>
     </div>
     ${[1,2,3,4,5].map(d => {
       const placement = p.results[d].placement;
-      const pct = { "1": 0, "2a": 33, "2b": 58, "2b+": 58, "3": 85 }[placement] || 0;
+      const pct = { "1": 15, "2a": 38, "2b": 63, "3": 85 }[placement] || 0;
       const poles = DOMAIN_POLES[d];
       return `
       <div class="map-continuum-wrap">
@@ -1498,7 +997,7 @@ body {
 
 <div class="page-footer">Jen Nguyen · Executive Coaching · jnguyen.org</div>
 
-<script>window.print();</script>
+<script>document.title = "${pdfFilename}"; window.print();</script>
 </body>
 </html>`;
 
@@ -1516,7 +1015,7 @@ function Wheel({results}) {
     {r:195,rIn:135,bg:"#8aaabe", label:"PROTECT IDENTITY"},
     {r:250,rIn:195,bg:"#4a6e88", label:"PROTECT SYSTEM"},
   ];
-  const RING_IDX={"1":0,"2a":1,"2b":2,"2b+":2,"3":3};
+  const RING_IDX={"1":0,"2a":1,"2b":2,"3":3};
   const DOMAINS=[
     {id:1,name:"Contribution",        s:198,e:270},
     {id:2,name:"Decision\nReasoning", s:270,e:342},
@@ -1605,10 +1104,10 @@ function Wheel({results}) {
       <div style={{display:"flex",gap:20,flexWrap:"wrap",justifyContent:"center",marginTop:12}}>
         {[
           {color:C.gold,border:C.goldDark,label:"Current orientation"},
-          {color:"#dedad4",border:"#c4c0ba",label:"Protect Outcome"},
-          {color:"#b8ccd6",border:"#9ab4c2",label:"Protect Process"},
-          {color:"#8aaabe",border:"#6a8eaa",label:"Protect Identity"},
-          {color:"#4a6e88",border:"#2a5068",label:"Protect System"},
+          {color:"#dedad4",border:"#c4c0ba",label:"Execution Mode"},
+          {color:"#b8ccd6",border:"#9ab4c2",label:"Orchestration Mode"},
+          {color:"#8aaabe",border:"#6a8eaa",label:"Navigation Mode"},
+          {color:"#4a6e88",border:"#2a5068",label:"Integration Mode"},
         ].map(({color,border,label})=>(
           <div key={label} style={{display:"flex",alignItems:"center",gap:7}}>
             <div style={{width:28,height:10,background:color,border:`1.5px solid ${border}`,borderRadius:2}}/>
@@ -1649,8 +1148,8 @@ function FormField({label,value,onChange,type="text",placeholder}) {
 }
 
 function OrientationBadge({placement}) {
-  const bgs={"1":C.warmWhite,"2a":"#dce4e0","2b":"#b8c4cc","2b+":"#b8c4cc","3":C.slate};
-  const fgs={"1":C.midBlue,"2a":C.slate,"2b":C.deepCharcoal,"2b+":C.deepCharcoal,"3":C.offWhite};
+  const bgs={"1":C.warmWhite,"2a":"#dce4e0","2b":"#b8c4cc","3":C.slate};
+  const fgs={"1":C.midBlue,"2a":C.slate,"2b":C.deepCharcoal,"3":C.offWhite};
   return <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:500,letterSpacing:"0.05em",padding:"3px 10px",background:bgs[placement]||C.warmWhite,color:fgs[placement]||C.midBlue,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]||placement}</span>;
 }
 
@@ -1685,10 +1184,10 @@ function IntroPage() {
         <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580,marginBottom:20}}>These orientations describe the different ways leaders tend to steady themselves when responsibility intensifies.</p>
         <div style={{display:"flex",flexDirection:"column",gap:0}}>
           {[
-            {label:"Protect Outcome", desc:"Leadership stabilizes through direct involvement in results."},
-            {label:"Protect Process", desc:"Leadership stabilizes through oversight, structure, and defensibility."},
-            {label:"Protect Identity", desc:"Leadership stabilizes through how leadership decisions and actions are perceived."},
-            {label:"Protect System",  desc:"Leadership stabilizes through designing conditions that allow others to act and decisions to hold without direct involvement."},
+            {label:"Execution Mode", desc:"Leadership stabilizes through direct involvement in results."},
+            {label:"Orchestration Mode", desc:"Leadership stabilizes through oversight, structure, and defensibility."},
+            {label:"Navigation Mode", desc:"Leadership stabilizes through how leadership decisions and actions are perceived."},
+            {label:"Integration Mode",  desc:"Leadership stabilizes through designing conditions that allow others to act and decisions to hold without direct involvement."},
           ].map((o,i)=>(
             <div key={i} style={{display:"grid",gridTemplateColumns:"160px 1fr",gap:20,padding:"12px 0",borderBottom:`1px solid ${C.warmWhite}`}}>
               <div style={{fontFamily:"system-ui,sans-serif",fontSize:12,fontWeight:600,color:C.nearBlack}}>{o.label}</div>
@@ -1736,501 +1235,480 @@ function IntroPage() {
   );
 }
 
+// DOMAIN_CONTENT — v16
+// Structure per domain:
+//   about: string (About This Domain)
+//   assets: { execution, orchestration, navigation, integration } — each: { possible: string[], costs: string[] }
+//   scenario: string (shared Leadership Moment scenario)
+//   framingLine: string (framing line before primary response)
+//   primary: { execution, orchestration, navigation, integration } — string (full paragraph)
+//   secondary: { execution, orchestration, navigation, integration } — string (short version)
+//   question: string (Questions to Sit With)
+
 const DOMAIN_CONTENT = {
-  1: {
-    description: `Contribution examines how leaders experience their value as their role shifts from doing work directly to shaping outcomes through others.\n\nEarly in a career, contribution is often visible. Leaders are closely involved in solving problems, making decisions, and producing results themselves. As responsibility grows, influence becomes less direct. Leaders shape outcomes through framing problems, designing approaches, and developing people who carry the work forward.\n\nBecause of this shift, many leaders encounter a tension between visibility and impact. Contribution may still be experienced through direct involvement in the work, or through the influence of thinking that shapes outcomes even when the leader is not visibly connected to the result.\n\nWhen visibility and contribution begin to separate, leaders tend to lean toward one of four orientations.`,
-    orientations: [
-      {label:"Protect Outcome", desc:"Staying closely connected to results."},
-      {label:"Protect Process", desc:"Maintaining visibility into how work unfolds."},
-      {label:"Protect Identity", desc:"Managing how leadership influence is understood."},
-      {label:"Protect System", desc:"Focusing on whether the structures shaping the work are functioning."},
-    ],
-    orientationsNote: "These orientations are not right or wrong. They reflect where leadership attention tends to go when contribution becomes less visible.",
-    scenarios: {
-      intro: "Two types of leadership situations often make this domain visible.",
-      s1: {
-        title: "Scenario 1",
-        text: "A project you originally led is now being run by someone on your team. During a senior meeting, they present the work confidently and the discussion moves forward without reference to your role.",
-        responses: [
-          {label:"Protect Outcome", text:'"I should step back in. The stakes are high and I want to make sure this lands the way it should."'},
-          {label:"Protect Process", text:'"I want to check how the work is unfolding so I know the standards are holding."'},
-          {label:"Protect Identity", text:'"I want to make sure people understand the context behind how this work developed."'},
-          {label:"Protect System", text:'"I\'m interested in whether the thinking we established is still shaping the decisions."'},
+
+  contribution: {
+    about: `Contribution examines how you experience your own impact when the work moves through others rather than through you. As leadership scope grows, your involvement becomes less direct. You shape outcomes through direction, judgment, and the conditions you create rather than through your own output.\n\nWhen visibility drops or credit becomes unclear, this domain surfaces. The question it asks is where your confidence goes when you can no longer see your hand in the result. It shows what you rely on to feel your contribution is real: doing the work yourself, staying close to how it unfolds, whether your role is being understood correctly, or the strength of the thinking behind it.`,
+
+    assets: {
+      execution: {
+        possible: [
+          "Clear direction through direct involvement",
+          "Work stays aligned to intended outcome",
+          "Rapid correction when work starts to drift"
         ],
+        costs: [
+          "Limited delegation of true ownership",
+          "Others depend on your continued involvement",
+          "Difficulty releasing ownership once you've shaped the direction"
+        ]
       },
-      s2: {
-        title: "Scenario 2",
-        text: "A delegated initiative begins to drift from how you would have approached it, even though nothing has gone seriously wrong yet.",
-        responses: [
-          {label:"Protect Outcome", text:'"I should step back in. The stakes are high and I want to make sure this lands the way it should."'},
-          {label:"Protect Process", text:'"I want to check how the work is unfolding so I know the standards are holding."'},
-          {label:"Protect Identity", text:'"I want to make sure people understand the context behind how this work developed."'},
-          {label:"Protect System", text:'"I\'m interested in whether the thinking we established is still shaping the decisions."'},
+      orchestration: {
+        possible: [
+          "Work scales through clear structure and roles",
+          "Consistent execution across people and teams",
+          "Strong continuity as work moves across groups"
         ],
+        costs: [
+          "Resistance when work needs to evolve",
+          "Over-reliance on established structure",
+          "Slower adaptation when direction needs to shift"
+        ]
       },
-      closing: "Each response reflects a different way leaders experience their contribution when visibility shifts.",
+      navigation: {
+        possible: [
+          "Contribution is visible and well understood",
+          "Role in shaping the work remains legible to others",
+          "Clear connection between you and the work"
+        ],
+        costs: [
+          "Attention split between work and perception",
+          "Reliance on recognition to validate contribution",
+          "Reduced focus on the work itself"
+        ]
+      },
+      integration: {
+        possible: [
+          "Work evolves beyond original ownership",
+          "Direction holds without your direct involvement",
+          "Thinking transfers across people and contexts"
+        ],
+        costs: [
+          "Contribution not always visible or attributed",
+          "Others unclear on your role in the work",
+          "Direction may feel under-specified to others"
+        ]
+      }
     },
-    moment: {
-      text: "For Contribution, that moment often occurs when work succeeds without your involvement being visible.\n\nWhen this happens, notice the first internal pull — whether it is to reconnect with the work, check how it unfolded, clarify context, or simply observe the outcome.\n\nExperiment with letting the moment remain unresolved for a little longer than usual.\n\nInstead of moving quickly to reconnect with the work, ask yourself:",
-      question: "What influence might already be operating here without my involvement?",
-      closing: "Leaders often discover that this moment reveals how they currently experience their contribution — and how it might expand.",
+
+    scenario: `You are in a senior leadership meeting. A decision is being made about a major initiative shaped by your thinking, and your team has been carrying most of the execution across several groups. New information is pushing a shift in direction that will create strain for your team. A peer challenges the direction publicly and looks to you to respond.`,
+
+    framingLine: `In this moment, your instinct is to move into [Mode] Mode:`,
+
+    primary: {
+      execution: `Your focus goes to the work and whether the direction still holds. The challenge feels like the work itself is at risk, and you move to reinsert your thinking so it doesn't drift. You step in to restate the approach, clarify what should happen, and make sure the outcome reflects what you see as the right path. Staying out of it doesn't feel like a responsible option when your imprint is on the work.`,
+      orchestration: `Focus on whether the process that got you here is being understood correctly. The shift in direction concerns you less than whether the people pushing for it understand how the original approach was built and why it was set up the way it was. You slow the conversation down, fill in the context, and make sure the decision is grounded in how the work actually developed. A decision made on incomplete understanding feels like a breakdown in how the work is being managed.`,
+      navigation: `Focus on how this moment is landing and what it's asking of you. The peer's challenge is public, the room is watching, and how you respond will shape how your leadership is read. You track whether the original approach is being credited, how your team will interpret your response, and how to engage in a way that reads as measured and credible. You want to hold your ground without coming across as defensive.`,
+      integration: `The change doesn't immediately pull you to assert your contribution. What stands out is whether the original approach is still holding. You want to understand what shifted before responding, even if it means not stepping in right away. If the direction needs to change, you may let go of your imprint on the work. Others may expect you to make your role more visible than you do.`
     },
-    crossDomain: "Patterns in Contribution often interact with patterns in Authority and Reasoning.\n\nLeaders who experience contribution through proximity to work sometimes also remain closely connected to delegated authority structures. This can produce organizations where execution is reliable but where decision authority spreads more slowly.\n\nAs leaders begin to experience contribution through broader influence rather than proximity, authority and decision-making often distribute more naturally across the system.",
+
+    secondary: {
+      execution: `You focus on the work and whether the direction still holds. If it's being challenged, you step in directly to defend the approach and keep it on track.`,
+      orchestration: `You focus on how the decision is being shaped. Before reacting, you want to make sure the shift is grounded in a clear understanding of how the work developed and why it was set up the way it was.`,
+      navigation: `You focus on how the moment is landing and what your response will signal. You step in carefully, making sure your position is clear without coming across as defensive or overreaching.`,
+      integration: `You focus on what the new information is actually showing. If the direction needs to change, you're willing to follow that, even if it means letting go of the original approach.`
+    },
+
+    question: `Where are you staying closer to the work than needed, or further from it than the situation can carry?`
   },
-  2: {
-    description: `Reasoning examines how leaders approach decision-making when the stakes are high and outcomes are uncertain.\n\nIn leadership roles, decisions are rarely made with complete information. Leaders must interpret ambiguous data, weigh competing perspectives, and move forward even when multiple paths remain plausible.\n\nBecause of this, many leaders experience a tension between correctness and transparency.\n\nSome leaders focus primarily on reaching the right conclusion and making the strongest case for it. Others focus more on making the reasoning process visible — showing how conclusions were reached and where uncertainties remain.\n\nThis domain explores how leaders navigate that tension when making and explaining decisions.`,
-    orientations: [
-      {label:"Protect Outcome", desc:"Prioritizing the strength of the conclusion and advocating for the recommended path."},
-      {label:"Protect Process", desc:"Ensuring the analysis is thorough and defensible before committing to a decision."},
-      {label:"Protect Identity", desc:"Demonstrating analytical rigor and presenting reasoning in a way that reflects strong leadership judgment."},
-      {label:"Protect System", desc:"Making the reasoning process transparent and following the logic wherever it leads, even when it challenges the preferred conclusion."},
-    ],
-    orientationsNote: null,
-    scenarios: {
-      intro: "Two types of leadership situations often make this domain visible.",
-      s1: {
-        title: "Scenario 1",
-        text: "You are presenting a recommendation to senior leadership. As you review the data, you realize the evidence supporting your preferred option is less clear than you initially thought.",
-        responses: [
-          {label:"Protect Outcome", text:'"I should strengthen the case for the recommendation so the group has confidence in the direction."'},
-          {label:"Protect Process", text:'"I want to make sure the analysis is thorough enough that the reasoning holds up under scrutiny."'},
-          {label:"Protect Identity", text:'"I need to present the reasoning in a way that shows the analysis is balanced and well considered."'},
-          {label:"Protect System", text:'"I\'m curious about what the mixed data might be telling us about the decision itself."'},
+
+  reasoning: {
+    about: `Reasoning examines what you rely on when you're faced with uncertainty, ambiguity, or challenge and a decision is yours to make or defend. In senior leadership, decisions rarely come with complete information. The question is not just what you conclude, but where you find confidence in your reasoning when the analysis is mixed, assumptions are exposed, or someone pushes back.\n\nWhen credibility is on the line, this domain surfaces. It shows what leaders rely on to feel their reasoning holds: arriving at the right answer, building a well-structured analysis, ensuring their reasoning lands as credible, or making their assumptions and logic clear enough to examine and adapt.`,
+
+    assets: {
+      execution: {
+        possible: [
+          "Clear, decisive answers under pressure",
+          "Faster movement from debate to decision",
+          "Strong direction when clarity is needed"
         ],
+        costs: [
+          "Premature closure on incomplete reasoning",
+          "Limited exploration of alternative interpretations",
+          "Difficulty revisiting initial conclusions"
+        ]
       },
-      s2: {
-        title: "Scenario 2",
-        text: "A colleague challenges your recommendation during a leadership discussion.",
-        responses: [
-          {label:"Protect Outcome", text:"The instinct is to reinforce the logic supporting the recommendation."},
-          {label:"Protect Process", text:"Attention moves to ensuring the reasoning remains well supported."},
-          {label:"Protect Identity", text:"The focus shifts to demonstrating that the thinking behind the decision is rigorous."},
-          {label:"Protect System", text:"The challenge becomes an opportunity to explore whether the reasoning should evolve."},
+      orchestration: {
+        possible: [
+          "Well-structured, rigorous analysis",
+          "Clear articulation of assumptions and logic",
+          "High confidence in how decisions are built"
         ],
+        costs: [
+          "Slower decisions when clarity is incomplete",
+          "Analysis prioritized over speed when decisions are time-sensitive",
+          "Difficulty acting without complete analysis"
+        ]
       },
-      closing: null,
+      navigation: {
+        possible: [
+          "Reasoning lands clearly with stakeholders",
+          "Strong alignment around how decisions are understood",
+          "Credibility maintained across differing perspectives"
+        ],
+        costs: [
+          "Framing shaped by audience over own thinking",
+          "Hesitation when reasoning diverges from the room",
+          "Social pressure compromises ability to access your own reasoning"
+        ]
+      },
+      integration: {
+        possible: [
+          "Reasoning adapts as new information emerges",
+          "Assumptions surfaced and tested in real time",
+          "Decisions built on more resilient logic"
+        ],
+        costs: [
+          "Delayed closure when decisions are needed",
+          "Unclear position while thinking is evolving",
+          "Frustration from others seeking a clear answer"
+        ]
+      }
     },
-    moment: {
-      text: "In this domain, leadership patterns often become visible when a recommendation is challenged publicly.\n\nWhen this happens, notice the first internal pull — whether it is to reinforce the conclusion, protect the analysis, demonstrate the rigor of the reasoning, or explore what the challenge might reveal.\n\nExperiment with allowing the reasoning conversation to remain open slightly longer than usual.\n\nYou might ask yourself:",
-      question: "What might we learn if we stay curious about the reasoning here before deciding?",
-      closing: null,
+
+    scenario: `You are in a senior leadership meeting. A decision is being made about a major initiative shaped by your thinking, and your team has been carrying most of the execution across several groups. New information is pushing a shift in direction that will create strain for your team. A peer challenges the direction publicly and looks to you to respond.`,
+
+    framingLine: `In this moment, your instinct is to move into [Mode] Mode:`,
+
+    primary: {
+      execution: `Your focus goes to resolving the question. The differing views create pressure to land on a clear answer, and you move to close the gap by sharpening the conclusion. You restate the decision, clarify what you believe is true, and push toward alignment so the group can move forward. Leaving the reasoning open feels like a delay when a decision needs to be made.`,
+      orchestration: `Focus on how the reasoning is being built and whether it holds up. The differing views signal that something in the analysis may be incomplete or not fully understood. You slow the conversation down to clarify how the original thinking was formed, what assumptions were in play, and where the reasoning may be breaking down. Before moving forward, you want the logic to be fully worked through.`,
+      navigation: `Focus on how your reasoning is landing and how to position it effectively in the room. The challenge makes you aware of how your thinking is being interpreted and what your response will signal. You adjust how you frame your point so it comes across as credible and well-considered, while also tracking how others are responding. It matters that your reasoning is received as credible and well-considered, not just stated.`,
+      integration: `The disagreement doesn't need to be resolved right away. It signals that something in the thinking may not be holding as expected. You stay with the tension to examine which assumptions are driving the difference before moving to a conclusion. If the answer changes, you rework it based on what becomes clearer. The conversation may move faster than you're ready to.`
     },
-    crossDomain: "Patterns in Reasoning often interact with patterns in Presence.\n\nLeaders who bring transparency to decision reasoning often rely on emotional steadiness when their thinking is challenged. Similarly, leaders who remain curious under interpersonal pressure often find it easier to keep reasoning conversations open.\n\nAs leaders develop greater comfort with transparent reasoning, decision discussions often shift from defending conclusions to exploring understanding together.",
+
+    secondary: {
+      execution: `You focus on getting to a clear answer. If the direction is being challenged, you step in to restate the conclusion and move the decision forward.`,
+      orchestration: `You focus on how the reasoning is being built. You slow the conversation down to clarify assumptions and make sure the logic holds before moving forward.`,
+      navigation: `You focus on how your reasoning is landing. You adjust how you frame your point so it comes across as credible and aligns with how others are reading it.`,
+      integration: `You focus on what the challenge is revealing. You stay with the tension to examine assumptions and adjust the thinking if the conclusion no longer holds.`
+    },
+
+    question: `Think of a recent decision under pressure. Where did you move too quickly or stay too long before deciding?`
   },
-  3: {
-    description: `Authority examines how leaders experience responsibility for decisions made by others.\n\nAs leadership roles expand, decisions increasingly move through teams, functions, and systems rather than through the leader directly. Work is delegated, authority is distributed, and others begin making decisions that still carry the leader's name and responsibility.\n\nBecause of this shift, many leaders encounter a tension between control and system trust.\n\nSome leaders remain closely connected to decisions in order to ensure outcomes meet their expectations. Others focus more on designing systems that allow others to make decisions effectively without the leader's involvement.\n\nThis domain explores how leaders respond when someone else's decision produces results that still reflect on them.`,
-    orientations: [
-      {label:"Protect Outcome", desc:"Stepping back into decisions to ensure the outcome meets expectations."},
-      {label:"Protect Process", desc:"Maintaining oversight structures that allow the leader to monitor how decisions are unfolding."},
-      {label:"Protect Identity", desc:"Delegating authority while remaining attentive to how delegation and oversight appear to others."},
-      {label:"Protect System", desc:"Focusing on whether the structures guiding decisions are functioning, even when outcomes are imperfect."},
-    ],
-    orientationsNote: null,
-    scenarios: {
-      intro: "Two types of leadership situations often make this domain visible.",
-      s1: {
-        title: "Scenario 1",
-        text: "A decision made by someone on your team produces friction with another group. The decision is reasonable, but it is not the choice you would have made.",
-        responses: [
-          {label:"Protect Outcome", text:'"I should step in to correct the direction before the situation escalates."'},
-          {label:"Protect Process", text:'"I want to review how this decision was made so I can ensure better oversight next time."'},
-          {label:"Protect Identity", text:'"I need to address the situation while making sure the delegation structure still looks strong."'},
-          {label:"Protect System", text:'"I\'m curious whether this friction is part of how the system learns and improves."'},
+
+  authority: {
+    about: `Authority examines how you hold accountability when work is no longer yours to control directly. As leadership scope expands, decisions move through teams and systems rather than through you. Others carry work that still reflects on your judgment and your name.\n\nWhen delegated work drifts, creates friction, or produces outcomes that differ from expectation, this domain surfaces. It shows what you rely on to feel that accountability is held: your direct involvement, the oversight structure you maintain, whether your leadership is being read correctly by others, or whether the system is strong enough to produce outcomes without your intervention.`,
+
+    assets: {
+      execution: {
+        possible: [
+          "Clear direction when accountability is at risk",
+          "Fast intervention to stabilize outcomes",
+          "Strong ownership of results"
         ],
+        costs: [
+          "Limited space for others to fully own work",
+          "Dependence on your direct involvement",
+          "Difficulty trusting the system to hold once you've re-engaged"
+        ]
       },
-      s2: {
-        title: "Scenario 2",
-        text: "A senior leader asks why a decision from your team happened without your involvement.",
-        responses: [
-          {label:"Protect Outcome", text:"Attention moves toward stepping more directly into similar decisions."},
-          {label:"Protect Process", text:"The focus turns toward tightening oversight or review structures."},
-          {label:"Protect Identity", text:"The response emphasizes that delegation is intentional and managed."},
-          {label:"Protect System", text:"The conversation explores whether the decision authority was appropriately distributed."},
+      orchestration: {
+        possible: [
+          "Clear ownership across roles and teams",
+          "Consistent decision-making structures",
+          "Accountability held through defined processes"
         ],
+        costs: [
+          "Slower response when ownership needs to shift",
+          "Over-reliance on established decision structures",
+          "Difficulty adapting roles in fluid situations"
+        ]
       },
-      closing: null,
+      navigation: {
+        possible: [
+          "Authority reinforced through appropriate positioning",
+          "Credibility maintained in complex group dynamics",
+          "Leadership presence reads as deliberate and appropriate"
+        ],
+        costs: [
+          "Hesitation to assert authority when needed",
+          "Attention split between action and perception",
+          "Risk of under-signaling ownership"
+        ]
+      },
+      integration: {
+        possible: [
+          "Accountability held across the broader system",
+          "Ownership distributed effectively beyond you",
+          "Systems that sustain outcomes without intervention"
+        ],
+        costs: [
+          "Delayed intervention when issues emerge",
+          "Unclear point of ownership in critical moments",
+          "Frustration from others seeking direct leadership"
+        ]
+      }
     },
-    moment: {
-      text: "In this domain, leadership patterns often become visible when someone else makes a decision that reflects on you.\n\nWhen this happens, notice the first internal pull — whether it is to step in, adjust oversight, manage how the situation appears, or examine whether the authority system is functioning.\n\nExperiment with pausing before responding and asking:",
-      question: "What might this moment reveal about how authority is currently operating across the system?",
-      closing: null,
+
+    scenario: `You are in a senior leadership meeting. A decision is being made about a major initiative shaped by your thinking, and your team has been carrying most of the execution across several groups. New information is pushing a shift in direction that will create strain for your team. A peer challenges the direction publicly and looks to you to respond.`,
+
+    framingLine: `In this moment, your instinct is to move into [Mode] Mode:`,
+
+    primary: {
+      execution: `Your focus shifts to ownership of the outcome. The challenge and shifting direction make accountability feel exposed, and you move to reclaim it by stepping more directly into the decision. You clarify what should happen, who should do what, and ensure the path forward reflects your judgment. Letting it play out without your involvement doesn't feel like holding accountability.`,
+      orchestration: `Focus on how accountability is being held across the group. The shift in direction raises questions about how decisions are being made and whether roles and expectations are clear. You work to re-establish structure by clarifying ownership, tightening how decisions move, and making sure the right people are accountable for what happens next. Stability comes from making the system of oversight more explicit.`,
+      navigation: `Focus on how your authority is being read in the moment. The public challenge and unclear ownership make it important to show up in a way that maintains your position without overstepping. You calibrate when and how to step in, making sure your involvement reads as decisive and appropriate, not as taking over or stepping back too far. It matters that your involvement reads as decisive and appropriate, not as taking over or stepping back too far.`,
+      integration: `You don't step in immediately. The situation raises questions about how ownership is actually operating and whether accountability is clear enough to hold. You take time to understand where responsibility is sitting before intervening. If something needs to change, you adjust how ownership is structured rather than taking control of the outcome. Others may want you to step in sooner than you do.`
     },
-    crossDomain: "Patterns in Authority often interact with patterns in Contribution.\n\nLeaders who experience contribution through direct involvement sometimes remain closely connected to decisions across their teams. As leaders become more comfortable experiencing contribution through influence rather than visibility, authority often spreads more naturally.\n\nOver time, development across these domains often shifts leadership from personally carrying decisions to designing systems where decisions can happen throughout the organization.",
+
+    secondary: {
+      execution: `You focus on reasserting ownership. If accountability feels at risk, you step in directly to make sure the outcome is right.`,
+      orchestration: `You focus on how accountability is being managed. You clarify roles and tighten how decisions move so ownership is clear and the work stays on track.`,
+      navigation: `You focus on how your authority is being read. You calibrate your involvement so you maintain your position without overstepping or stepping back too far.`,
+      integration: `You focus on what the situation reveals about the system. You look at how accountability is structured and adjust it so the system can hold the work without your direct involvement.`
+    },
+
+    question: `In moments where outcomes are at risk, when do you step in too early, and when do you wait longer than you should?`
   },
-  4: {
-    description: `Loyalty examines how leaders navigate responsibility when the interests of their team and the interests of the broader organization diverge.\n\nLeadership roles naturally create strong connections with the people a leader works most closely with. Leaders often feel responsible for protecting their team's resources, opportunities, and success. At the same time, senior leadership requires making decisions that serve the organization as a whole.\n\nBecause of this, many leaders encounter a tension between loyalty to their people and responsibility for the whole system.\n\nSome leaders naturally prioritize protecting their team when difficult tradeoffs arise. Others place greater emphasis on decisions that strengthen the organization overall, even when those decisions create difficulty for their own team.\n\nThis domain explores how leaders experience responsibility when the cost of a decision is absorbed by the people closest to them.`,
-    orientations: [
-      {label:"Protect Outcome", desc:"Advocating strongly for the interests of one's own team or people."},
-      {label:"Protect Process", desc:"Seeking solutions that protect core team needs while maintaining alignment with broader organizational goals."},
-      {label:"Protect Identity", desc:"Balancing team loyalty and organizational responsibility while managing how that balance is perceived."},
-      {label:"Protect System", desc:"Prioritizing decisions that strengthen the organization as a whole while remaining present to the impact on one's team."},
-    ],
-    orientationsNote: null,
-    scenarios: {
-      intro: "Two types of leadership situations often make this domain visible.",
-      s1: {
-        title: "Scenario 1",
-        text: "A cross-functional decision requires shifting resources away from your team so another part of the organization can expand.",
-        responses: [
-          {label:"Protect Outcome", text:'"My responsibility is to advocate strongly for my team\'s needs."'},
-          {label:"Protect Process", text:'"I want to find a way to support the broader decision while protecting the core work my team depends on."'},
-          {label:"Protect Identity", text:'"I need to support the organizational direction while maintaining trust with my team."'},
-          {label:"Protect System", text:'"I\'m interested in whether this decision truly strengthens the organization overall."'},
+
+  loyalty: {
+    about: `Loyalty examines how you hold responsibility when the interests of your team and the needs of the broader organization pull in different directions. Senior leadership regularly requires decisions that create real cost for the people closest to you, and you may not be able to soften, negotiate, or protect your team from that impact.\n\nWhen those tradeoffs become unavoidable, this domain surfaces. It shows what you rely on to hold that tension: protecting your team, managing how the tradeoff is handled, whether your allegiance is being read correctly by both sides, or what best serves the system as a whole.`,
+
+    assets: {
+      execution: {
+        possible: [
+          "Strong advocacy for your team's interests",
+          "Clear representation of team impact",
+          "Protection against unacknowledged team burden"
         ],
+        costs: [
+          "Narrow focus on team over broader system needs",
+          "Team shielded from organizational context they may need",
+          "Enterprise priorities harder to hold when team cost is visible"
+        ]
       },
-      s2: {
-        title: "Scenario 2",
-        text: "A member of your team expresses frustration after a decision that negatively affects them.",
-        responses: [
-          {label:"Protect Outcome", text:"The instinct is to reassure them and protect the team from the impact."},
-          {label:"Protect Process", text:"The focus moves toward finding ways to soften the implementation of the decision."},
-          {label:"Protect Identity", text:"Attention goes to acknowledging their experience while maintaining alignment with leadership."},
-          {label:"Protect System", text:"The conversation remains open to both the decision's purpose and the real impact on the team."},
+      orchestration: {
+        possible: [
+          "Tradeoffs handled in a clear, structured way",
+          "Alignment maintained across team and organization",
+          "Balanced consideration of competing priorities"
         ],
+        costs: [
+          "Slower positioning when advocacy is needed",
+          "Over-focus on process of decision over stance",
+          "Difficulty taking a clear side under pressure"
+        ]
       },
-      closing: null,
+      navigation: {
+        possible: [
+          "Credibility maintained across multiple groups",
+          "Stance interpreted as fair and well-balanced",
+          "Able to hold credibility with team and organization simultaneously"
+        ],
+        costs: [
+          "Hesitation to clearly favor one side",
+          "Attention split between stance and perception",
+          "Risk of appearing non-committal to both sides"
+        ]
+      },
+      integration: {
+        possible: [
+          "Decisions that hold at the system level",
+          "Tradeoffs surfaced and worked through fully",
+          "Balance between local impact and broader need"
+        ],
+        costs: [
+          "Reduced clarity of support for your team",
+          "Frustration when advocacy is expected",
+          "Perception of distance from team impact"
+        ]
+      }
     },
-    moment: {
-      text: "In this domain, leadership patterns often become visible when a decision that benefits the organization creates difficulty for your team.\n\nWhen this happens, notice the first internal pull — whether it is to protect your people, negotiate adjustments, manage how the decision is understood, or step fully into the system perspective.\n\nExperiment with remaining present to both sides of the tension.\n\nYou might ask yourself:",
-      question: "What does this decision ask of me as a leader responsible for both my people and the whole system?",
-      closing: null,
+
+    scenario: `You are in a senior leadership meeting. A decision is being made about a major initiative shaped by your thinking, and your team has been carrying most of the execution across several groups. New information is pushing a shift in direction that will create strain for your team. A peer challenges the direction publicly and looks to you to respond.`,
+
+    framingLine: `In this moment, your instinct is to move into [Mode] Mode:`,
+
+    primary: {
+      execution: `The impact on your team is front and center. You step in to represent them directly so that cost isn't overlooked or minimized. You make the implications visible and push for a path that doesn't leave them carrying the burden alone. Staying neutral doesn't feel acceptable when your team is affected.`,
+      orchestration: `Focus on how the tension between the team and the organization is being handled. You're less concerned with taking a side and more with making sure the tradeoff is being worked through in a clear and structured way. You clarify the reasoning behind the shift, how the decision is being made, and whether the implications for your team are fully understood. Your instinct is to make sure the decision process holds even when the stakes are high.`,
+      navigation: `Focus on how your position is being interpreted by both your team and your peers. The moment requires you to represent your team while also maintaining credibility with the broader group. You calibrate how you respond so your team feels you are standing with them, while others see you as fair and balanced. It matters that your stance is read as appropriate in both directions.`,
+      integration: `The pull to take a side isn't immediate. The strain on your team is real, but so is the broader need driving the change. You stay with the tradeoff and make it visible rather than resolving it too quickly in one direction. If the system-level direction holds, you support it even with local cost. Your team may expect more direct advocacy than you offer in that moment.`
     },
-    crossDomain: "Patterns in Loyalty often interact with patterns in Presence.\n\nLeaders who remain steady and curious during emotionally charged conversations often find it easier to hold the tension between team loyalty and organizational responsibility.\n\nAs leaders develop greater comfort with this tension, leadership influence often shifts from resolving competing loyalties to helping others understand how both perspectives can coexist within a healthy system.",
+
+    secondary: {
+      execution: `You focus on protecting your team. If the decision creates strain for them, you step in to advocate and make sure their impact is addressed.`,
+      orchestration: `You focus on how the tension is being managed. You work to clarify the tradeoff and make sure the decision process holds as it moves forward.`,
+      navigation: `You focus on how your position is being read. You balance representing your team with maintaining credibility across the group.`,
+      integration: `You focus on what best serves the system. You stay with the tradeoff and support the direction that holds at the broader level, even if it creates local cost.`
+    },
+
+    question: `When priorities pull in different directions, where do you lean too quickly, or hold your position longer than the moment calls for?`
   },
-  5: {
-    description: `Presence examines how leaders respond internally and interpersonally when pressure rises.\n\nLeadership roles regularly involve moments of challenge, disagreement, and emotional intensity. Decisions may be questioned, feedback may be direct, and conversations may become tense or unresolved.\n\nIn these moments, leaders often experience a tension between reacting to the pressure and becoming curious about it.\n\nSome leaders focus on addressing the situation quickly — defending a position, correcting misunderstandings, or restoring clarity. Others focus more on understanding what the moment may be revealing about the conversation, the relationship, or the broader dynamic.\n\nThis domain explores how leaders respond when interpersonal pressure becomes visible in real time.`,
-    orientations: [
-      {label:"Protect Outcome", desc:"Addressing the situation quickly in order to restore clarity or direction."},
-      {label:"Protect Process", desc:"Managing one's response carefully to prevent escalation or visible conflict."},
-      {label:"Protect Identity", desc:"Maintaining composure while being attentive to how one's response is perceived."},
-      {label:"Protect System", desc:"Becoming curious about what the moment might reveal about the interaction or the broader dynamic."},
-    ],
-    orientationsNote: null,
-    scenarios: {
-      intro: "Two types of leadership situations often make this domain visible.",
-      s1: {
-        title: "Scenario 1",
-        text: "During a leadership meeting, a colleague challenges your recommendation directly and with visible skepticism.",
-        responses: [
-          {label:"Protect Outcome", text:'"I need to clarify the reasoning behind the recommendation before the challenge gains momentum."'},
-          {label:"Protect Process", text:'"I want to stay calm and make sure my reaction doesn\'t escalate the situation."'},
-          {label:"Protect Identity", text:'"I need to respond in a way that maintains credibility with the group."'},
-          {label:"Protect System", text:'"I\'m curious what this reaction might reveal about how the idea is being received."'},
+
+  presence: {
+    about: `Presence examines what happens in real time when challenge or emotional intensity enters a conversation. Leadership regularly creates moments where something unexpected occurs, a position is challenged, or frustration surfaces, and your response is visible and consequential.\n\nWhen pressure arrives without warning, this domain surfaces. It shows what you rely on to stay steady in the moment: addressing the moment directly, structuring the interaction, managing how your response is landing, or staying with the tension long enough to understand it.`,
+
+    assets: {
+      execution: {
+        possible: [
+          "Clear, direct responses in charged moments",
+          "Fast movement through tension toward resolution",
+          "Strong re-establishment of direction in conversation"
         ],
+        costs: [
+          "Moves to resolution before full understanding",
+          "Limited space for underlying issues to surface",
+          "Charges addressed before their source is understood"
+        ]
       },
-      s2: {
-        title: "Scenario 2",
-        text: "In a difficult conversation with a direct report, they tell you they feel you are not really present in the discussion.",
-        responses: [
-          {label:"Protect Outcome", text:"The instinct is to clarify what you meant or address the misunderstanding."},
-          {label:"Protect Process", text:"Attention moves toward managing your response carefully so the conversation stays constructive."},
-          {label:"Protect Identity", text:"You consider how your presence in the conversation might be interpreted."},
-          {label:"Protect System", text:"You become curious about what the feedback might reveal about the dynamic between you."},
+      orchestration: {
+        possible: [
+          "Conversations held in a clear, structured format",
+          "Tension managed without escalation",
+          "Productive dialogue maintained under pressure"
         ],
+        costs: [
+          "Slows momentum when quick response is needed",
+          "Over-structuring can limit organic exchange",
+          "Difficulty allowing conversation to unfold naturally"
+        ]
       },
-      closing: null,
+      navigation: {
+        possible: [
+          "Presence reads as steady and composed",
+          "Tone and timing reinforce credibility",
+          "Interactions handled with social awareness"
+        ],
+        costs: [
+          "Attention split between content and delivery",
+          "Hesitation to respond directly when needed",
+          "Risk of over-calibrating in high-pressure moments"
+        ]
+      },
+      integration: {
+        possible: [
+          "Deeper understanding of what is driving tension",
+          "Space for unspoken dynamics to surface",
+          "Conversations that address underlying issues"
+        ],
+        costs: [
+          "Slows resolution when action is expected",
+          "Unclear response while meaning is still forming",
+          "Frustration from others seeking forward movement"
+        ]
+      }
     },
-    moment: {
-      text: "In this domain, leadership patterns often become visible when someone challenges your thinking or questions your presence in a conversation.\n\nWhen this happens, notice the first internal pull — whether it is to respond quickly, manage the interaction, maintain credibility, or explore what the moment might reveal.\n\nExperiment with remaining curious about the interaction before moving to resolution.\n\nYou might ask yourself:",
-      question: "What might this moment reveal about the conversation or relationship if I stay curious a little longer?",
-      closing: null,
+
+    scenario: `You are in a senior leadership meeting. A decision is being made about a major initiative shaped by your thinking, and your team has been carrying most of the execution across several groups. New information is pushing a shift in direction that will create strain for your team. A peer challenges the direction publicly and looks to you to respond.`,
+
+    framingLine: `In this moment, your instinct is to move into [Mode] Mode:`,
+
+    primary: {
+      execution: `Your focus goes to moving the moment forward. The tension in the room creates pressure to respond, and you step in directly to address the challenge and regain momentum. You clarify your position, respond to the concern, and work to bring the conversation back to a clear path. Letting the moment sit unresolved feels unproductive.`,
+      orchestration: `Focus on structuring the interaction so the conversation holds. The tension signals that something in how the discussion is unfolding isn't working, and your instinct is to reset it. You slow things down, clarify what's being debated, and guide the conversation into a more contained and productive format. Without that reset, the moment loses whatever clarity it had.`,
+      navigation: `Focus on how you are showing up in the moment and how your response will be interpreted. The public nature of the challenge makes you aware of tone, timing, and how your reaction might land. You adjust how you engage so your response feels measured and steady, even as the tension rises. It matters that your presence reinforces credibility rather than escalating the situation.`,
+      integration: `You don't respond right away. The tension signals that something important may not have been fully surfaced. You stay with the moment, asking questions and letting the exchange unfold before moving to resolution. Slowing things down helps you understand what's actually driving the reaction. The group may be ready to move before you are.`
     },
-    crossDomain: "Patterns in Presence often interact with patterns in Reasoning.\n\nLeaders who remain curious during interpersonal pressure often find it easier to keep decision conversations open and exploratory. Similarly, leaders who make their reasoning transparent often support more thoughtful dialogue during disagreement.\n\nOver time, development across these domains often shifts leadership from defending positions to exploring understanding together.",
-  },
+
+    secondary: {
+      execution: `You move the conversation forward. You respond directly to the challenge and work to bring the group back to a clear path.`,
+      orchestration: `You focus on structuring the conversation. You slow things down, clarify the issue, and guide the discussion into a more productive format.`,
+      navigation: `You focus on how you are showing up. You adjust your tone and response so you come across as steady and credible under pressure.`,
+      integration: `You stay with the tension. You focus on understanding what's driving the reaction before moving to resolve it.`
+    },
+
+    question: `When a conversation becomes tense, how does your first response shape where the moment goes?`
+  }
+
 };
 
+
+// ORIENTATION_CONTENT — v16
+// Structure: domain number (int) → placement string → { pattern: string }
+// Single field per orientation. No other fields.
+
 const ORIENTATION_CONTENT = {
+
   1: {
     "1": {
-      intro: "Your responses suggest that your patterns in this domain most often show up around Protect Outcome.\n\nLeaders with this orientation tend to stay closely connected to the work itself. Contribution is experienced through direct involvement in ensuring that outcomes land the way they should.\n\nThis often reflects a strong sense of responsibility for results. When the stakes are high, the instinct is to re-engage with the work to ensure quality and prevent issues before they appear.",
-      bullets: ["stay closely connected to high-stakes work even after responsibility has been delegated","step back into projects when they sense the work may drift from their standards","feel most confident in their contribution when they are actively shaping the result","see their leadership responsibility as ensuring the outcome succeeds"],
-      bulletsNote: "These leaders often bring drive, ownership, and high accountability to complex initiatives.",
-      possible: "Protect Outcome can be a powerful leadership orientation.\n\nLeaders who operate this way often take strong ownership of results, bring focus and urgency to critical work, and ensure important initiatives maintain momentum.\n\nTeams often experience these leaders as committed, engaged, and accountable for outcomes.",
-      shift: "As responsibility expands, the developmental move in this domain often involves allowing contribution to operate through influence rather than proximity.\n\nThis can include experimenting with allowing work to proceed without stepping back in when approaches differ from your own, recognizing that outcomes can succeed even when the path differs from your original plan, and noticing where your thinking is shaping the work even when you are not directly involved.\n\nIn this shift, contribution becomes less visible but often more scalable.",
-      reflection: {
-        intro: "You may find it useful to reflect on a recent leadership moment where your contribution was less visible.",
-        questions: ["Recall a situation where someone else led work you previously owned. What happened internally when you stepped back from the result?","Think of a moment when delegated work unfolded differently than you expected. What influenced your response?","As you notice your pattern in this domain, what new leadership moves might you want to experiment with when visibility and contribution begin to separate?"],
-      },
+      pattern: "In this domain, Execution Mode relies on staying closely connected to the work itself. Confidence comes from being able to see how the outcome is taking shape and to step in when it starts to drift. Under pressure, it protects against loss of control by re-engaging directly and making the direction explicit. This keeps the work aligned, but can make it harder to trust others to carry it forward without your involvement."
     },
     "2a": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Process.\n\nLeaders with this orientation often experience their contribution through maintaining visibility into how work unfolds. Staying connected to the process helps ensure standards hold and that the intent behind the work continues to carry through execution.\n\nDelegation typically occurs, but contribution is still experienced through remaining close enough to the work to understand how it is progressing.",
-      bullets: ["maintain checkpoints or review loops after work has been delegated","stay informed about how work is unfolding so issues can be addressed early","feel reassured when they understand how a project is progressing","see part of their leadership role as ensuring consistency and quality across work streams"],
-      bulletsNote: "Teams often experience these leaders as reliable, attentive, and committed to maintaining strong standards.",
-      possible: "Protect Process often creates strong operational leadership.\n\nLeaders operating this way frequently maintain consistent quality across complex initiatives, identify issues before they become visible problems, support teams by ensuring important details are not overlooked, and create dependable execution environments.\n\nOrganizations often rely on leaders with this orientation to ensure work unfolds reliably and predictably.",
-      shift: "As leadership scope grows, contribution increasingly happens through influence rather than oversight.\n\nThe next shift in this domain often involves experimenting with allowing work to proceed without needing to stay closely informed about each step, noticing how your earlier framing or design continues shaping decisions without your presence, and allowing successful outcomes to stand without reconnecting to how they unfolded.\n\nThis shift does not mean disengaging from the work. It means trusting that the thinking and conditions you established can continue operating without your ongoing visibility.",
-      reflection: {
-        intro: "As you reflect on this domain, it may be useful to think about recent leadership moments where work progressed without your direct involvement.",
-        questions: ["Recall a recent initiative you delegated fully. What influenced how closely you stayed connected to how it unfolded?","When a project is progressing well, what signals tell you it is safe to step further back?","As you continue developing your leadership approach, where might experimenting with less process visibility allow others to step more fully into ownership?"],
-      },
+      pattern: "In this domain, Orchestration Mode relies on how the work is structured and managed as it moves through others. Confidence comes from knowing the right processes, roles, and expectations are in place to carry the work forward. Under pressure, it protects against breakdown by reinforcing structure and ensuring the work is being handled as intended. This creates consistency and continuity, but can make it harder to allow the work to evolve when it needs to move beyond the original design."
     },
     "2b": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often experience their contribution through how their leadership influence is understood. They typically operate at the level expected of their role, contributing through framing decisions, shaping direction, and influencing how work moves forward.\n\nContribution is less about staying close to the work itself and more about ensuring the thinking behind the work is visible and understood.",
-      bullets: ["pay attention to how their involvement or absence is interpreted by others","clarify the context behind decisions so the leadership thinking is understood","ensure that their influence is appropriately represented in important conversations","delegate work while remaining attentive to how their leadership contribution is perceived"],
-      bulletsNote: "These leaders often bring strong awareness to how leadership operates within an organization's social and political environment.",
-      possible: "Protect Identity often supports effective leadership at scale.\n\nLeaders operating from this orientation frequently provide clarity around strategic direction, help others understand the reasoning behind important decisions, maintain alignment across stakeholders by communicating context effectively, and represent their team or function clearly within larger leadership conversations.\n\nOrganizations often benefit from leaders who are skilled at articulating leadership thinking and maintaining alignment across groups.",
-      shift: "As leaders continue developing in this domain, contribution increasingly becomes less connected to whether leadership influence is recognized directly.\n\nThe next shift often involves becoming more interested in whether the thinking itself continues shaping outcomes, even when it is no longer clearly associated with the leader who introduced it.\n\nThis may include experimenting with allowing others to carry forward ideas without reinforcing where they originated, focusing less on whether leadership influence is recognized and more on whether it continues operating effectively, and observing how systems and decisions evolve after the original leadership framing is no longer visible.",
-      reflection: {
-        intro: "As you reflect on this domain, it may be useful to consider moments where your influence shaped outcomes indirectly.",
-        questions: ["Think about a recent situation where your thinking influenced a decision but was not explicitly attributed. What was your internal response?","When conversations move forward without referencing your earlier framing, what signals tell you your influence is still present?","As you continue developing your leadership approach, where might experimenting with less emphasis on recognition of influence allow your thinking to operate more freely through others?"],
-      },
-    },
-    "2b+": {
-      transitional: "Your responses suggest that your leadership patterns in this domain sit between Protect Identity and Protect System.\n\nIn many situations you lead with Protect Identity — paying attention to how your leadership influence is understood and how decisions are framed. At the same time, your responses show emerging patterns associated with Protect System, where contribution is experienced through the structures and thinking that shape outcomes over time.\n\nLeaders in this position often notice themselves experimenting with releasing the need for their influence to be recognized directly and becoming more interested in how their thinking continues to operate through others.",
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often experience their contribution through how their leadership influence is understood. They typically operate at the level expected of their role, contributing through framing decisions, shaping direction, and influencing how work moves forward.",
-      bullets: ["pay attention to how their involvement or absence is interpreted by others","clarify the context behind decisions so the leadership thinking is understood","ensure that their influence is appropriately represented in important conversations","delegate work while remaining attentive to how their leadership contribution is perceived"],
-      bulletsNote: "These leaders often bring strong awareness to how leadership operates within an organization's social and political environment.",
-      possible: "Protect Identity often supports effective leadership at scale.\n\nLeaders operating from this orientation frequently provide clarity around strategic direction, help others understand the reasoning behind important decisions, maintain alignment across stakeholders, and represent their team clearly within larger leadership conversations.",
-      shift: "As leaders continue developing in this domain, contribution increasingly becomes less connected to whether leadership influence is recognized directly.\n\nThis may include experimenting with allowing others to carry forward ideas without reinforcing where they originated, focusing less on whether influence is recognized and more on whether it continues operating effectively, and observing how decisions evolve after the original framing is no longer visible.",
-      reflection: {
-        intro: "As you reflect on this domain, it may be useful to consider moments where your influence shaped outcomes indirectly.",
-        questions: ["Think about a recent situation where your thinking influenced a decision but was not explicitly attributed. What was your internal response?","When conversations move forward without referencing your earlier framing, what signals tell you your influence is still present?","As you continue developing your leadership approach, where might experimenting with less emphasis on recognition of influence allow your thinking to operate more freely through others?"],
-      },
+      pattern: "In this domain, Navigation Mode relies on how your contribution is understood and recognized by others. Confidence comes from knowing your role in shaping the work is visible and interpreted accurately. Under pressure, it protects against being overlooked or misread by managing how your contribution is communicated and perceived. This helps maintain influence and clarity of role, but can make it harder to stay grounded in the work itself without tracking how it reflects on you."
     },
     "3": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect System.\n\nLeaders with this orientation experience contribution through the influence of the systems, thinking, and structures they establish.\n\nRather than focusing on visibility or proximity to the work, attention often moves to whether the broader architecture shaping the work is functioning as intended.\n\nContribution is experienced through seeing decisions, approaches, and behaviors continue to reflect the thinking that shaped them.",
-      bullets: ["pay attention to whether the structures guiding work are functioning well","observe how decisions unfold across the system rather than focusing on individual actions","notice when their thinking continues to shape outcomes over time","distinguish between outcomes they would choose differently and outcomes that still reflect sound systems"],
-      bulletsNote: "These leaders often bring scalability, perspective, and system awareness to leadership.",
-      possible: "Protect System supports leadership that operates at the level of the whole.\n\nLeaders operating this way frequently create conditions where decisions can happen across the organization without requiring their involvement, develop others' capacity to carry the work forward, focus on the architecture of how work gets done rather than the work itself, and support organizational learning and adaptation over time.",
-      shift: "At this level, development often involves noticing where attachment to the system itself may begin to appear.\n\nGrowth can involve experimenting with allowing systems to evolve beyond their original design, noticing where influence persists even when structures change, and remaining open to new ways the system may adapt without their direction.",
-      reflection: {
-        intro: "As you reflect on this domain, you might consider recent moments when your thinking shaped outcomes in ways you did not directly observe.",
-        questions: ["Think about a time when a structure or approach you established continued shaping work after you were no longer involved. What did you notice?","When you observe the organization making decisions that reflect your thinking, how does that land for you as a leader?","As you continue developing your leadership approach, where might experimenting with allowing systems to evolve beyond their original design expand your leadership influence?"],
-      },
-    },
+      pattern: "In this domain, Integration Mode relies on the strength of the thinking behind the work rather than direct involvement in it. Confidence comes from knowing the direction is sound and can hold as it moves through others. Under pressure, it protects against attachment to personal contribution by staying focused on what the work requires now. This allows the work to evolve and strengthen over time, but can make it harder to make your thinking legible to others when the work needs clearer direction or attribution."
+    }
   },
+
   2: {
     "1": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Outcome.\n\nLeaders with this orientation often experience their leadership value through advocating for the direction they believe is correct. When ambiguity appears in the analysis, attention naturally moves toward clarifying or strengthening the recommendation.\n\nThis orientation often emerges in environments where leaders are expected to provide clear direction and stand behind their judgment.",
-      bullets: ["focus on strengthening the case for a recommendation","emphasize clarity and decisiveness in leadership discussions","respond to challenges by reinforcing the reasoning behind the proposed direction","see part of their leadership role as ensuring the group does not become stalled by uncertainty"],
-      bulletsNote: "Teams often experience these leaders as decisive and confident in their judgment.",
-      possible: "Protect Outcome often enables leaders to move organizations forward.\n\nLeaders operating this way frequently provide clear direction when ambiguity could slow progress, help groups commit to a course of action, maintain momentum in complex decision environments, and demonstrate confidence that encourages others to act.",
-      shift: "As leadership responsibility grows, decision-making often becomes less about advocating for the strongest conclusion and more about making the reasoning process visible to others.\n\nThe next shift may involve experimenting with openly acknowledging when the data is mixed, naming the tradeoffs embedded in a recommendation, and allowing challenges to the reasoning to remain open longer before resolving them.\n\nOver time, leadership influence in this domain often comes from helping others see how decisions are being reasoned through, not only from the strength of the final recommendation.",
-      reflection: {
-        intro: "You may find it useful to reflect on recent leadership decisions where uncertainty was present.",
-        questions: ["Recall a time when the data behind a recommendation was mixed. What influenced how you presented the decision?","When your recommendation is challenged in a meeting, what tends to happen internally first?","As you continue developing your leadership approach, where might experimenting with greater transparency in your reasoning strengthen collective decision-making?"],
-      },
+      pattern: "In this domain, Execution Mode relies on arriving at a clear and decisive answer. Confidence comes from being able to determine what is true and move forward with conviction. Under pressure, it protects against uncertainty by closing on a conclusion and reinforcing it so the decision can move ahead. This drives clarity and momentum, but can make it harder to stay open to new information when the reasoning needs further examination."
     },
     "2a": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Process.\n\nLeaders with this orientation often experience decision credibility through the thoroughness of the analysis. Before committing publicly to a direction, attention moves toward ensuring that the reasoning is well supported and defensible.\n\nContribution in this domain often shows up through careful evaluation of risks, assumptions, and alternatives.",
-      bullets: ["review analysis carefully before presenting a recommendation","ensure that potential risks and tradeoffs are clearly understood","respond to challenges by strengthening the analytical foundation","take time to confirm that the reasoning behind a decision holds up"],
-      bulletsNote: "These leaders often bring analytical discipline and careful thinking to decision-making processes.",
-      possible: "Protect Process often strengthens decision quality.\n\nLeaders operating from this orientation frequently ensure decisions are supported by sound analysis, prevent important risks from being overlooked, help organizations avoid avoidable mistakes, and create decision environments where reasoning is taken seriously.",
-      shift: "As leadership influence grows, the developmental shift often involves moving from defensibility to transparency.\n\nThis may include experimenting with sharing uncertainties in the analysis earlier in the process, inviting others to challenge assumptions before conclusions are finalized, and focusing less on whether the analysis is fully protected and more on whether the reasoning is visible and understandable.\n\nOver time, leadership contribution in this domain often becomes less about protecting the analysis and more about opening the reasoning process so others can engage with it.",
-      reflection: {
-        intro: "As you reflect on this domain, you might consider recent decision moments where your reasoning was under scrutiny.",
-        questions: ["Think about a recent recommendation you presented. What influenced how much uncertainty you revealed in the analysis?","When preparing for an important decision discussion, how do you decide when the analysis is ready to share?","As you continue developing your leadership approach, where might experimenting with earlier transparency in your reasoning strengthen collaboration around complex decisions?"],
-      },
+      pattern: "In this domain, Orchestration Mode relies on how the reasoning is structured and worked through. Confidence comes from knowing the logic is sound, assumptions are clear, and the analysis holds together end to end. Under pressure, it protects against flawed conclusions by slowing things down and ensuring the reasoning is fully developed. This strengthens the quality of decisions, but can make it harder to move forward when the situation requires acting without complete clarity."
     },
     "2b": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often experience decision credibility through demonstrating analytical rigor. The reasoning behind decisions is structured and thoughtful, and attention often goes to presenting the analysis in a way that reflects strong leadership judgment.\n\nContribution in this domain frequently shows up through carefully framing decisions and articulating the tradeoffs involved.",
-      bullets: ["present decisions with visible balance and structured reasoning","articulate tradeoffs clearly during leadership discussions","ensure their thinking reflects thoughtful and credible leadership judgment","remain attentive to how their reasoning is interpreted by others"],
-      bulletsNote: "These leaders often bring clarity and structure to complex decision conversations.",
-      possible: "Protect Identity often supports effective leadership communication.\n\nLeaders operating this way frequently help leadership groups understand complex tradeoffs, articulate reasoning in ways that build credibility and trust, guide conversations toward thoughtful consideration of alternatives, and ensure decision discussions remain structured and productive.",
-      shift: "As leaders continue developing in this domain, reasoning often becomes less connected to demonstrating strong analytical judgment and more connected to making the reasoning process itself transparent.\n\nThis may involve experimenting with allowing others to question the reasoning without immediately resolving the discussion, exploring alternative interpretations of the data, and following the logic of the analysis even when it challenges the preferred conclusion.\n\nOver time, leadership influence in this domain often comes from creating reasoning processes that others can see and engage with, rather than from demonstrating personal analytical expertise.",
-      reflection: {
-        intro: "You may find it useful to reflect on moments when your reasoning shaped an important leadership conversation.",
-        questions: ["Recall a recent decision discussion where you presented a recommendation. How did you decide which parts of your reasoning to emphasize?","When others question your reasoning, what helps you remain open to the possibility that the conclusion might evolve?","As you continue developing your leadership approach, where might experimenting with greater openness to alternative interpretations deepen collective decision-making?"],
-      },
-    },
-    "2b+": {
-      transitional: "Your responses suggest that your leadership patterns in this domain sit between Protect Identity and Protect System.\n\nIn many situations you lead with Protect Identity — presenting reasoning in a structured, credible way that reflects strong analytical judgment. At the same time, your responses show emerging patterns associated with Protect System, where the transparency of the reasoning process itself becomes the primary focus.\n\nLeaders in this position often notice themselves beginning to follow the logic of analysis wherever it leads, even when it challenges a preferred conclusion.",
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often experience decision credibility through demonstrating analytical rigor. The reasoning behind decisions is structured and thoughtful, and attention often goes to presenting the analysis in a way that reflects strong leadership judgment.",
-      bullets: ["present decisions with visible balance and structured reasoning","articulate tradeoffs clearly during leadership discussions","ensure their thinking reflects thoughtful and credible leadership judgment","remain attentive to how their reasoning is interpreted by others"],
-      bulletsNote: "These leaders often bring clarity and structure to complex decision conversations.",
-      possible: "Protect Identity often supports effective leadership communication.\n\nLeaders operating this way frequently help leadership groups understand complex tradeoffs, articulate reasoning in ways that build credibility and trust, and ensure decision discussions remain structured and productive.",
-      shift: "As leaders continue developing in this domain, reasoning often becomes less connected to demonstrating strong analytical judgment and more connected to making the reasoning process itself transparent.\n\nThis may involve experimenting with allowing others to question the reasoning without immediately resolving the discussion, exploring alternative interpretations of the data, and following the logic of the analysis even when it challenges the preferred conclusion.",
-      reflection: {
-        intro: "You may find it useful to reflect on moments when your reasoning shaped an important leadership conversation.",
-        questions: ["Recall a recent decision discussion where you presented a recommendation. How did you decide which parts of your reasoning to emphasize?","When others question your reasoning, what helps you remain open to the possibility that the conclusion might evolve?","As you continue developing your leadership approach, where might experimenting with greater openness to alternative interpretations deepen collective decision-making?"],
-      },
+      pattern: "In this domain, Navigation Mode relies on how your reasoning is interpreted and received by others. Confidence comes from knowing your thinking is understood, credible, and aligned with how others are making sense of the situation. Under pressure, it protects against being dismissed or misunderstood by adjusting how the reasoning is framed and communicated. This helps build alignment and acceptance, but can make it harder to stay anchored in your own line of thinking when it diverges from the room."
     },
     "3": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect System.\n\nLeaders with this orientation often experience decision credibility through the integrity of the reasoning process itself. Rather than focusing primarily on the conclusion, attention moves toward ensuring the logic behind the decision remains transparent and open to examination.\n\nContribution in this domain often involves helping others understand how decisions are being reasoned through.",
-      bullets: ["openly discuss the tradeoffs involved in decisions","name uncertainties in the analysis without needing to resolve them immediately","remain curious when others challenge their reasoning","follow the logic of the analysis even when it leads somewhere unexpected"],
-      bulletsNote: "These leaders often bring intellectual openness and curiosity to decision-making environments.",
-      possible: "Protect System can strengthen collective leadership thinking.\n\nLeaders operating this way frequently create environments where reasoning is visible and discussable, help teams navigate complex decisions without oversimplifying them, encourage thoughtful examination of assumptions, and support cultures where learning and inquiry are valued.",
-      shift: "At this stage, development often involves noticing how one's own reasoning frameworks shape what becomes visible in the analysis.\n\nLeaders may experiment with questioning the assumptions embedded in their own decision frameworks, inviting perspectives that challenge the structure of the reasoning itself, and noticing when intellectual confidence may limit curiosity.",
-      reflection: {
-        intro: "As you reflect on this domain, you might consider recent decisions where reasoning played a central role.",
-        questions: ["Think about a recent decision where the analysis evolved during discussion. What allowed that evolution to happen?","When others challenge your reasoning, what helps you stay curious rather than moving toward resolution?","As you continue developing your leadership approach, where might experimenting with questioning your own analytical frameworks deepen collective insight?"],
-      },
-    },
+      pattern: "In this domain, Integration Mode relies on the strength and adaptability of the underlying logic. Confidence comes from knowing the reasoning can be examined, adjusted, and still hold as new information emerges. Under pressure, it protects against premature conclusions by continuing to test assumptions and refine the thinking. This leads to more resilient decisions, but can make it harder to signal a clear position when others are looking for closure."
+    }
   },
+
   3: {
     "1": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Outcome.\n\nLeaders with this orientation often experience accountability for delegated work as personal responsibility for the final result. When delegated decisions produce friction or uncertainty, the instinct is often to step back in to ensure the outcome aligns with expectations.",
-      bullets: ["re-engage directly when delegated work begins to drift","stay closely connected to decisions that affect important outcomes","feel responsible for ensuring that delegated work meets their standards","step back into situations where uncertainty begins to grow"],
-      bulletsNote: "Teams often experience these leaders as highly accountable for results and deeply invested in the success of the work.",
-      possible: "Protect Outcome can create strong ownership around important initiatives.\n\nLeaders operating this way frequently ensure that critical work meets high standards, step in quickly when projects begin to struggle, provide decisive direction when uncertainty emerges, and maintain strong accountability for outcomes.",
-      shift: "As leadership scope expands, authority increasingly spreads across teams and systems.\n\nThe next shift in this domain often involves experimenting with allowing others to make decisions even when their approach differs from your own, distinguishing between decisions that require intervention and those that represent normal variation, and focusing more on whether the decision framework is functioning than on whether the decision matches your preference.",
-      reflection: {
-        intro: "You may find it useful to reflect on recent situations where someone else made a decision that still reflected on you as a leader.",
-        questions: ["Think about a recent delegated decision that unfolded differently than you expected. What influenced your response?","When you notice yourself wanting to step back into a decision, what signals help you determine whether intervention is necessary?","As you continue developing your leadership approach, where might experimenting with greater trust in the authority structure allow others to grow into decision ownership?"],
-      },
+      pattern: "In this domain, Execution Mode relies on direct involvement in how outcomes are delivered. Confidence comes from being able to step in, make decisions, and ensure the work reflects your judgment. Under pressure, it protects against loss of control by reasserting ownership and taking a more active role in driving the outcome. This stabilizes results and reinforces accountability, but can make it harder to allow others to fully own the work when they are in position to carry it."
     },
     "2a": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Process.\n\nLeaders with this orientation often experience accountability for delegated decisions through maintaining oversight structures. Rather than stepping directly into decisions, attention moves toward ensuring there are systems that allow the leader to remain informed about how decisions are unfolding.",
-      bullets: ["establish checkpoints or review loops around delegated decisions","remain informed about how key decisions are unfolding","adjust oversight structures when unexpected outcomes occur","maintain visibility into important work streams without taking control of them"],
-      bulletsNote: "These leaders often bring structure and reliability to how authority operates within teams.",
-      possible: "Protect Process often supports effective delegation while maintaining accountability.\n\nLeaders operating this way frequently ensure that delegated decisions remain aligned with broader goals, catch potential problems early through strong communication structures, support teams by providing clear decision boundaries, and maintain organizational consistency across complex work.",
-      shift: "As leaders continue developing in this domain, authority often becomes less dependent on oversight and more dependent on trust in the system design.\n\nThis shift may involve experimenting with reducing checkpoints that primarily provide reassurance, allowing others to navigate uncertainty without immediate guidance, and observing how decisions unfold without adjusting oversight structures too quickly.",
-      reflection: {
-        intro: "You may find it useful to reflect on situations where oversight structures shaped how decisions unfolded.",
-        questions: ["Think about a recent project where you established checkpoints or review loops. What purpose did those structures serve?","When unexpected outcomes occur, how do you decide whether to adjust the system or allow the situation to unfold further?","As you continue developing your leadership approach, where might experimenting with less oversight visibility allow decision ownership to deepen across your team?"],
-      },
+      pattern: "In this domain, Orchestration Mode relies on how ownership and decisions are structured across people and teams. Confidence comes from knowing roles are clear, decision paths are defined, and accountability is consistently held. Under pressure, it protects against breakdown by tightening how decisions are made and ensuring responsibility is properly assigned. This creates clarity and consistency, but can make it harder to adjust ownership dynamically when the situation calls for more flexibility."
     },
     "2b": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often delegate authority genuinely while remaining attentive to how that delegation is perceived. Authority is distributed, but attention still goes to how leadership credibility and accountability are interpreted by others.",
-      bullets: ["delegate decisions while remaining attentive to how those decisions reflect on their leadership","address situations where delegated decisions create friction by managing both the issue and the narrative","ensure that their delegation approach is understood by senior leaders and peers","balance empowering others with maintaining leadership credibility"],
-      bulletsNote: "These leaders often bring political awareness and communication skill to how authority operates.",
-      possible: "Protect Identity can support effective leadership in complex organizational environments.\n\nLeaders operating this way frequently represent their teams effectively within leadership conversations, maintain credibility while distributing authority, communicate clearly about how decisions are being delegated, and help others understand how authority flows within the organization.",
-      shift: "As leaders continue developing in this domain, authority increasingly becomes less connected to how delegation appears and more connected to how systems function.\n\nThis may involve experimenting with allowing delegated decisions to stand without managing how they are interpreted, becoming less concerned with how authority structures reflect on personal leadership, and focusing more on whether the authority system itself is working effectively.",
-      reflection: {
-        intro: "You may find it useful to reflect on situations where your leadership credibility intersected with delegated decisions.",
-        questions: ["Recall a time when a delegated decision created tension with another group. How did you approach managing both the issue and the perception of the situation?","When authority is distributed across your team, what signals help you feel confident the system is working?","As you continue developing your leadership approach, where might experimenting with less narrative management around delegation allow authority to spread more naturally?"],
-      },
-    },
-    "2b+": {
-      transitional: "Your responses suggest that your leadership patterns in this domain sit between Protect Identity and Protect System.\n\nIn many situations you lead with Protect Identity — delegating authority while remaining attentive to how that delegation is perceived. At the same time, your responses show emerging patterns associated with Protect System, where accountability is experienced through the design and functioning of the authority structure itself.\n\nLeaders in this position often notice themselves becoming less focused on how delegation appears and more interested in whether the systems they have built are truly enabling others to exercise real authority.",
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often delegate authority genuinely while remaining attentive to how that delegation is perceived. Authority is distributed, but attention still goes to how leadership credibility and accountability are interpreted by others.",
-      bullets: ["delegate decisions while remaining attentive to how those decisions reflect on their leadership","address situations where delegated decisions create friction by managing both the issue and the narrative","ensure that their delegation approach is understood by senior leaders and peers","balance empowering others with maintaining leadership credibility"],
-      bulletsNote: "These leaders often bring political awareness and communication skill to how authority operates.",
-      possible: "Protect Identity can support effective leadership in complex organizational environments.\n\nLeaders operating this way frequently represent their teams effectively, maintain credibility while distributing authority, and help others understand how authority flows within the organization.",
-      shift: "As leaders continue developing in this domain, authority increasingly becomes less connected to how delegation appears and more connected to how systems function.\n\nThis may involve experimenting with allowing delegated decisions to stand without managing how they are interpreted, and focusing more on whether the authority system itself is working effectively.",
-      reflection: {
-        intro: "You may find it useful to reflect on situations where your leadership credibility intersected with delegated decisions.",
-        questions: ["Recall a time when a delegated decision created tension with another group. How did you approach managing both the issue and the perception of the situation?","When authority is distributed across your team, what signals help you feel confident the system is working?","As you continue developing your leadership approach, where might experimenting with less narrative management around delegation allow authority to spread more naturally?"],
-      },
+      pattern: "In this domain, Navigation Mode relies on how your authority is interpreted by others. Confidence comes from knowing your role, involvement, and level of control are being read appropriately in the context of the situation. Under pressure, it protects against being undermined or mispositioned by calibrating how and when you step in. This helps maintain credibility and appropriate influence, but can make it harder to act decisively when the situation requires clearer assertion of authority."
     },
     "3": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect System.\n\nLeaders with this orientation often experience accountability through the design of the authority system itself. Rather than focusing on individual decisions, attention moves toward whether the structures guiding those decisions are functioning effectively.\n\nContribution in this domain often shows up through creating environments where others can exercise real authority.",
-      bullets: ["focus on how authority is structured across teams","allow others to make decisions even when outcomes differ from their own preferences","examine whether decision systems are functioning rather than reacting to individual outcomes","treat occasional friction as part of how distributed authority evolves"],
-      bulletsNote: "These leaders often bring system thinking to how authority operates across the organization.",
-      possible: "Protect System can support scalable leadership.\n\nLeaders operating this way frequently build organizations where decisions can happen without constant leader involvement, develop teams that take genuine ownership of decisions, create systems where authority flows across functions and roles, and support environments where learning occurs through decision-making.",
-      shift: "At this stage, development often involves examining how one's own assumptions shape the authority systems being created.\n\nLeaders may experiment with questioning whether existing decision frameworks allow enough flexibility, inviting others to challenge how authority is structured, and observing how authority flows across the organization without reinforcing the existing structure.",
-      reflection: {
-        intro: "As you reflect on this domain, you might consider moments where authority was distributed across your team.",
-        questions: ["Think about a recent decision made by someone else on your team. What helped you decide whether the authority structure was working?","When friction appears between teams, how do you determine whether it reflects a system issue or normal variation in decision-making?","As you continue developing your leadership approach, where might experimenting with greater openness to how authority structures evolve strengthen the organization's decision capacity?"],
-      },
-    },
+      pattern: "In this domain, Integration Mode relies on how accountability is held across the system rather than through individual control. Confidence comes from knowing ownership is structured in a way that can produce outcomes without your direct intervention. Under pressure, it protects against over-reliance on individual authority by examining how responsibility is distributed and adjusting it where needed. This strengthens the system's ability to hold the work, but can make it harder to provide immediate direction when others are looking for a clear point of ownership."
+    }
   },
+
   4: {
     "1": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Outcome.\n\nLeaders with this orientation often experience leadership responsibility through advocating for their people. When decisions place pressure on the team, attention naturally moves toward protecting their interests and ensuring their work and contributions are recognized.",
-      bullets: ["advocate strongly for their team's resources and priorities","step in quickly when decisions disadvantage their people","emphasize loyalty and support within the team","work to shield their team from external pressures"],
-      bulletsNote: "Teams often experience these leaders as highly protective and deeply committed to their success.",
-      possible: "Protect Outcome often creates strong trust within teams.\n\nLeaders operating this way frequently build loyalty and commitment among team members, ensure their team's work is represented in leadership discussions, protect important work from being overlooked, and create environments where people feel supported by their leader.",
-      shift: "As leadership scope expands, decisions increasingly require considering how resources and priorities affect the organization as a whole.\n\nThe next shift in this domain often involves experimenting with viewing team interests as one part of a broader system, participating in decisions that may benefit the organization even when they create short-term difficulty for one's own team, and helping team members understand the larger context behind difficult decisions.",
-      reflection: {
-        intro: "You may find it useful to reflect on recent moments where your team's interests intersected with broader organizational decisions.",
-        questions: ["Think about a recent decision that created tension between your team's needs and the organization's direction. What influenced how you approached that moment?","When your team experiences pressure from outside decisions, what helps you balance support for them with responsibility for the organization?","As you continue developing your leadership approach, where might experimenting with broadening the frame of responsibility create new leadership possibilities?"],
-      },
+      pattern: "In this domain, Execution Mode relies on directly representing and protecting your team. Confidence comes from being able to advocate clearly for their interests and ensure their impact is not overlooked. Under pressure, it protects against your team carrying unacknowledged cost by stepping in and making that impact visible. This ensures your team is represented and supported, but can make it harder to hold the broader tradeoff when the system requires a direction that creates local strain."
     },
     "2a": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Process.\n\nLeaders with this orientation often navigate loyalty tensions by seeking balanced solutions. Rather than fully prioritizing one side, attention moves toward finding approaches that support the organization while protecting key needs within the team.",
-      bullets: ["look for ways to implement decisions that reduce negative effects on their team","negotiate resources, timelines, or adjustments that support both sides of the decision","help their team adapt to organizational shifts","remain attentive to maintaining alignment across groups"],
-      bulletsNote: "These leaders often bring thoughtful mediation to complex organizational decisions.",
-      possible: "Protect Process can support constructive collaboration across teams.\n\nLeaders operating this way frequently help leadership groups navigate difficult tradeoffs, reduce unnecessary conflict between functions, maintain stability during organizational change, and create solutions that allow multiple priorities to coexist.",
-      shift: "As leadership influence grows, development in this domain often involves becoming more comfortable with clear system-level decisions, even when they cannot fully accommodate all interests.\n\nThis may involve experimenting with allowing some decisions to stand without negotiating modifications, supporting organizational priorities even when adjustments cannot soften the impact, and helping teams understand the broader system perspective behind decisions.",
-      reflection: {
-        intro: "As you reflect on this domain, you might consider situations where you helped navigate competing priorities.",
-        questions: ["Recall a recent decision where you worked to balance team needs with broader organizational goals. What influenced your approach?","When negotiating adjustments to a decision, how do you determine when balance has been reached?","As you continue developing your leadership approach, where might experimenting with clearer system-level alignment deepen your leadership impact?"],
-      },
+      pattern: "In this domain, Orchestration Mode relies on how the tension between team and organization is worked through. Confidence comes from knowing the tradeoff is being handled in a structured and deliberate way, with both sides clearly understood. Under pressure, it protects against misalignment by ensuring the tradeoff is worked through clearly and the implications are fully understood on both sides. This maintains alignment across the system, but can make it harder to take a clear position when the moment calls for stronger advocacy."
     },
     "2b": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often hold both team loyalty and organizational responsibility while remaining attentive to how that balance is understood by others.\n\nContribution in this domain often involves communicating decisions in ways that maintain trust with one's team while demonstrating alignment with organizational leadership.",
-      bullets: ["explain organizational decisions carefully to their team","maintain alignment with senior leadership while acknowledging the impact on their people","pay attention to how their response to difficult decisions is interpreted","balance support for their team with visible commitment to organizational priorities"],
-      bulletsNote: "These leaders often bring political awareness and thoughtful communication to complex organizational moments.",
-      possible: "Protect Identity can strengthen leadership credibility.\n\nLeaders operating this way frequently help their teams understand the reasoning behind difficult decisions, maintain trust across different parts of the organization, represent their team's perspective within leadership conversations, and support alignment during periods of organizational change.",
-      shift: "As leaders continue developing in this domain, loyalty often becomes less connected to how the leader's stance is interpreted and more connected to holding the system perspective directly.\n\nThis may involve experimenting with allowing difficult decisions to stand without needing to carefully position them, remaining present with the impact on one's team without reshaping the narrative, and focusing more on the long-term health of the organization than on managing perceptions.",
-      reflection: {
-        intro: "You may find it useful to reflect on recent situations where you communicated difficult organizational decisions.",
-        questions: ["Think about a moment when your team reacted strongly to an organizational decision. What influenced how you explained the situation?","When balancing alignment with leadership and loyalty to your team, what helps guide your response?","As you continue developing your leadership approach, where might experimenting with less narrative management and more direct system perspective strengthen your leadership presence?"],
-      },
-    },
-    "2b+": {
-      transitional: "Your responses suggest that your leadership patterns in this domain sit between Protect Identity and Protect System.\n\nIn many situations you lead with Protect Identity — carefully communicating organizational decisions in ways that maintain trust with your team while demonstrating alignment with leadership. At the same time, your responses show emerging patterns associated with Protect System, where responsibility is experienced through the health of the whole organization, even when that creates real difficulty for your people.\n\nLeaders in this position often notice themselves becoming less focused on managing how decisions are perceived and more willing to hold the tension between team loyalty and organizational responsibility directly.",
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often hold both team loyalty and organizational responsibility while remaining attentive to how that balance is understood by others.",
-      bullets: ["explain organizational decisions carefully to their team","maintain alignment with senior leadership while acknowledging the impact on their people","pay attention to how their response to difficult decisions is interpreted","balance support for their team with visible commitment to organizational priorities"],
-      bulletsNote: "These leaders often bring political awareness and thoughtful communication to complex organizational moments.",
-      possible: "Protect Identity can strengthen leadership credibility.\n\nLeaders operating this way frequently help their teams understand difficult decisions, maintain trust across the organization, and support alignment during periods of organizational change.",
-      shift: "As leaders continue developing in this domain, loyalty often becomes less connected to how the leader's stance is interpreted and more connected to holding the system perspective directly.\n\nThis may involve experimenting with allowing difficult decisions to stand without positioning them carefully and focusing more on the long-term health of the organization than on managing perceptions.",
-      reflection: {
-        intro: "You may find it useful to reflect on recent situations where you communicated difficult organizational decisions.",
-        questions: ["Think about a moment when your team reacted strongly to an organizational decision. What influenced how you explained the situation?","When balancing alignment with leadership and loyalty to your team, what helps guide your response?","As you continue developing your leadership approach, where might experimenting with less narrative management and more direct system perspective strengthen your leadership presence?"],
-      },
+      pattern: "In this domain, Navigation Mode relies on how your stance is interpreted by both your team and the broader organization. Confidence comes from knowing you are being seen as fair, balanced, and appropriately aligned in both directions. Under pressure, it protects against being misread or misaligned by carefully shaping how your position is communicated. This helps maintain credibility across groups, but can make it harder to take a position that clearly favors one side when the situation requires it."
     },
     "3": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect System.\n\nLeaders with this orientation often experience responsibility through the health of the organization as a whole. Decisions are evaluated primarily through how they strengthen the broader system, even when they create difficulty for the leader's own team.\n\nContribution in this domain often involves holding both the system perspective and the human impact of decisions simultaneously.",
-      bullets: ["prioritize decisions that strengthen the organization overall","acknowledge the impact of difficult decisions on their team without minimizing it","remain present when people express frustration or disappointment","help teams understand the broader purpose behind organizational shifts"],
-      bulletsNote: "These leaders often bring system stewardship and emotional steadiness to complex leadership decisions.",
-      possible: "Protect System can support strong organizational leadership.\n\nLeaders operating this way frequently help organizations navigate difficult tradeoffs responsibly, maintain alignment across teams during major shifts, support cultures where difficult conversations can occur openly, and guide organizations through change while remaining attentive to people.",
-      shift: "At this stage, development often involves deepening awareness of how system decisions affect the lived experience of people throughout the organization.\n\nLeaders may experiment with slowing down to listen more deeply to the impact of decisions, inviting perspectives from those most affected by change, and remaining curious about how system choices shape culture and relationships.",
-      reflection: {
-        intro: "As you reflect on this domain, you might consider moments where organizational priorities affected your team.",
-        questions: ["Think about a recent decision that benefited the organization but created difficulty for your team. What helped you hold both realities?","When team members express frustration with system decisions, what helps you remain present without needing to resolve the tension immediately?","As you continue developing your leadership approach, where might experimenting with greater curiosity about the human experience of system decisions deepen your leadership impact?"],
-      },
-    },
+      pattern: "In this domain, Integration Mode relies on holding the needs of the system as a whole. Confidence comes from knowing the direction serves the broader context, even when it creates local cost. Under pressure, it protects against narrowing to one side by keeping the tradeoff visible and working through it without resolving it prematurely. This supports decisions that hold at the system level, but can make it harder to signal clear support to your team when they are directly affected."
+    }
   },
+
   5: {
     "1": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Outcome.\n\nLeaders with this orientation often respond to interpersonal pressure by addressing the situation directly. When tension appears, the instinct is to resolve the issue, clarify the decision, or reestablish direction.\n\nContribution in this domain often shows up through bringing conversations back to clarity and forward movement.",
-      bullets: ["respond quickly when disagreements arise","clarify decisions or reasoning when challenged","address misunderstandings directly","work to restore alignment when conversations become tense"],
-      bulletsNote: "Teams often experience these leaders as clear, direct, and action oriented during challenging moments.",
-      possible: "Protect Outcome can help organizations move through difficult moments efficiently.\n\nLeaders operating this way frequently prevent conversations from becoming stalled in conflict, restore clarity when communication breaks down, help groups regain focus during tense discussions, and demonstrate confidence during high-pressure interactions.",
-      shift: "As leaders continue developing in this domain, growth often involves creating more space between the initial reaction and the response.\n\nThis may include experimenting with allowing tension in a conversation to remain present briefly before resolving it, noticing what emotional reactions might be signaling, and becoming curious about how others are experiencing the interaction.\n\nOver time, leadership presence in this domain often shifts from resolving pressure quickly to exploring what the moment might reveal.",
-      reflection: {
-        intro: "You may find it useful to reflect on recent leadership conversations where tension appeared.",
-        questions: ["Think about a recent conversation where someone challenged your perspective. What happened internally before you responded?","When discussions become tense, what helps you decide whether to resolve the issue immediately or stay with the conversation longer?","As you continue developing your leadership approach, where might experimenting with pausing before responding create new understanding in difficult conversations?"],
-      },
+      pattern: "In this domain, Execution Mode relies on responding directly to what is happening in the moment. Confidence comes from being able to step in, address the issue, and move the interaction forward. Under pressure, it protects against loss of control by acting quickly to resolve tension and re-establish direction. This keeps conversations focused and moving, but can make it harder to stay with what is emerging when the situation requires more time to unfold."
     },
     "2a": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Process.\n\nLeaders with this orientation often respond to interpersonal pressure by carefully managing their reactions. Attention moves toward maintaining composure and ensuring the conversation remains constructive.\n\nContribution in this domain often involves regulating one's response so the interaction remains productive.",
-      bullets: ["remain calm when conversations become tense","monitor their reactions carefully in challenging discussions","work to prevent conversations from escalating emotionally","focus on maintaining a respectful tone even under pressure"],
-      bulletsNote: "These leaders often bring stability and self-regulation to difficult interpersonal situations.",
-      possible: "Protect Process often supports healthy communication.\n\nLeaders operating this way frequently create environments where difficult conversations remain constructive, model emotional steadiness during conflict, help others stay focused on productive dialogue, and maintain psychological safety during disagreement.",
-      shift: "As leaders continue developing in this domain, presence often becomes less about managing reactions and more about becoming curious about them.\n\nThis may involve experimenting with noticing emotional responses without immediately regulating them away, exploring what tension in a conversation might reveal about the underlying issue, and inviting others to share more about their experience of the interaction.\n\nOver time, leadership presence in this domain often shifts from containing reactions to learning from them.",
-      reflection: {
-        intro: "You may find it useful to reflect on recent conversations where emotional pressure was present.",
-        questions: ["Recall a recent conversation where you worked to stay composed. What helped you regulate your response?","When tension appears in a discussion, what signals tell you it is important to remain steady?","As you continue developing your leadership approach, where might experimenting with greater curiosity about emotional signals deepen your leadership presence?"],
-      },
+      pattern: "In this domain, Orchestration Mode relies on how the interaction is structured and contained. Confidence comes from being able to shape the conversation so it stays productive and on track. Under pressure, it protects against escalation by slowing things down and guiding the exchange into a clearer format. This creates stability in the interaction, but can make it harder to allow the conversation to develop organically when something important has not yet surfaced."
     },
     "2b": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often maintain composure while remaining attentive to how their presence is perceived by others. During challenging moments, attention often moves toward responding in a way that reflects the kind of leader they aim to be.\n\nContribution in this domain often involves responding thoughtfully while maintaining leadership credibility.",
-      bullets: ["consider how their response will be interpreted during difficult conversations","respond carefully when challenged in public settings","remain composed while addressing disagreement","balance authenticity with maintaining leadership presence"],
-      bulletsNote: "These leaders often bring awareness of social dynamics and leadership presence to challenging interactions.",
-      possible: "Protect Identity can strengthen leadership credibility.\n\nLeaders operating this way frequently maintain confidence during difficult discussions, communicate thoughtfully when tension is present, help others feel heard while maintaining leadership authority, and represent themselves and their role clearly during challenging moments.",
-      shift: "As leaders continue developing in this domain, presence often becomes less about how one's response appears and more about what the moment itself might reveal.\n\nThis may involve experimenting with allowing feedback or disagreement to remain open longer, becoming curious about how others are experiencing the interaction, and letting conversations unfold without needing to manage how one's presence is perceived.\n\nOver time, leadership presence in this domain often shifts toward genuine curiosity about the interaction itself.",
-      reflection: {
-        intro: "You may find it useful to reflect on moments where your leadership presence was challenged or questioned.",
-        questions: ["Recall a time when someone questioned your approach or decision. What influenced how you responded?","When conversations become tense, how aware are you of how your response may be interpreted?","As you continue developing your leadership approach, where might experimenting with greater openness to the conversation itself deepen your connection with others?"],
-      },
-    },
-    "2b+": {
-      transitional: "Your responses suggest that your leadership patterns in this domain sit between Protect Identity and Protect System.\n\nIn many situations you lead with Protect Identity — remaining composed and attentive to how your presence is perceived during difficult conversations. At the same time, your responses show emerging patterns associated with Protect System, where interpersonal pressure becomes an opportunity for genuine curiosity about what the moment might reveal.\n\nLeaders in this position often notice themselves beginning to let conversations unfold more naturally, becoming less focused on managing how they appear and more interested in what the interaction itself might be revealing.",
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect Identity.\n\nLeaders with this orientation often maintain composure while remaining attentive to how their presence is perceived by others. During challenging moments, attention often moves toward responding in a way that reflects the kind of leader they aim to be.",
-      bullets: ["consider how their response will be interpreted during difficult conversations","respond carefully when challenged in public settings","remain composed while addressing disagreement","balance authenticity with maintaining leadership presence"],
-      bulletsNote: "These leaders often bring awareness of social dynamics and leadership presence to challenging interactions.",
-      possible: "Protect Identity can strengthen leadership credibility.\n\nLeaders operating this way frequently maintain confidence during difficult discussions, communicate thoughtfully when tension is present, and help others feel heard while maintaining leadership authority.",
-      shift: "As leaders continue developing in this domain, presence often becomes less about how one's response appears and more about what the moment itself might reveal.\n\nThis may involve experimenting with allowing feedback or disagreement to remain open longer, becoming curious about how others are experiencing the interaction, and letting conversations unfold without needing to manage how one's presence is perceived.",
-      reflection: {
-        intro: "You may find it useful to reflect on moments where your leadership presence was challenged or questioned.",
-        questions: ["Recall a time when someone questioned your approach or decision. What influenced how you responded?","When conversations become tense, how aware are you of how your response may be interpreted?","As you continue developing your leadership approach, where might experimenting with greater openness to the conversation itself deepen your connection with others?"],
-      },
+      pattern: "In this domain, Navigation Mode relies on how you are coming across in the moment. Confidence comes from knowing your tone, timing, and response are being interpreted as steady and appropriate. Under pressure, it protects against being misread or escalating the situation by adjusting how you engage. This helps maintain credibility and composure, but can make it harder to respond directly when the moment calls for greater clarity or candor."
     },
     "3": {
-      intro: "Your responses suggest that in this domain your leadership patterns tend to align with Protect System.\n\nLeaders with this orientation often respond to interpersonal pressure with genuine curiosity. When tension arises, attention moves toward understanding what the moment might reveal about the conversation, the relationship, or the broader dynamic.\n\nContribution in this domain often shows up through creating space for deeper understanding within difficult conversations.",
-      bullets: ["remain curious when others challenge their ideas","explore the underlying dynamics in tense conversations","listen carefully when feedback feels uncomfortable","allow difficult discussions to unfold without rushing to resolution"],
-      bulletsNote: "These leaders often bring openness and reflective awareness to interpersonal interactions.",
-      possible: "Protect System can support deeper leadership relationships.\n\nLeaders operating this way frequently create environments where honest conversations can occur, encourage learning within difficult discussions, strengthen trust by remaining open to feedback, and help teams explore underlying issues rather than avoiding them.",
-      shift: "At this stage, development often involves noticing how one's own presence shapes the conversation.\n\nLeaders may experiment with observing how their reactions influence the dynamics of the discussion, inviting others to explore tensions more openly, and reflecting on how curiosity can support learning across the team.\n\nThese shifts can deepen the leader's ability to create environments where meaningful conversations and learning can occur.",
-      reflection: {
-        intro: "As you reflect on this domain, you might consider recent conversations where tension or disagreement emerged.",
-        questions: ["Think about a recent moment when someone challenged your thinking. What helped you remain curious about the situation?","When feedback feels uncomfortable, what helps you stay open to what might be learned?","As you continue developing your leadership approach, where might experimenting with deeper curiosity about interpersonal dynamics strengthen your leadership presence?"],
-      },
-    },
-  },
+      pattern: "In this domain, Integration Mode relies on staying with what is happening beneath the surface of the interaction. Confidence comes from knowing the moment can be understood more fully before moving to resolution. Under pressure, it protects against reacting too quickly by allowing the tension to unfold and examining what is driving it. This creates space for deeper understanding, but can make it harder to move the conversation forward when others are ready to act."
+    }
+  }
+
 };
+
+
 
 function SH({children}) {
   return <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:10,marginTop:28}}>{children}</p>;
@@ -2246,13 +1724,17 @@ function HR() {
 }
 
 function DomainPage({domain, placement}) {
-  const dc = DOMAIN_CONTENT[domain];
+  const DOMAIN_KEYS = { 1: "contribution", 2: "reasoning", 3: "authority", 4: "loyalty", 5: "presence" };
+  const ORIENT_KEYS = { "1": "execution", "2a": "orchestration", "2b": "navigation", "3": "integration" };
+  const dc = DOMAIN_CONTENT[DOMAIN_KEYS[domain]];
   const oc = ORIENTATION_CONTENT[domain];
-  const orient = oc[placement] || oc["2b"];
-  const isTransitional = placement === "2b+";
+  const orient = oc[placement];
+  const assets = dc.assets[ORIENT_KEYS[placement]];
   const poles = DOMAIN_POLES[domain];
-  const pos = ORIENTATION_ORDER[placement] || 0;
-  const pct = [0,33,58,58,85][pos];
+  const pct = { "1": 15, "2a": 38, "2b": 63, "3": 85 }[placement] || 0;
+  const orientLabel = ORIENTATION_LABELS[placement] || placement;
+  const framingLine = dc.framingLine.replace("[Mode]", orientLabel.replace(" Mode", ""));
+  const otherOrients = ["1","2a","2b","3"].filter(k => k !== placement);
 
   return (
     <div style={{maxWidth:720}}>
@@ -2266,7 +1748,7 @@ function DomainPage({domain, placement}) {
       <div style={{marginBottom:28}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
           <span style={{fontSize:12,fontWeight:600,color:C.nearBlack}}>{DOMAIN_NAMES[domain]}</span>
-          <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{ORIENTATION_LABELS[placement]}</span>
+          <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{orientLabel}</span>
         </div>
         <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:6}}>
           <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:`linear-gradient(to right,${C.warmWhite},${C.slate})`,borderRadius:3}}/>
@@ -2282,101 +1764,47 @@ function DomainPage({domain, placement}) {
 
       {/* 1. About This Domain */}
       <SH>About This Domain</SH>
-      <MP text={dc.description}/>
+      <MP text={dc.about}/>
       <HR/>
 
-      {/* 2. The Four Orientations */}
-      <SH>The Four Leadership Orientations</SH>
-      <div style={{marginBottom:12}}>
-        {dc.orientations.map((o,i)=>(
-          <div key={i} style={{display:"grid",gridTemplateColumns:"160px 1fr",gap:16,padding:"10px 0",borderBottom:`1px solid ${C.warmWhite}`}}>
-            <span style={{fontSize:13,fontWeight:600,color:C.nearBlack}}>{o.label}</span>
-            <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.6}}>{o.desc}</span>
+      {/* 2. Your Orientation */}
+      <SH>Your Orientation: {orientLabel}</SH>
+      <BT>{orient.pattern}</BT>
+      <HR/>
+
+      {/* 3. What This Looks Like */}
+      <SH>What This Looks Like</SH>
+      <div style={{borderTop:`1px solid ${C.warmWhite}`,marginBottom:8}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,padding:"7px 0",borderBottom:`1px solid ${C.warmWhite}`}}>
+          <span style={{fontSize:11,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",color:C.midBlue}}>What this orientation makes possible</span>
+          <span style={{fontSize:11,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",color:C.midBlue}}>What it costs</span>
+        </div>
+        {assets.possible.map((item,i)=>(
+          <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,padding:"8px 0",borderBottom:`1px solid ${C.lightSage}`}}>
+            <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.5}}>{item}</span>
+            <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.5}}>{assets.costs[i]||""}</span>
           </div>
         ))}
       </div>
-      {dc.orientationsNote && <BT style={{marginTop:8}}>{dc.orientationsNote}</BT>}
       <HR/>
 
-      {/* 3. When This Pattern Shows Up */}
-      <SH>When This Pattern Shows Up</SH>
-      <BT>{dc.scenarios.intro}</BT>
-      {[dc.scenarios.s1, dc.scenarios.s2].map((s,si)=>(
-        <div key={si} style={{marginBottom:20}}>
-          <p style={{fontFamily:"system-ui,sans-serif",fontSize:12,fontWeight:600,color:C.slate,marginBottom:6,letterSpacing:"0.04em"}}>{s.title}</p>
-          <BT>{s.text}</BT>
-          <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:8}}>
-            {s.responses.map((r,ri)=>(
-              <div key={ri} style={{display:"grid",gridTemplateColumns:"140px 1fr",gap:12,padding:"8px 12px",background:C.lightSage}}>
-                <span style={{fontSize:12,fontWeight:600,color:C.slate}}>{r.label}</span>
-                <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.6,fontStyle:"italic"}}>{r.text}</span>
-              </div>
-            ))}
-          </div>
+      {/* 4. A Leadership Moment */}
+      <SH>A Leadership Moment</SH>
+      <p style={{fontFamily:"system-ui,sans-serif",fontSize:13,lineHeight:1.7,color:C.slate,fontStyle:"italic",marginBottom:12}}>{dc.scenario}</p>
+      <p style={{fontFamily:"system-ui,sans-serif",fontSize:13,fontWeight:600,color:C.nearBlack,marginBottom:8}}>{framingLine}</p>
+      <BT>{dc.primary[ORIENT_KEYS[placement]]}</BT>
+      <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.07em",color:C.midBlue,marginTop:16,marginBottom:8}}>How other orientations might respond</p>
+      {otherOrients.map(k=>(
+        <div key={k} style={{padding:"8px 0",borderBottom:`1px solid ${C.lightSage}`}}>
+          <span style={{fontSize:13,fontWeight:600,color:C.nearBlack,marginRight:6}}>{ORIENTATION_LABELS[k]}:</span>
+          <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.6}}>{dc.secondary[ORIENT_KEYS[k]]}</span>
         </div>
       ))}
-      {dc.scenarios.closing && <BT>{dc.scenarios.closing}</BT>}
       <HR/>
 
-      {/* 4. Your Orientation */}
-      <SH>Your Orientation: {isTransitional ? "Protect Identity (Emerging System Orientation)" : ORIENTATION_LABELS[placement]}</SH>
-      {isTransitional && (
-        <div style={{background:C.lightSage,padding:"16px 20px",borderLeft:`3px solid ${C.gold}`,marginBottom:16}}>
-          <MP text={orient.transitional}/>
-        </div>
-      )}
-      <MP text={orient.intro}/>
-      <HR/>
-
-      {/* 5. What This Looks Like in Practice */}
-      <SH>What This Looks Like in Practice</SH>
-      <div style={{marginBottom:8}}>
-        {orient.bullets.map((b,i)=>(
-          <div key={i} style={{display:"flex",gap:12,marginBottom:10}}>
-            <div style={{width:3,background:C.slate,flexShrink:0,marginTop:4,alignSelf:"stretch"}}/>
-            <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{b}</p>
-          </div>
-        ))}
-      </div>
-      {orient.bulletsNote && <BT style={{marginTop:8,fontStyle:"italic",color:C.midBlue}}>{orient.bulletsNote}</BT>}
-      <HR/>
-
-      {/* 6. What This Orientation Makes Possible */}
-      <SH>What This Orientation Makes Possible</SH>
-      <MP text={orient.possible}/>
-      <HR/>
-
-      {/* 7. What the Next Shift Looks Like */}
-      <SH>What the Next Shift Looks Like</SH>
-      <MP text={orient.shift}/>
-      <HR/>
-
-      {/* 8. Working With This Pattern */}
-      <SH>Working With This Pattern</SH>
-      <BT>{orient.reflection.intro}</BT>
-      <BT>You might explore:</BT>
-      <div style={{marginBottom:16}}>
-        {orient.reflection.questions.map((q,i)=>(
-          <div key={i} style={{display:"flex",gap:12,marginBottom:12}}>
-            <span style={{color:C.slate,fontWeight:600,flexShrink:0,fontSize:14,minWidth:16}}>{i+1}.</span>
-            <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{q}</p>
-          </div>
-        ))}
-      </div>
-      <HR/>
-
-      {/* 9. Leadership Moment to Practice */}
-      <SH>Leadership Moment to Practice</SH>
-      <MP text={dc.moment.text}/>
-      <div style={{background:C.lightSage,padding:"16px 20px",borderLeft:`3px solid ${C.slate}`,marginBottom:16}}>
-        <p style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:300,color:C.deepCharcoal,lineHeight:1.6,fontStyle:"italic"}}>{dc.moment.question}</p>
-      </div>
-      {dc.moment.closing && <BT>{dc.moment.closing}</BT>}
-      <HR/>
-
-      {/* 10. Cross-Domain Insight */}
-      <SH>Cross-Domain Insight</SH>
-      <MP text={dc.crossDomain}/>
+      {/* 5. Questions to Sit With */}
+      <SH>Questions to Sit With</SH>
+      <p style={{fontFamily:"Georgia,serif",fontSize:15,fontWeight:300,color:C.deepCharcoal,lineHeight:1.7,fontStyle:"italic"}}>{dc.question}</p>
     </div>
   );
 }
@@ -2449,7 +1877,7 @@ export default function App() {
           pMap[r.email]={name:r.name,email:r.email,completed:r.completed,completedAt:r.completed_at,results:r.results};
         });
         if(Object.keys(pMap).length===0){
-          const demo={name:"Alex Rivera",email:"demo@example.com",completed:true,completedAt:new Date().toISOString(),results:scoreAll(ITEMS.map((item,i)=>{
+          const demo={name:"Alex Rivera",email:"demo@example.com",completed:true,completedAt:new Date().toISOString(),results:scoreAll(ITEMS_SOURCE.map((item)=>{
             if(item[3]==="forced") return {id:item[0],domain:item[1],most:0,least:3};
             return {id:item[0],domain:item[1],selected:0};
           }))};
@@ -2476,7 +1904,7 @@ export default function App() {
         const p={name:r.name,email:r.email,completed:r.completed,completedAt:r.completed_at,results:r.results};
         setCurrentUser(p);
         setParticipants(prev=>({...prev,[p.email]:p}));
-        p.completed?setScreen("complete"):(setQIndex(0),setResponses([]),setSelected(null),setMostSel(null),setLeastSel(null),setAnimKey(k=>k+1),setScreen("assessment"));
+        p.completed?setScreen("complete"):(setQIndex(0),setResponses([]),setSelected(null),setMostSel(null),setLeastSel(null),setAnimKey(k=>k+1),setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin"));
         return;
       }
     } catch(e){ console.error("Login error:",e); }
@@ -2498,7 +1926,7 @@ export default function App() {
     } catch(e){ console.error("Register error:",e); }
     setCurrentUser(p);
     setQIndex(0);setResponses([]);setSelected(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
-    setScreen("assessment");
+    setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin");
   }
 
   async function handleNext(){
@@ -2606,6 +2034,38 @@ export default function App() {
     </div>
   );
 
+  if(screen==="beforeyoubegin") return (
+    <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+      <Nav/>
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"44px 28px"}}>
+        <div style={{width:"100%",maxWidth:560}}>
+          <div style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:300,color:C.deepCharcoal,marginBottom:8}}>Before you begin</div>
+          <div style={{height:2,background:C.gold,width:48,marginBottom:28}}/>
+          <p style={{fontSize:15,lineHeight:1.8,color:C.nearBlack,fontWeight:300,marginBottom:28}}>
+            As you respond to each scenario, think of yourself in your current or most recent leadership role — one in which you are responsible for a team or group of direct reports.
+          </p>
+          <div style={{fontSize:13,fontWeight:600,color:C.slate,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:14}}>A few terms used throughout</div>
+          <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:36}}>
+            {[
+              {term:"Your team", def:"the people you directly lead, not a team you are a member of"},
+              {term:"A senior leadership team", def:"a leadership team you are a member of"},
+              {term:"A team member", def:"a competent but not exceptional performer from a team you currently supervise or have supervised in the past"},
+            ].map(({term,def})=>(
+              <div key={term} style={{display:"flex",gap:12,padding:"12px 16px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>
+                <span style={{fontWeight:600,color:C.deepCharcoal,fontSize:14,flexShrink:0}}>{term}</span>
+                <span style={{color:C.midBlue,fontSize:14}}>—</span>
+                <span style={{color:C.nearBlack,fontSize:14,fontWeight:300,lineHeight:1.6}}>{def}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={()=>{setShownBeforeYouBegin(true);setScreen("assessment");}} style={{background:C.deepCharcoal,color:C.warmWhite,border:"none",padding:"14px 32px",fontSize:14,fontWeight:500,cursor:"pointer",letterSpacing:"0.06em"}}>
+            BEGIN ASSESSMENT
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   if(screen==="assessment") return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
       <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}`}</style>
@@ -2702,7 +2162,7 @@ export default function App() {
                 {[1,2,3,4,5].map(d=>{
                   const placement=selectedP.results[d].placement;
                   const pos=ORIENTATION_ORDER[placement]||0;
-                  const pct=[0,33,58,58,85][pos];
+                  const pct=[15,38,63,85][pos];
                   const poles=DOMAIN_POLES[d];
                   return (
                     <div key={d}>
@@ -2781,7 +2241,7 @@ export default function App() {
               <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:8}}>Development Path</h2>
               <p style={{fontSize:14,color:C.midBlue,lineHeight:1.7,fontWeight:300,marginBottom:28,maxWidth:520}}>How leadership identity typically evolves across the developmental continuum.</p>
               <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:2,marginBottom:32}}>
-                {[{l:"Protect Outcome",d:"Direct involvement in results. Identity lives in the work itself.",bg:C.warmWhite,fg:C.deepCharcoal},{l:"Protect Process",d:"Oversight and defensibility. Identity lives in competence and coverage.",bg:"#dce4e0",fg:C.deepCharcoal},{l:"Protect Identity",d:"Managing how leadership appears. Identity lives in reputation and stance.",bg:"#b8c4cc",fg:C.deepCharcoal},{l:"Protect System",d:"Designing conditions for others. Identity lives in the health of the whole.",bg:C.slate,fg:C.offWhite}].map((s,i)=>(
+                {[{l:"Execution Mode",d:"Direct involvement in results. Identity lives in the work itself.",bg:C.warmWhite,fg:C.deepCharcoal},{l:"Orchestration Mode",d:"Oversight and defensibility. Identity lives in competence and coverage.",bg:"#dce4e0",fg:C.deepCharcoal},{l:"Navigation Mode",d:"Managing how leadership appears. Identity lives in reputation and stance.",bg:"#b8c4cc",fg:C.deepCharcoal},{l:"Integration Mode",d:"Designing conditions for others. Identity lives in the health of the whole.",bg:C.slate,fg:C.offWhite}].map((s,i)=>(
                   <div key={i} style={{background:s.bg,padding:"16px 14px"}}>
                     <div style={{fontSize:12,fontWeight:600,color:s.fg,marginBottom:6}}>{s.l}</div>
                     <div style={{fontSize:12,lineHeight:1.6,color:s.fg,opacity:0.85,fontWeight:300}}>{s.d}</div>
