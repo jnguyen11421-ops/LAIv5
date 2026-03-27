@@ -1895,6 +1895,7 @@ export default function App() {
   const [regEmail,setRegEmail]=useState("");
   const [regInvite,setRegInvite]=useState("");
   const [regErr,setRegErr]=useState("");
+  const [shownBeforeYouBegin,setShownBeforeYouBegin]=useState(false);
 
   const COACH_EMAIL="jnguyen.11421@gmail.com", COACH_PASS="LAI2024coach";
   const completedList=Object.values(participants).filter(p=>p.completed);
