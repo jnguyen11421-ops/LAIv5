@@ -166,12 +166,18 @@ function generatePDF(p) {
 
   function domainSection(domainId) {
     const placement = p.results[domainId].placement;
-    const dc = DOMAIN_CONTENT[domainId];
+    const domainKey = {1:"contribution",2:"reasoning",3:"authority",4:"loyalty",5:"presence"}[domainId];
+    const dc = DOMAIN_CONTENT[domainKey];
     const oc = ORIENTATION_CONTENT[domainId];
-    const orient = oc[placement] || oc["2b"];
-    const isTransitional = placement === "2b+";
+    const modeKey = {"1":"execution","2a":"orchestration","2b":"navigation","3":"integration"}[placement] || "navigation";
+    const pattern = oc[placement] ? oc[placement].pattern : "";
     const poles = DOMAIN_POLES[domainId];
     const pct = { "1": 15, "2a": 38, "2b": 63, "3": 85 }[placement] || 0;
+    const assets = dc.assets[modeKey] || {possible:[],costs:[]};
+    const primary = dc.primary[modeKey] || "";
+    const otherModes = ["execution","orchestration","navigation","integration"].filter(m => m !== modeKey);
+    const modeLabel = {"execution":"Execution","orchestration":"Orchestration","navigation":"Navigation","integration":"Integration"};
+    const framingLine = "In this moment, your instinct is to move into " + ORIENTATION_LABELS[placement] + ":";
 
     return `
     <section class="domain-section page-break-before">
@@ -196,72 +202,50 @@ function generatePDF(p) {
 
       <div class="section-block avoid-break">
         <h3 class="section-label">About This Domain</h3>
-        ${dc.description.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
+        ${dc.about.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
       </div>
 
       <div class="section-block avoid-break">
-        <h3 class="section-label">The Four Leadership Orientations</h3>
-        <div class="orientation-table">
-          ${dc.orientations.map(o => `
-            <div class="orientation-row">
-              <span class="orientation-label-cell">${o.label}</span>
-              <span class="orientation-desc-cell">${o.desc}</span>
+        <h3 class="section-label">Your Orientation: ${ORIENTATION_LABELS[placement]}</h3>
+        <p class="body-text">${pattern}</p>
+      </div>
+
+      <div class="section-block avoid-break">
+        <h3 class="section-label">What This Looks Like</h3>
+        <div class="assets-table">
+          <div class="assets-col">
+            <p class="assets-col-header">What this orientation makes possible</p>
+            <ul class="bullet-list">
+              ${assets.possible.map(b => `<li>${b}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="assets-col">
+            <p class="assets-col-header">What it costs</p>
+            <ul class="bullet-list">
+              ${assets.costs.map(b => `<li>${b}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block avoid-break">
+        <h3 class="section-label">A Leadership Moment</h3>
+        <p class="body-text">${dc.scenario}</p>
+        <p class="body-text framing-line"><em>${framingLine}</em></p>
+        <p class="body-text">${primary}</p>
+        <div class="secondary-responses">
+          <p class="secondary-header">How other orientations might respond</p>
+          ${otherModes.map(m => `
+            <div class="secondary-row">
+              <span class="secondary-label">${modeLabel[m]}:</span>
+              <span class="secondary-text">${dc.secondary[m] || ""}</span>
             </div>`).join('')}
         </div>
-        ${dc.orientationsNote ? `<p class="body-text note-text">${dc.orientationsNote}</p>` : ''}
-      </div>
-
-      <div class="section-block">
-        <h3 class="section-label">When This Pattern Shows Up</h3>
-        <p class="body-text">${dc.scenarios.intro}</p>
-        ${scenarioBlock(dc.scenarios.s1)}
-        ${scenarioBlock(dc.scenarios.s2)}
-        ${dc.scenarios.closing ? `<p class="body-text">${dc.scenarios.closing}</p>` : ''}
       </div>
 
       <div class="section-block avoid-break">
-        <h3 class="section-label">Your Orientation: ${isTransitional ? "Navigation Mode (Emerging System Orientation)" : ORIENTATION_LABELS[placement]}</h3>
-        ${isTransitional ? `<div class="transitional-box">${orient.transitional.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}</div>` : ''}
-        ${orient.intro.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">What This Looks Like in Practice</h3>
-        <ul class="bullet-list">
-          ${orient.bullets.map(b => `<li>${b}</li>`).join('')}
-        </ul>
-        ${orient.bulletsNote ? `<p class="body-text note-text">${orient.bulletsNote}</p>` : ''}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">What This Orientation Makes Possible</h3>
-        ${orient.possible.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">What the Next Shift Looks Like</h3>
-        ${orient.shift.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">Working With This Pattern</h3>
-        <p class="body-text">${orient.reflection.intro}</p>
-        <p class="body-text">You might explore:</p>
-        <ol class="reflection-list">
-          ${orient.reflection.questions.map(q => `<li>${q}</li>`).join('')}
-        </ol>
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">Leadership Moment to Practice</h3>
-        ${dc.moment.text.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
-        <div class="pull-quote">${dc.moment.question}</div>
-        ${dc.moment.closing ? `<p class="body-text">${dc.moment.closing}</p>` : ''}
-      </div>
-
-      <div class="section-block avoid-break">
-        <h3 class="section-label">Cross-Domain Insight</h3>
-        ${dc.crossDomain.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
+        <h3 class="section-label">Questions to Sit With</h3>
+        <p class="body-text">${dc.question}</p>
       </div>
     </section>`;
   }
@@ -1000,7 +984,7 @@ function Wheel({results}) {
     {r:195,rIn:135,bg:"#8aaabe", label:"PROTECT IDENTITY"},
     {r:250,rIn:195,bg:"#4a6e88", label:"PROTECT SYSTEM"},
   ];
-  const RING_IDX={"1":0,"2a":1,"2b":2,"2b+":2,"3":3};
+  const RING_IDX={"1":0,"2a":1,"2b":2,"3":3};
   const DOMAINS=[
     {id:1,name:"Contribution",        s:198,e:270},
     {id:2,name:"Decision\nReasoning", s:270,e:342},
@@ -1133,8 +1117,8 @@ function FormField({label,value,onChange,type="text",placeholder}) {
 }
 
 function OrientationBadge({placement}) {
-  const bgs={"1":C.warmWhite,"2a":"#dce4e0","2b":"#b8c4cc","2b+":"#b8c4cc","3":C.slate};
-  const fgs={"1":C.midBlue,"2a":C.slate,"2b":C.deepCharcoal,"2b+":C.deepCharcoal,"3":C.offWhite};
+  const bgs={"1":C.warmWhite,"2a":"#dce4e0","2b":"#b8c4cc","3":C.slate};
+  const fgs={"1":C.midBlue,"2a":C.slate,"2b":C.deepCharcoal,"3":C.offWhite};
   return <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:500,letterSpacing:"0.05em",padding:"3px 10px",background:bgs[placement]||C.warmWhite,color:fgs[placement]||C.midBlue,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]||placement}</span>;
 }
 
@@ -1709,13 +1693,19 @@ function HR() {
 }
 
 function DomainPage({domain, placement}) {
-  const dc = DOMAIN_CONTENT[domain];
+  const domainKey = {1:"contribution",2:"reasoning",3:"authority",4:"loyalty",5:"presence"}[domain];
+  const dc = DOMAIN_CONTENT[domainKey];
   const oc = ORIENTATION_CONTENT[domain];
-  const orient = oc[placement] || oc["2b"];
-  const isTransitional = placement === "2b+";
+  const modeKey = {"1":"execution","2a":"orchestration","2b":"navigation","3":"integration"}[placement] || "navigation";
+  const pattern = oc[placement] ? oc[placement].pattern : "";
   const poles = DOMAIN_POLES[domain];
   const pos = ORIENTATION_ORDER[placement] || 0;
   const pct = [15,38,63,85][pos];
+  const assets = dc.assets[modeKey] || {possible:[],costs:[]};
+  const primary = dc.primary[modeKey] || "";
+  const otherModes = ["execution","orchestration","navigation","integration"].filter(m => m !== modeKey);
+  const modeLabel = {"execution":"Execution","orchestration":"Orchestration","navigation":"Navigation","integration":"Integration"};
+  const framingLine = "In this moment, your instinct is to move into " + ORIENTATION_LABELS[placement] + ":";
 
   return (
     <div style={{maxWidth:720}}>
@@ -1745,101 +1735,59 @@ function DomainPage({domain, placement}) {
 
       {/* 1. About This Domain */}
       <SH>About This Domain</SH>
-      <MP text={dc.description}/>
+      <MP text={dc.about}/>
       <HR/>
 
-      {/* 2. The Four Orientations */}
-      <SH>The Four Leadership Orientations</SH>
-      <div style={{marginBottom:12}}>
-        {dc.orientations.map((o,i)=>(
-          <div key={i} style={{display:"grid",gridTemplateColumns:"160px 1fr",gap:16,padding:"10px 0",borderBottom:`1px solid ${C.warmWhite}`}}>
-            <span style={{fontSize:13,fontWeight:600,color:C.nearBlack}}>{o.label}</span>
-            <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.6}}>{o.desc}</span>
-          </div>
-        ))}
-      </div>
-      {dc.orientationsNote && <BT style={{marginTop:8}}>{dc.orientationsNote}</BT>}
+      {/* 2. Your Orientation */}
+      <SH>Your Orientation: {ORIENTATION_LABELS[placement]}</SH>
+      <BT>{pattern}</BT>
       <HR/>
 
-      {/* 3. When This Pattern Shows Up */}
-      <SH>When This Pattern Shows Up</SH>
-      <BT>{dc.scenarios.intro}</BT>
-      {[dc.scenarios.s1, dc.scenarios.s2].map((s,si)=>(
-        <div key={si} style={{marginBottom:20}}>
-          <p style={{fontFamily:"system-ui,sans-serif",fontSize:12,fontWeight:600,color:C.slate,marginBottom:6,letterSpacing:"0.04em"}}>{s.title}</p>
-          <BT>{s.text}</BT>
-          <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:8}}>
-            {s.responses.map((r,ri)=>(
-              <div key={ri} style={{display:"grid",gridTemplateColumns:"140px 1fr",gap:12,padding:"8px 12px",background:C.lightSage}}>
-                <span style={{fontSize:12,fontWeight:600,color:C.slate}}>{r.label}</span>
-                <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.6,fontStyle:"italic"}}>{r.text}</span>
-              </div>
-            ))}
-          </div>
+      {/* 3. What This Looks Like */}
+      <SH>What This Looks Like</SH>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,marginBottom:16}}>
+        <div>
+          <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:10}}>What this orientation makes possible</p>
+          {assets.possible.map((b,i)=>(
+            <div key={i} style={{display:"flex",gap:10,marginBottom:8}}>
+              <div style={{width:3,background:C.slate,flexShrink:0,marginTop:4,alignSelf:"stretch"}}/>
+              <p style={{fontFamily:"system-ui,sans-serif",fontSize:13,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{b}</p>
+            </div>
+          ))}
         </div>
-      ))}
-      {dc.scenarios.closing && <BT>{dc.scenarios.closing}</BT>}
-      <HR/>
-
-      {/* 4. Your Orientation */}
-      <SH>Your Orientation: {isTransitional ? "Navigation Mode (Emerging System Orientation)" : ORIENTATION_LABELS[placement]}</SH>
-      {isTransitional && (
-        <div style={{background:C.lightSage,padding:"16px 20px",borderLeft:`3px solid ${C.gold}`,marginBottom:16}}>
-          <MP text={orient.transitional}/>
+        <div>
+          <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:10}}>What it costs</p>
+          {assets.costs.map((b,i)=>(
+            <div key={i} style={{display:"flex",gap:10,marginBottom:8}}>
+              <div style={{width:3,background:C.midBlue,flexShrink:0,marginTop:4,alignSelf:"stretch"}}/>
+              <p style={{fontFamily:"system-ui,sans-serif",fontSize:13,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{b}</p>
+            </div>
+          ))}
         </div>
-      )}
-      <MP text={orient.intro}/>
-      <HR/>
-
-      {/* 5. What This Looks Like in Practice */}
-      <SH>What This Looks Like in Practice</SH>
-      <div style={{marginBottom:8}}>
-        {orient.bullets.map((b,i)=>(
-          <div key={i} style={{display:"flex",gap:12,marginBottom:10}}>
-            <div style={{width:3,background:C.slate,flexShrink:0,marginTop:4,alignSelf:"stretch"}}/>
-            <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{b}</p>
-          </div>
-        ))}
       </div>
-      {orient.bulletsNote && <BT style={{marginTop:8,fontStyle:"italic",color:C.midBlue}}>{orient.bulletsNote}</BT>}
       <HR/>
 
-      {/* 6. What This Orientation Makes Possible */}
-      <SH>What This Orientation Makes Possible</SH>
-      <MP text={orient.possible}/>
-      <HR/>
-
-      {/* 7. What the Next Shift Looks Like */}
-      <SH>What the Next Shift Looks Like</SH>
-      <MP text={orient.shift}/>
-      <HR/>
-
-      {/* 8. Working With This Pattern */}
-      <SH>Working With This Pattern</SH>
-      <BT>{orient.reflection.intro}</BT>
-      <BT>You might explore:</BT>
-      <div style={{marginBottom:16}}>
-        {orient.reflection.questions.map((q,i)=>(
-          <div key={i} style={{display:"flex",gap:12,marginBottom:12}}>
-            <span style={{color:C.slate,fontWeight:600,flexShrink:0,fontSize:14,minWidth:16}}>{i+1}.</span>
-            <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{q}</p>
+      {/* 4. A Leadership Moment */}
+      <SH>A Leadership Moment</SH>
+      <BT>{dc.scenario}</BT>
+      <p style={{fontFamily:"system-ui,sans-serif",fontSize:13,lineHeight:1.7,color:C.slate,fontWeight:400,fontStyle:"italic",marginBottom:12}}>{framingLine}</p>
+      <BT>{primary}</BT>
+      <div style={{background:C.lightSage,padding:"16px 20px",marginTop:16,marginBottom:8}}>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:12}}>How other orientations might respond</p>
+        {otherModes.map((m,i)=>(
+          <div key={i} style={{display:"grid",gridTemplateColumns:"120px 1fr",gap:12,marginBottom:10}}>
+            <span style={{fontSize:12,fontWeight:600,color:C.slate}}>{modeLabel[m]}:</span>
+            <span style={{fontSize:13,fontWeight:300,color:C.nearBlack,lineHeight:1.6}}>{dc.secondary[m] || ""}</span>
           </div>
         ))}
       </div>
       <HR/>
 
-      {/* 9. Leadership Moment to Practice */}
-      <SH>Leadership Moment to Practice</SH>
-      <MP text={dc.moment.text}/>
+      {/* 5. Questions to Sit With */}
+      <SH>Questions to Sit With</SH>
       <div style={{background:C.lightSage,padding:"16px 20px",borderLeft:`3px solid ${C.slate}`,marginBottom:16}}>
-        <p style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:300,color:C.deepCharcoal,lineHeight:1.6,fontStyle:"italic"}}>{dc.moment.question}</p>
+        <p style={{fontFamily:"Georgia,serif",fontSize:15,fontWeight:300,color:C.deepCharcoal,lineHeight:1.7,fontStyle:"italic"}}>{dc.question}</p>
       </div>
-      {dc.moment.closing && <BT>{dc.moment.closing}</BT>}
-      <HR/>
-
-      {/* 10. Cross-Domain Insight */}
-      <SH>Cross-Domain Insight</SH>
-      <MP text={dc.crossDomain}/>
     </div>
   );
 }
