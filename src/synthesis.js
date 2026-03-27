@@ -123,6 +123,8 @@ const ORIENT_BUCKET = {
   "3": "system"
 };
 
+const ORIENTATION_ORDER = {"1":0,"2a":1,"2b":2,"3":3};
+
 // ── SELECTOR FUNCTION ──
 // ── LAYER 2: SYNTHESIS SELECTOR ──
 
