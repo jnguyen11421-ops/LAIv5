@@ -33,6 +33,18 @@ const SYNTHESIS_CONTENT = {
       title: "Navigation and Integration Mode",
       text: "Your profile suggests that, under pressure, you tend to default to both Navigation Mode and Integration Mode. This combination means you are rarely caught off guard. You are reading how you and the situation are being interpreted while also staying with what is fundamentally sound beneath it. That makes you steady, nuanced, and hard to destabilize. The tradeoff is that both modes pull your attention inward under pressure. You are managing interpretation and underlying complexity simultaneously, which can leave others waiting for a direction that hasn't yet surfaced, and can leave you carrying more cognitive and emotional weight than is visible to anyone around you."
     },
+    mixed_outcome_system: {
+      title: "Execution and Integration Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to both Execution Mode and Integration Mode. This combination is relatively rare. It joins a strong drive toward direct action with the capacity to hold complexity and stay with what is fundamentally sound. This often creates leaders who can drive toward results without losing sight of the bigger picture. The tension is that these two modes pull in different directions under pressure. Execution moves toward direct action on the outcome; Integration stays with the underlying logic. When stakes rise, the instinct to act can crowd out the thinking that would make the action more sound, or the thinking can delay action longer than the moment allows."
+    },
+    mixed_outcome_process: {
+      title: "Execution and Orchestration Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to both Execution Mode and Orchestration Mode. This is a highly hands-on combination. It joins a strong drive toward direct action on outcomes with close attention to how the work is structured and managed as it moves through others. This often creates leaders with exceptional execution discipline, high standards, and strong follow-through. The tension is that both modes move toward control when pressure rises. There is little in this combination that pulls toward stepping back or allowing ownership to move independently of you. As a result, ownership tends not to fully transfer outward. Not as a choice, but as the natural outcome of how both modes respond when the stakes are high."
+    },
+    mixed_outcome_identity: {
+      title: "Execution and Navigation Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to both Execution Mode and Navigation Mode. This combination joins a strong drive toward direct action on outcomes with close attention to how your leadership is being interpreted by others. This often creates leaders who are both decisive and politically aware, able to move quickly while reading the room. The tension is that these two modes can work against each other under pressure. Execution moves directly toward action on the outcome, while Navigation pauses to manage how your actions are being interpreted. When stakes rise, you may find yourself caught between acting decisively and ensuring your actions are being read correctly, and the effort to do both can either delay action or dilute its clarity."
+    },
     balanced_profile: {
       title: "Mixed Mode Profile",
       text: "Your profile suggests that, under pressure, you do not default to one consistent mode across domains. Instead, your response shifts depending on the type of pressure or leadership demand you are in. This is common in experienced leaders and can reflect genuine range. The tradeoff is that without a dominant pattern, your leadership can be harder for others to read and predict. The developmental task is not to pick a mode, but to become more conscious of which one you are using in which situations, and to be more transparent with others about how you are approaching the moment."
@@ -146,6 +158,9 @@ const CLUSTER_RULES = [
     key: "mixed_process_identity"
   },
   // Count-based dominance
+  { test: (p, c) => (c.outcome||0) >= 2 && (c.system||0)   >= 2 && (c.identity||0) === 0 && (c.process||0)  === 0, key: "mixed_outcome_system"   },
+  { test: (p, c) => (c.outcome||0) >= 2 && (c.process||0)  >= 2 && (c.system||0)   === 0 && (c.identity||0) === 0, key: "mixed_outcome_process"   },
+  { test: (p, c) => (c.outcome||0) >= 2 && (c.identity||0) >= 2 && (c.system||0)   === 0 && (c.process||0)  === 0, key: "mixed_outcome_identity"   },
   { test: (p, c) => (c.process||0)   >= 3, key: "process_dominant"  },
   { test: (p, c) => (c.system||0)    >= 3, key: "system_dominant"   },
   { test: (p, c) => (c.identity||0)  >= 3, key: "identity_dominant" },
