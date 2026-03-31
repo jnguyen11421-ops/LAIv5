@@ -6,103 +6,103 @@
 const SYNTHESIS_CONTENT = {
   clusters: {
     process_dominant: {
-      title: "Process-anchored leadership",
-      text: "Your profile suggests that when leadership gets tense, you often default to staying close to how work is unfolding. You are likely to trust your judgment more when you have visibility into the process, can track how decisions are developing, and can see whether standards are holding. This often creates strong reliability, consistency, and quality control. The tradeoff is that leadership can remain more closely tied to your visibility than to the systems or people carrying the work forward."
+      title: "Orchestration Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to Orchestration Mode — staying close to how the work is structured and managed as it moves through others. You are likely to trust your judgment more when you have visibility into the process, roles are defined, and standards are holding. This often creates strong reliability, consistency, and dependable delivery. The tradeoff is that leadership can remain too closely tied to process adherence, which others often experience as controlling even when that is not the intent."
     },
     system_dominant: {
-      title: "System-oriented leadership",
-      text: "Your profile suggests that when leadership moments become difficult, you often default to the underlying logic, structure, or system shaping the work. You are likely to trust decisions more when the reasoning is clear, the architecture makes sense, and the broader system can hold complexity without oversimplifying it. This often creates strong judgment, learning, and long-range thinking. The tradeoff is that others may not always know when to move from exploration into commitment or action."
+      title: "Integration Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to Integration Mode — returning to what is solid enough to hold up without your direct involvement. You are likely to trust decisions more when the reasoning is clear, assumptions have been examined, and the work can continue under complexity. This often creates strong judgment, long-range thinking, and genuine psychological security. The tradeoff is that others may not always know when exploration has ended and a clear direction is being held."
     },
     identity_dominant: {
-      title: "Identity-aware leadership",
-      text: "Your profile suggests that when leadership gets tense, you often default to how your leadership stance is being understood by others. You are likely to pay close attention to trust, credibility, interpretation, and how your response lands across different audiences. This often creates thoughtful communication, political awareness, and steadiness in complex situations. The tradeoff is that too much energy can go into managing how leadership is understood rather than fully stepping into the tension itself."
+      title: "Navigation Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to Navigation Mode — orienting toward how your leadership is landing with others. You are likely to pay close attention to interpretation, credibility, and how your response is being read across different audiences and situations. This often creates thoughtful communication, political awareness, and steadiness in complex interpersonal dynamics. The tradeoff is that too much energy can go into managing how your leadership is understood rather than fully stepping into the tension itself."
     },
     outcome_dominant: {
-      title: "Outcome-driven leadership",
-      text: "Your profile suggests that when pressure rises, you often default to the result that needs to be protected or achieved. You are likely to trust your footing most when the direction is clear, the stakes are named, and movement toward the outcome is visible. This often creates decisiveness, momentum, and strong ownership. The tradeoff is that urgency can narrow reflection and reduce space for others to shape the work."
+      title: "Execution Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to Execution Mode — moving toward direct action on the result that needs to be protected or achieved. You are likely to trust your footing most when you can step in directly, take action on the outcome, and see your own hand in moving things forward. This often creates decisiveness, strong ownership, and reliable follow-through. The tradeoff is that urgency can narrow the space for others to shape the work, and taking over limits the opportunities others have to grow into ownership."
     },
     mixed_process_identity: {
-      title: "Careful, high-accountability leadership",
-      text: "Your profile suggests a pattern of staying close to both execution and interpretation when leadership gets tense. You may rely on visibility into the work while also paying close attention to how your leadership stance is understood by others. This often creates reliability, thoughtfulness, and strong situational awareness. The tradeoff is that leadership can become more effortful, because you are carrying both the work itself and the social meaning of the work at the same time."
+      title: "Orchestration and Navigation Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to both Orchestration Mode and Navigation Mode. This combination means you are rarely just structuring how the work moves. You are also managing how it is being interpreted by others at the same time. That dual attention can make you reliable, politically aware, and steady in complex situations. The tradeoff is that neither the structure nor its interpretation fully runs on its own. Both depend on you. As scope expands, that becomes increasingly difficult to sustain."
     },
     mixed_process_system: {
-      title: "Structured, high-judgment leadership",
-      text: "Your profile suggests a pattern of combining strong reasoning with close process visibility. You are likely to value both sound logic and a clear view into how work is unfolding. This often creates thoughtful decisions and dependable execution. The tradeoff is that decision quality may stay high while ownership spreads more slowly, because leadership still relies partly on your proximity to the work."
+      title: "Orchestration and Integration Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to both Orchestration Mode and Integration Mode. This combination can look like a well-functioning system. The work is structured, the underlying judgment is sound, and things move without obvious friction. The tradeoff is that it is more dependent on you than it appears. You are managing both how the work is organized and whether the underlying judgment is sound, which means the system functions well largely because you are still in it. Ownership spreads more slowly than the surface suggests."
     },
     mixed_identity_system: {
-      title: "Reflective, complex-systems leadership",
-      text: "Your profile suggests a pattern of holding both systemic complexity and social interpretation in view when leadership gets tense. You may be skilled at seeing the larger logic of a situation while also tracking how people are receiving the moment. This often creates nuanced judgment and strong relational awareness. The tradeoff is that leadership can become overmanaged if too much attention goes to both the system and the meaning others are making of it."
+      title: "Navigation and Integration Mode",
+      text: "Your profile suggests that, under pressure, you tend to default to both Navigation Mode and Integration Mode. This combination means you are rarely caught off guard. You are reading how you and the situation are being interpreted while also staying with what is fundamentally sound beneath it. That makes you steady, nuanced, and hard to destabilize. The tradeoff is that both modes pull your attention inward under pressure. You are managing interpretation and underlying complexity simultaneously, which can leave others waiting for a direction that hasn't yet surfaced, and can leave you carrying more cognitive and emotional weight than is visible to anyone around you."
     },
     balanced_profile: {
-      title: "Mixed leadership profile",
-      text: "Your profile suggests that you do not rely on one leadership pattern across every domain. Instead, your defaults shift depending on the kind of pressure you are carrying. This is common in experienced leaders. It means your development is less about changing your whole style and more about noticing which pattern you reach for in which kind of moment."
+      title: "Mixed Mode Profile",
+      text: "Your profile suggests that, under pressure, you do not default to one consistent mode across domains. Instead, your response shifts depending on the type of pressure or leadership demand you are in. This is common in experienced leaders and can reflect genuine range. The tradeoff is that without a dominant pattern, your leadership can be harder for others to read and predict. The developmental task is not to pick a mode, but to become more conscious of which one you are using in which situations, and to be more transparent with others about how you are approaching the moment."
     }
   },
   leverage: {
     contribution: {
       title: "Developmental leverage: Contribution",
-      text: "The strongest developmental leverage in your profile appears in Contribution. This domain matters because it shapes how you experience your value as leadership becomes less visible and more distributed. A shift here would likely have effects beyond contribution itself: it can change how much oversight you need, how easily authority spreads through others, and how much your leadership depends on staying close to the work. The key question is whether you can trust your influence even when your involvement is no longer visible."
+      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Contribution. A shift in this domain matters because it shapes how you experience your contribution as leadership becomes less direct and more distributed. A shift here would likely have effects beyond this domain alone. It can change how much oversight you need, how readily ownership and decision-making move to others, and how much your leadership depends on staying close to the work. The key question is whether you can trust that your contribution is real even when you can no longer see your hand in the result."
     },
     reasoning: {
       title: "Developmental leverage: Reasoning",
-      text: "The strongest developmental leverage in your profile appears in Reasoning. This domain matters because it shapes how you make sense of uncertainty, explain decisions, and invite others into complex thinking. A shift here would likely affect not only your decisions, but also the quality of dialogue around you. The key question is whether your current reasoning habits create enough room to examine the assumptions built into how you are framing the problem."
+      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Reasoning. A shift in this domain matters because it shapes what you rely on when facing uncertainty, how you form and stand behind decisions, and whether others can examine your thinking or mainly align with it. A shift here would likely affect not only the quality of your decisions, but also the quality of dialogue around you. The key question is whether the way you reason under pressure leaves enough room for your assumptions to be examined, by you and by others."
     },
     authority: {
       title: "Developmental leverage: Authority",
-      text: "The strongest developmental leverage in your profile appears in Authority. This domain matters because it shapes whether leadership capacity stays concentrated around you or becomes more widely held across the team or system. A shift here would likely affect scale, ownership, and the pace at which others grow into judgment. The key question is whether your current oversight gives the system what it truly needs, or whether some of it mainly helps you feel reassured."
+      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Authority. A shift in this domain matters because it shapes whether leadership capacity stays concentrated around you or becomes more widely held across your team and organization. A shift here would likely affect how quickly others grow into judgment, how readily ownership and decision-making move without your involvement, and how much your leadership depends on your direct presence in the work. The key question is whether your current oversight gives others what they truly need, or whether some of it mainly helps you feel reassured."
     },
     loyalty: {
       title: "Developmental leverage: Loyalty",
-      text: "The strongest developmental leverage in your profile appears in Loyalty. This domain matters because it shapes how you carry the tension between your people and the larger system. A shift here would likely affect trust, alignment, and how clearly you can hold difficult decisions without overexplaining or overcorrecting. The key question is whether you can stay present to the cost of a decision without needing to manage how your leadership stance is interpreted."
+      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Loyalty. A shift in this domain matters because it shapes how you hold the tension between your team and the broader organization when their needs pull in different directions. A shift here would likely affect how clearly you can take a position under pressure, how much you soften or over-explain difficult decisions, and whether your team and the organization can both trust where you stand. The key question is whether you can stay present to the cost of a decision without needing to soften or manage it."
     },
     presence: {
       title: "Developmental leverage: Presence",
-      text: "The strongest developmental leverage in your profile appears in Presence. This domain matters because it shapes what happens in real time when challenge, disagreement, or emotional intensity enters the room. A shift here would likely affect not only your own steadiness, but also how much openness and learning difficult conversations can hold. The key question is whether you can stay curious a little longer before moving to manage, explain, or resolve the moment."
+      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Presence. A shift in this domain matters because it shapes what happens in real time when challenge or emotional intensity arrives in a conversation. A shift here would likely affect how much space difficult conversations can hold, whether others feel they can bring the real issue forward, and how much learning is possible when the moment is tense. The key question is whether you can stay curious before moving to manage, explain, or resolve the moment."
     }
   },
   risks: {
     reasoning_system_authority_process: {
-      title: "Pressure risk",
-      text: "One tension in your profile is that you may invite openness in how decisions are reasoned through while still staying relatively close to how authority is carried out. In practice, this can create a system where thinking is transparent but decision ownership does not spread as fully as it could. Under pressure, others may understand the logic but still look to you to hold the work together."
+      title: "Open Thinking, Controlled Execution",
+      text: "Your profile combines Integration Mode in Reasoning with Orchestration Mode in Authority. This means your thinking is genuinely open. You examine assumptions, invite complexity, and reason carefully. But how authority is carried out remains closely managed. In practice, others may experience openness in dialogue but not in ownership. They can examine the logic, but still look to you to hold decision authority and ownership. The risk is that reasoning appears distributed, while authority is not. This creates an impression of shared ownership that the structure does not actually support."
     },
     contribution_process_authority_process: {
-      title: "Pressure risk",
-      text: "A clear pressure pattern in your profile is proximity to execution. In both contribution and authority, you may rely on staying close enough to the work to know it is on track. This often supports strong standards and reliability. Under pressure, though, it can make scale harder because leadership confidence remains tied to your ongoing visibility into how the work is unfolding."
+      title: "Too Close in Two Places",
+      text: "Your profile combines Orchestration Mode in both Contribution and Authority. These are the two domains where ownership most needs to move outward. How work travels through others and how accountability is held are both places where your default is to stay closely involved. This often creates strong standards, reliable delivery, and clear oversight. The specific risk is that your involvement fills the space where others' ownership would develop. It is not that others lack capability. It is that the room for them to fully take ownership rarely opens, because you remain closely involved in both places where transfer would have to happen."
     },
     loyalty_identity_presence_identity: {
-      title: "Pressure risk",
-      text: "A clear pressure pattern in your profile is careful management of how leadership is understood in relationally charged moments. In both loyalty and presence, you may pay close attention to credibility, trust, and how your response is being interpreted. This often helps you navigate difficult situations thoughtfully. Under pressure, though, it can pull energy away from the deeper issue in the room and toward managing the meaning of the moment."
+      title: "Managing Interpretation Where the Stakes Are Highest",
+      text: "Your profile combines Navigation Mode in both Loyalty and Presence. These are the two domains where relational stakes and emotional intensity are highest. Your team's interests are on the line and challenge or tension arrives in real time. In both, your default is to attend closely to how your leadership is being interpreted. This creates thoughtfulness and political awareness in moments that require it. Under pressure, your attention shifts toward managing how you are being read rather than staying fully with what is actually happening. As a result, what matters most in the room, what your team needs, or what the moment requires can go unaddressed while you are managing how it is being interpreted."
     },
     process_plus_identity: {
-      title: "Pressure risk",
-      text: "A broader tension in your profile is that leadership may become effortful in two directions at once: staying close to the work and staying aware of how your leadership stance is being received. This often creates conscientious leadership. Under pressure, though, it can mean you are carrying both execution and interpretation at the same time, which increases load and can slow the spread of ownership."
+      title: "Managing Structure and Perception Simultaneously",
+      text: "Your profile shows a broader pattern of Orchestration Mode and Navigation Mode across domains. Under pressure, this combination means you are simultaneously managing how the work is structured and how it moves, and how your leadership is being interpreted by others. This often creates conscientiousness, reliability, and strong situational awareness. At the same time, you are actively managing both rather than allowing either to run on its own. Neither the structure nor its interpretation runs independently. Both depend on your ongoing attention. As scope or complexity increases, that combination becomes increasingly difficult to sustain."
     },
     system_plus_identity: {
-      title: "Pressure risk",
-      text: "A broader tension in your profile is the pull to hold both systemic complexity and social interpretation at once. This can make you thoughtful, nuanced, and hard to destabilize. Under pressure, though, too much energy can go into understanding the whole system and tracking how the moment is being read, leaving less room for simplicity, clarity, or direct movement."
+      title: "Deep Reading, Unclear Direction",
+      text: "Your profile shows a broader pattern of Integration Mode and Navigation Mode across domains. Under pressure, this combination means you are simultaneously staying with what is fundamentally sound in the situation and tracking how you and the situation are being interpreted. Both are forms of deep reading. One reads the situation itself and one reads how it is being understood. The specific risk is that neither produces a clear signal to others. You may be the most accurate reader in the room and still leave others uncertain about where you stand or what comes next."
     },
     outcome_plus_process: {
-      title: "Pressure risk",
-      text: "A broader tension in your profile is the pull to protect both the result and the path the work is taking. This can create strong execution discipline and follow-through. Under pressure, though, it can narrow room for experimentation and increase the chance that you re-enter the work before others have fully grown into ownership."
+      title: "Controlling Both the Output and the Path",
+      text: "Your profile shows a broader pattern of Execution Mode and Orchestration Mode across domains. Under pressure, this combination means you are managing both the outcome and how the work is structured and moves through others. This creates strong execution discipline, reliable delivery, and clear direction. The specific risk is that both modes move toward control when pressure rises. One moves toward the outcome and one toward the process. Together they leave little room for others to make meaningful decisions or develop real ownership. Others may be executing well without ever fully leading. Over time, this creates a bottleneck. Work flows back toward you because that is where decisions get made and standards get held. As scope or complexity increases, that becomes unsustainable. Not because the work isn't getting done, but because your involvement is the reason it is."
     },
     identity_plus_system_plus_process: {
-      title: "Pressure risk",
-      text: "Your profile suggests that when stakes rise, you may work hard to keep the system sound, the process visible, and your leadership stance credible all at once. This can make you highly responsible and hard to catch off guard. Under pressure, though, that combination can become heavy: too much leadership load stays with you because you are holding structure, execution, and interpretation simultaneously."
+      title: "Managing in Three Directions at Once",
+      text: "Your profile shows a pattern of Navigation Mode, Integration Mode, and Orchestration Mode across domains. Under pressure, this combination means you are simultaneously managing how the work is structured and moves through others, staying with what is fundamentally sound in the work, and tracking how your leadership is being interpreted. Each of those is a legitimate leadership demand. Together, they converge on you at once. The specific risk is that you become the single point through which structure, judgment, and interpretation all run, which makes the system more dependent on you than it appears and significantly more fragile than it should be."
     },
     balanced_general: {
-      title: "Pressure risk",
-      text: "Because your profile is mixed across domains, the main risk is not one fixed blind spot but a pattern of shifting defaults depending on the situation. Under pressure, this can make your leadership harder for others to predict. The developmental task is not to eliminate that flexibility, but to become more conscious of which pattern you are defaulting to in which kind of moment."
+      title: "Flexibility Without Awareness",
+      text: "Your profile does not show a dominant mode across domains. Under pressure, your defaults shift depending on the type of demand you are facing. This can reflect genuine range and adaptability. The specific risk is that these shifts are not always visible or intentional. When they are not, you may default to a mode that does not fit what the situation actually needs. Others may not know how to engage you from one moment to the next. Flexibility without awareness can lead to misalignment in how decisions are made, how ownership is handled, and how your leadership is interpreted. The developmental task is not to settle into one mode, but to become conscious enough of your shifts that they are legible to you and to others."
     }
   },
   questions: {
-    contribution: "Where does your leadership still depend on staying close enough to the work to feel confident in its direction?",
-    reasoning: "What assumptions are built into the way you are currently framing the problem?",
-    authority: "Where would reducing oversight create more real ownership rather than more risk?",
-    loyalty: "What becomes possible when you stop managing how a difficult decision will be interpreted?",
-    presence: "What might you notice if you stayed curious a little longer before moving to explain, manage, or resolve the moment?",
-    general_process: "Where are you still using visibility as a substitute for trust?",
-    general_identity: "Where are you spending energy managing interpretation rather than staying with the leadership tension itself?",
-    general_system: "Where does strong thinking need to turn into clearer authority or action?"
+    contribution: "Where do you still need to see your hand in the work to trust that your contribution is real? And what would it mean to trust it anyway?",
+    reasoning: "When you are most certain about your reasoning, what are you least willing to examine — and what might that be protecting?",
+    authority: "Where are you holding on to oversight that others could carry — and what does holding it tell you about what you are not yet willing to trust?",
+    loyalty: "When priorities pull in different directions, how do you reconcile them — and what does that tell you about what you are most afraid to lose?",
+    presence: "When tension enters a conversation, what are you most drawn to do first — and what might you be avoiding by doing it?",
+    general_process: "What's keeping you from letting the work move without your involvement — and what would you have to trust for that to feel acceptable?",
+    general_identity: "What's keeping you from staying fully with what is happening rather than managing how it is being interpreted — and what are you afraid would happen if you did?",
+    general_system: "Where has your thinking become clear enough to act on — and what would it take for others to carry it forward without needing you to hold it?"
   }
 };
 
@@ -249,10 +249,10 @@ function getSynthesis(results, leverageDomain) {
   // Integrative sentence connecting leverage domain to cluster pattern
   const integrativeMap = {
     contribution: "How you experience your contribution shapes everything downstream: how much oversight feels necessary, how readily authority moves to others, and whether your leadership depends on your presence in the work.",
-    reasoning:    "How you reason through decisions shapes the quality of conversation around you — and whether others can engage with complexity or mainly follow your lead.",
-    authority:    "How authority moves through your team determines whether your leadership scales — or whether capacity quietly accumulates back toward you under pressure.",
-    loyalty:      "How you hold the tension between your people and the organization shapes whether difficult decisions land with clarity or get softened in ways that cost trust over time.",
-    presence:     "How you respond when pressure enters the room shapes whether difficult conversations open up or close down — and whether the people around you feel they can bring the real issue forward."
+    reasoning:    "How you reason through decisions shapes the quality of conversation around you, and whether others can engage with complexity or mainly follow your lead.",
+    authority:    "How authority moves through your team determines whether your leadership scales, or whether capacity quietly accumulates back toward you under pressure.",
+    loyalty:      "How you hold the tension between your team and the organization shapes whether difficult decisions land with clarity or get softened in ways that cost trust over time.",
+    presence:     "How you respond when pressure enters a conversation shapes whether difficult moments open up or close down, and whether the people around you feel they can bring the real issue forward."
   };
   const integrative = integrativeMap[leverageKey] || "";
 
