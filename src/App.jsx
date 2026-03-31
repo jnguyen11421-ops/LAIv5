@@ -1217,7 +1217,7 @@ function IntroPage() {
 const DOMAIN_CONTENT = {
 
   contribution: {
-    about: `Contribution examines how you experience your own impact when the work moves through others rather than through you. As leadership scope grows, your involvement becomes less direct. You shape outcomes through direction, judgment, and the conditions you create rather than through your own output.\n\nWhen visibility drops or credit becomes unclear, this domain surfaces. The question it asks is where your confidence goes when you can no longer see your hand in the result. It shows what you rely on to feel your contribution is real: doing the work yourself, staying close to how it unfolds, whether your role is being understood correctly, or the strength of the thinking behind it.`,
+    about: `Contribution examines how you experience your own impact when the work moves through others rather than through you. As leadership scope grows, your involvement becomes less direct. You shape outcomes through direction, judgment, and the conditions you create rather than through your own output.\n\nWhen visibility drops or credit becomes unclear, this domain surfaces. The question it asks is where your confidence goes when you can no longer see your hand in the result. It shows what you rely on to feel your contribution is real: doing the work yourself, staying close to how it unfolds, whether your role is being understood correctly, or whether the thinking is strong enough to carry without you.`,
 
     assets: {
       execution: {
@@ -1292,7 +1292,7 @@ const DOMAIN_CONTENT = {
   },
 
   reasoning: {
-    about: `Reasoning examines what you rely on when you're faced with uncertainty, ambiguity, or challenge and a decision is yours to make or defend. In senior leadership, decisions rarely come with complete information. The question is not just what you conclude, but where you find confidence in your reasoning when the analysis is mixed, assumptions are exposed, or someone pushes back.\n\nWhen credibility is on the line, this domain surfaces. It shows what leaders rely on to feel their reasoning holds: arriving at the right answer, building a well-structured analysis, ensuring their reasoning lands as credible, or making their assumptions and logic clear enough to examine and adapt.`,
+    about: `Reasoning examines what you rely on when you're faced with uncertainty, ambiguity, or challenge and a decision is yours to make or defend. In senior leadership, decisions rarely come with complete information. The question is not just what you conclude, but where you find confidence in your reasoning when the analysis is mixed, assumptions are exposed, or someone pushes back.\n\nWhen credibility is on the line, this domain surfaces. It shows what leaders rely on to feel their reasoning holds: arriving at the right answer, building a well-structured analysis, whether their reasoning is being understood as credible, or making their assumptions and logic clear enough to examine and adapt.`,
 
     assets: {
       execution: {
@@ -1367,7 +1367,7 @@ const DOMAIN_CONTENT = {
   },
 
   authority: {
-    about: `Authority examines how you hold accountability when work is no longer yours to control directly. As leadership scope expands, decisions move through teams and systems rather than through you. Others carry work that still reflects on your judgment and your name.\n\nWhen delegated work drifts, creates friction, or produces outcomes that differ from expectation, this domain surfaces. It shows what you rely on to feel that accountability is held: your direct involvement, the oversight structure you maintain, whether your leadership is being read correctly by others, or whether the system is strong enough to produce outcomes without your intervention.`,
+    about: `Authority examines how you hold accountability when work is no longer yours to control directly. As leadership scope expands, decisions move through teams and systems rather than through you. Others carry work that still reflects on your judgment and your name.\n\nWhen delegated work drifts, creates friction, or produces outcomes that differ from expectation, this domain surfaces. It shows what you rely on to feel that accountability is held: your direct involvement, the oversight structure you maintain, whether your leadership is being read correctly by others, or whether the system is strong enough to function without your intervention.`,
 
     assets: {
       execution: {
@@ -1442,7 +1442,7 @@ const DOMAIN_CONTENT = {
   },
 
   loyalty: {
-    about: `Loyalty examines how you hold responsibility when the interests of your team and the needs of the broader organization pull in different directions. Senior leadership regularly requires decisions that create real cost for the people closest to you, and you may not be able to soften, negotiate, or protect your team from that impact.\n\nWhen those tradeoffs become unavoidable, this domain surfaces. It shows what you rely on to hold that tension: protecting your team, managing how the tradeoff is handled, whether your allegiance is being read correctly by both sides, or what best serves the system as a whole.`,
+    about: `Loyalty examines how you hold responsibility when the interests of your team and the needs of the broader organization pull in different directions. Senior leadership regularly requires decisions that create real cost for the people closest to you, and you may not be able to soften, negotiate, or protect your team from that impact.\n\nWhen those tradeoffs become unavoidable, this domain surfaces. It shows what you rely on to hold that tension: protecting your team, managing how the tradeoff is handled, whether your allegiance is being read correctly by both sides, or what best serves the enterprise as a whole.`,
 
     assets: {
       execution: {
@@ -1517,7 +1517,7 @@ const DOMAIN_CONTENT = {
   },
 
   presence: {
-    about: `Presence examines what happens in real time when challenge or emotional intensity enters a conversation. Leadership regularly creates moments where something unexpected occurs, a position is challenged, or frustration surfaces, and your response is visible and consequential.\n\nWhen pressure arrives without warning, this domain surfaces. It shows what you rely on to stay steady in the moment: addressing the moment directly, structuring the interaction, managing how your response is landing, or staying with the tension long enough to understand it.`,
+    about: `Presence examines what happens in real time when challenge or emotional intensity enters a conversation. Leadership regularly creates moments where something unexpected occurs, a position is challenged, or frustration surfaces, and your response is visible and consequential.\n\nWhen pressure arrives without warning, this domain surfaces. It shows what you rely on to stay steady in the moment: addressing the moment directly, structuring the interaction, managing how your response is landing, or staying with the tension without needing to resolve it right away.`,
 
     assets: {
       execution: {
@@ -1608,10 +1608,10 @@ const ORIENTATION_CONTENT = {
       pattern: "In this domain, Orchestration Mode relies on how the work is structured and managed as it moves through others. Confidence comes from knowing the right processes, roles, and expectations are in place to carry the work forward. Under pressure, it protects against breakdown by reinforcing structure and ensuring the work is being handled as intended. This creates consistency and continuity, but can make it harder to allow the work to evolve when it needs to move beyond the original design."
     },
     "2b": {
-      pattern: "In this domain, Navigation Mode relies on how your contribution is understood and recognized by others. Confidence comes from knowing your role in shaping the work is visible and interpreted accurately. Under pressure, it protects against being overlooked or misread by managing how your contribution is communicated and perceived. This helps maintain influence and clarity of role, but can make it harder to stay grounded in the work itself without tracking how it reflects on you."
+      pattern: "In this domain, Navigation Mode relies on how your contribution is understood and recognized by others. Confidence comes from knowing your role in shaping the work is understood and interpreted accurately. Under pressure, it protects against being overlooked or misread by managing how your contribution is communicated and perceived. This helps maintain influence and clarity of role, but can make it harder to stay grounded in the work itself without tracking how it reflects on you."
     },
     "3": {
-      pattern: "In this domain, Integration Mode relies on the strength of the thinking behind the work rather than direct involvement in it. Confidence comes from knowing the direction is sound and can hold as it moves through others. Under pressure, it protects against attachment to personal contribution by staying focused on what the work requires now. This allows the work to evolve and strengthen over time, but can make it harder to make your thinking legible to others when the work needs clearer direction or attribution."
+      pattern: "In this domain, Integration Mode relies on the strength of the thinking behind the work rather than direct involvement in it. Confidence comes from knowing the direction is sound and can carry as it moves through others without you. Under pressure, it protects against attachment to personal contribution by staying focused on what the work requires now. This allows the work to evolve and strengthen over time, but can make it harder to make your thinking legible to others when the work needs clearer direction or attribution."
     }
   },
 
@@ -1641,7 +1641,7 @@ const ORIENTATION_CONTENT = {
       pattern: "In this domain, Navigation Mode relies on how your authority is interpreted by others. Confidence comes from knowing your role, involvement, and level of control are being read appropriately in the context of the situation. Under pressure, it protects against being undermined or mispositioned by calibrating how and when you step in. This helps maintain credibility and appropriate influence, but can make it harder to act decisively when the situation requires clearer assertion of authority."
     },
     "3": {
-      pattern: "In this domain, Integration Mode relies on how accountability is held across the system rather than through individual control. Confidence comes from knowing ownership is structured in a way that can produce outcomes without your direct intervention. Under pressure, it protects against over-reliance on individual authority by examining how responsibility is distributed and adjusting it where needed. This strengthens the system's ability to hold the work, but can make it harder to provide immediate direction when others are looking for a clear point of ownership."
+      pattern: "In this domain, Integration Mode relies on how accountability is held across the system rather than through individual control. Confidence comes from knowing ownership is structured in a way that can allow the system to function without your direct intervention. Under pressure, it protects against over-reliance on individual authority by examining how responsibility is distributed and adjusting it where needed. This strengthens the system's ability to hold the work, but can make it harder to provide immediate direction when others are looking for a clear point of ownership."
     }
   },
 
@@ -1656,7 +1656,7 @@ const ORIENTATION_CONTENT = {
       pattern: "In this domain, Navigation Mode relies on how your stance is interpreted by both your team and the broader organization. Confidence comes from knowing you are being seen as fair, balanced, and appropriately aligned in both directions. Under pressure, it protects against being misread or misaligned by carefully shaping how your position is communicated. This helps maintain credibility across groups, but can make it harder to take a position that clearly favors one side when the situation requires it."
     },
     "3": {
-      pattern: "In this domain, Integration Mode relies on holding the needs of the system as a whole. Confidence comes from knowing the direction serves the broader context, even when it creates local cost. Under pressure, it protects against narrowing to one side by keeping the tradeoff visible and working through it without resolving it prematurely. This supports decisions that hold at the system level, but can make it harder to signal clear support to your team when they are directly affected."
+      pattern: "In this domain, Integration Mode relies on holding the needs of the organization as a whole. Confidence comes from knowing the direction serves the broader context, even when it creates local cost. Under pressure, it protects against narrowing to one side by keeping the tradeoff visible and working through it without resolving it prematurely. This supports decisions that hold at the organizational level, but can make it harder to signal clear support to your team when they are directly affected."
     }
   },
 
@@ -1671,7 +1671,7 @@ const ORIENTATION_CONTENT = {
       pattern: "In this domain, Navigation Mode relies on how you are coming across in the moment. Confidence comes from knowing your tone, timing, and response are being interpreted as steady and appropriate. Under pressure, it protects against being misread or escalating the situation by adjusting how you engage. This helps maintain credibility and composure, but can make it harder to respond directly when the moment calls for greater clarity or candor."
     },
     "3": {
-      pattern: "In this domain, Integration Mode relies on staying with what is happening beneath the surface of the interaction. Confidence comes from knowing the moment can be understood more fully before moving to resolution. Under pressure, it protects against reacting too quickly by allowing the tension to unfold and examining what is driving it. This creates space for deeper understanding, but can make it harder to move the conversation forward when others are ready to act."
+      pattern: "In this domain, Integration Mode relies on staying with what is happening beneath the surface of the interaction. Confidence comes from knowing the moment can be understood more fully before moving toward resolution. Under pressure, it protects against reacting too quickly by allowing the tension to unfold and examining what is driving it. This creates space for deeper understanding, but can make it harder to move the conversation forward when others are ready to act."
     }
   }
 
