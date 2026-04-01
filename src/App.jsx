@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ITEMS_SOURCE, ITEMS } from './items';
+import { ITEMS_SOURCE, ITEMS, SCENARIO_UNITS_SHUFFLED } from './items';
 import { LANG } from './lang';
 import { SYNTHESIS_CONTENT, CLUSTER_RULES, RISK_RULES, QUESTION_RULES, getSynthesis, DOMAIN_KEYS, ORIENT_BUCKET, ORIENTATION_ORDER } from './synthesis';
 
@@ -1821,9 +1821,9 @@ export default function App() {
   const [screen,setScreen]=useState("landing");
   const [authMode,setAuthMode]=useState("register");
   const [currentUser,setCurrentUser]=useState(null);
-  const [qIndex,setQIndex]=useState(0);
+  const [sIndex,setSIndex]=useState(0);
   const [responses,setResponses]=useState([]);
-  const [selected,setSelected]=useState(null);
+  const [singleSel,setSingleSel]=useState(null);
   const [mostSel,setMostSel]=useState(null);
   const [leastSel,setLeastSel]=useState(null);
   const [animKey,setAnimKey]=useState(0);
@@ -1888,7 +1888,7 @@ export default function App() {
         const p={name:r.name,email:r.email,completed:r.completed,completedAt:r.completed_at,results:r.results};
         setCurrentUser(p);
         setParticipants(prev=>({...prev,[p.email]:p}));
-        p.completed?setScreen("complete"):(setQIndex(0),setResponses([]),setSelected(null),setMostSel(null),setLeastSel(null),setAnimKey(k=>k+1),setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin"));
+        p.completed?setScreen("complete"):(setSIndex(0),setResponses([]),setSingleSel(null),setMostSel(null),setLeastSel(null),setAnimKey(k=>k+1),setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin"));
         return;
       }
     } catch(e){ console.error("Login error:",e); }
@@ -1909,28 +1909,28 @@ export default function App() {
       if(!invite.permanent) setInvites(prev=>({...prev,[code]:{...prev[code],used:true}}));
     } catch(e){ console.error("Register error:",e); }
     setCurrentUser(p);
-    setQIndex(0);setResponses([]);setSelected(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
+    setSIndex(0);setResponses([]);setSingleSel(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
     setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin");
   }
 
   async function handleNext(){
-    const item=ITEMS[qIndex];
-    const type=item[3];
-    // Validate by type
-    if(type==="forced"&&(mostSel===null||leastSel===null))return;
-    if((type==="single"||type==="paired")&&selected===null)return;
-    // Build response record
-    let resp;
-    if(type==="forced"){
-      resp={id:item[0],domain:item[1],most:mostSel,least:leastSel};
-    } else {
-      resp={id:item[0],domain:item[1],selected};
-    }
-    const nr=[...responses,resp];
+    const unit = SCENARIO_UNITS_SHUFFLED[sIndex];
+    const forcedItem = unit.items[0];
+    const singleItem = unit.items[1];
+
+    // Validate: all three conditions must be true
+    if(mostSel===null||leastSel===null||singleSel===null) return;
+
+    // Build two response records
+    const forcedResp = { id: forcedItem[0], domain: forcedItem[1], most: mostSel, least: leastSel };
+    const singleResp = { id: singleItem[0], domain: singleItem[1], selected: singleSel };
+
+    const nr = [...responses, forcedResp, singleResp];
     setResponses(nr);
-    if(qIndex+1>=ITEMS.length){
-      const results=scoreAll(nr);
-      const updated={...currentUser,completed:true,completedAt:new Date().toISOString(),results};
+
+    if(sIndex+1 >= SCENARIO_UNITS_SHUFFLED.length){
+      const results = scoreAll(nr);
+      const updated = {...currentUser, completed:true, completedAt:new Date().toISOString(), results};
       setCurrentUser(updated);
       setParticipants(prev=>({...prev,[updated.email]:updated}));
       try {
@@ -1938,12 +1938,12 @@ export default function App() {
       } catch(e){ console.error("Save error:",e); }
       setScreen("complete");
     } else {
-      setQIndex(i=>i+1);setSelected(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
+      setSIndex(i=>i+1);setSingleSel(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
     }
   }
 
-  const item=ITEMS[qIndex]||ITEMS[0];
-  const progress=Math.round((qIndex/ITEMS.length)*100);
+  const unit = SCENARIO_UNITS_SHUFFLED[sIndex] || SCENARIO_UNITS_SHUFFLED[0];
+  const progress = Math.round((sIndex / SCENARIO_UNITS_SHUFFLED.length) * 100);
 
   if(loading) return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
@@ -1962,7 +1962,7 @@ export default function App() {
           <h1 style={{fontFamily:"Georgia,serif",fontSize:46,fontWeight:300,lineHeight:1.1,color:C.deepCharcoal,marginBottom:8}}>Leadership<br/><em style={{color:C.slate}}>Patterns</em><br/>Profile</h1>
           <p style={{fontSize:13,color:C.midBlue,lineHeight:1.7,marginBottom:36,fontWeight:300,maxWidth:360}}>What drives your leadership in the moments that matter most.</p>
           <div style={{marginBottom:32}}>
-            {["25 items across five leadership domains","Approximately 20–25 minutes to complete","Results reviewed with your coach before sharing","No right answers — only honest ones"].map((t,i)=>(
+            {["20 items across five leadership domains","Approximately 20–25 minutes to complete","Results reviewed with your coach before sharing","No right answers — only honest ones"].map((t,i)=>(
               <div key={i} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10}}>
                 <div style={{width:16,height:1,background:C.slate,marginTop:8,flexShrink:0}}/>
                 <span style={{fontSize:13,color:C.nearBlack,fontWeight:300,lineHeight:1.5}}>{t}</span>
@@ -2050,55 +2050,69 @@ export default function App() {
     </div>
   );
 
-  if(screen==="assessment") return (
+  if(screen==="assessment") {
+    const forcedItem = unit.items[0];
+    const singleItem = unit.items[1];
+    const canContinue = mostSel!==null && leastSel!==null && singleSel!==null;
+    return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
       <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}`}</style>
       <Nav right={<span style={{fontSize:12,color:C.midBlue}}>{currentUser?.name}</span>}/>
       <div style={{height:3,background:C.warmWhite}}><div style={{height:"100%",background:C.slate,width:`${progress}%`,transition:"width 0.4s ease"}}/></div>
-      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"44px 28px"}}>
+      <div style={{flex:1,display:"flex",alignItems:"flex-start",justifyContent:"center",padding:"44px 28px"}}>
         <div key={animKey} style={{width:"100%",maxWidth:660,animation:"fadeUp 0.3s ease"}}>
-          {item[4]&&<div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:22,padding:"18px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>{item[4]}</div>}
-          <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:400,color:C.deepCharcoal,marginBottom:22,lineHeight:1.45}}>{item[5]}</div>
-          {item[3]==="forced"?(
-            <div>
-              <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:8}}>
-                <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600}}>MOST</span>
-                <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.midBlue,fontWeight:600}}>LEAST</span>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:9}}>
-                {item[6].map((opt,i)=>{
-                  const isMost=mostSel===i, isLeast=leastSel===i;
-                  return (
-                    <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"12px 14px",border:`1px solid ${isMost||isLeast?C.slate:C.warmWhite}`,background:isMost?C.lightSage:isLeast?"#fdf6f0":C.offWhite,transition:"all 0.15s"}}>
-                      <div style={{fontSize:10,fontWeight:600,color:C.midBlue,width:18,flexShrink:0}}>{["A","B","C","D"][i]}</div>
-                      <div style={{flex:1,fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack}}>{opt}</div>
-                      <div style={{display:"flex",gap:8,flexShrink:0}}>
-                        <div onClick={()=>{if(leastSel===i)return;setMostSel(isMost?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isMost?C.slate:C.warmWhite}`,background:isMost?C.slate:"transparent",cursor:leastSel===i?"not-allowed":"pointer",opacity:leastSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isMost?C.offWhite:C.midBlue}}>✓</div>
-                        <div onClick={()=>{if(mostSel===i)return;setLeastSel(isLeast?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isLeast?C.midBlue:C.warmWhite}`,background:isLeast?"#8596a220":"transparent",cursor:mostSel===i?"not-allowed":"pointer",opacity:mostSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isLeast?C.slate:C.midBlue}}>✗</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+
+          {/* Scenario text — shown once for both questions */}
+          <div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:28,padding:"18px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>
+            {unit.scenarioText}
+          </div>
+
+          {/* Question 1: Forced choice */}
+          <div style={{marginBottom:32}}>
+            <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:400,color:C.deepCharcoal,marginBottom:16,lineHeight:1.45}}>{forcedItem[5]}</div>
+            <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:8}}>
+              <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600}}>MOST</span>
+              <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.midBlue,fontWeight:600}}>LEAST</span>
             </div>
-          ):(
             <div style={{display:"flex",flexDirection:"column",gap:9}}>
-              {item[6].map((opt,i)=>(
-                <div key={i} onClick={()=>setSelected(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${selected===i?C.slate:C.warmWhite}`,cursor:"pointer",background:selected===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
-                  <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${selected===i?C.slate:C.midBlue}`,color:selected===i?C.offWhite:C.midBlue,background:selected===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
+              {forcedItem[6].map((opt,i)=>{
+                const isMost=mostSel===i, isLeast=leastSel===i;
+                return (
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"12px 14px",border:`1px solid ${isMost||isLeast?C.slate:C.warmWhite}`,background:isMost?C.lightSage:isLeast?"#fdf6f0":C.offWhite,transition:"all 0.15s"}}>
+                    <div style={{fontSize:10,fontWeight:600,color:C.midBlue,width:18,flexShrink:0}}>{["A","B","C","D"][i]}</div>
+                    <div style={{flex:1,fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack}}>{opt}</div>
+                    <div style={{display:"flex",gap:8,flexShrink:0}}>
+                      <div onClick={()=>{if(leastSel===i)return;setMostSel(isMost?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isMost?C.slate:C.warmWhite}`,background:isMost?C.slate:"transparent",cursor:leastSel===i?"not-allowed":"pointer",opacity:leastSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isMost?C.offWhite:C.midBlue}}>✓</div>
+                      <div onClick={()=>{if(mostSel===i)return;setLeastSel(isLeast?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isLeast?C.midBlue:C.warmWhite}`,background:isLeast?"#8596a220":"transparent",cursor:mostSel===i?"not-allowed":"pointer",opacity:mostSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isLeast?C.slate:C.midBlue}}>✗</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Question 2: Single select */}
+          <div style={{marginBottom:24}}>
+            <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:400,color:C.deepCharcoal,marginBottom:16,lineHeight:1.45}}>{singleItem[5]}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:9}}>
+              {singleItem[6].map((opt,i)=>(
+                <div key={i} onClick={()=>setSingleSel(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${singleSel===i?C.slate:C.warmWhite}`,cursor:"pointer",background:singleSel===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
+                  <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${singleSel===i?C.slate:C.midBlue}`,color:singleSel===i?C.offWhite:C.midBlue,background:singleSel===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
                   <div style={{fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack,paddingTop:2}}>{opt}</div>
                 </div>
               ))}
             </div>
-          )}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:24}}>
-            <span style={{fontSize:12,color:C.midBlue,letterSpacing:"0.06em"}}>{qIndex+1} of {ITEMS.length}</span>
-            <Btn variant="dark" onClick={handleNext} style={{opacity:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?1:0.35,pointerEvents:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?"auto":"none"}}>{qIndex===ITEMS.length-1?"Submit":"Continue"} →</Btn>
           </div>
+
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8}}>
+            <span style={{fontSize:12,color:C.midBlue,letterSpacing:"0.06em"}}>{sIndex+1} of {SCENARIO_UNITS_SHUFFLED.length}</span>
+            <Btn variant="dark" onClick={handleNext} style={{opacity:canContinue?1:0.35,pointerEvents:canContinue?"auto":"none"}}>{sIndex===SCENARIO_UNITS_SHUFFLED.length-1?"Submit":"Continue"} →</Btn>
+          </div>
+
         </div>
       </div>
     </div>
-  );
+  );}
 
   if(screen==="complete") return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
