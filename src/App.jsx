@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ITEMS_SOURCE, ITEMS, SCENARIO_UNITS_SHUFFLED } from './items';
+import { ITEMS_SOURCE, ITEMS } from './items';
 import { LANG } from './lang';
 import { SYNTHESIS_CONTENT, CLUSTER_RULES, RISK_RULES, QUESTION_RULES, getSynthesis, DOMAIN_KEYS, ORIENT_BUCKET, ORIENTATION_ORDER } from './synthesis';
 
@@ -190,9 +190,12 @@ function generatePDF(p) {
       </div>
 
       <div class="domain-continuum">
-        <div class="continuum-track-inner">
-          <div class="continuum-fill" style="width:${pct}%"></div>
-          <div class="continuum-dot" style="left:${pct}%"></div>
+        <div class="continuum-track-wrap">
+          <div class="continuum-orient" style="left:${pct}%">${ORIENTATION_LABELS[placement] || placement}</div>
+          <div class="continuum-track-inner">
+            <div class="continuum-fill" style="width:${pct}%"></div>
+            <div class="continuum-dot" style="left:${pct}%"></div>
+          </div>
         </div>
         <div class="continuum-poles">
           <span>${poles.left}</span>
@@ -346,7 +349,7 @@ body {
 }
 .cover-summary-row:last-child { border-bottom: none; }
 .cover-domain-name { color: #313130; font-weight: 300; }
-.cover-orient { color: #4a6274; font-family: system-ui, sans-serif; font-size: 8pt; font-weight: 600; }
+.cover-orient { color: #4a6274; font-family: system-ui, sans-serif; font-size: 8pt; font-weight: 700; }
 .cover-footer {
   font-family: system-ui, sans-serif;
   font-size: 7.5pt;
@@ -378,7 +381,10 @@ body {
 }
 .intro-block { margin-bottom: 24px; }
 .intro-block p { font-size: 10pt; line-height: 1.75; color: #313130; margin-bottom: 12px; font-family: system-ui, sans-serif; font-weight: 300; }
-.domain-intro-table { margin-top: 20px; }
+.intro-subhead { font-family: system-ui, sans-serif; font-size: 11pt; font-weight: 700; color: #313130; margin-bottom: 20px; }
+.intro-section-head { font-family: Georgia, serif; font-size: 14pt; font-weight: 700; color: #1f2328; margin: 24px 0 10px; }
+.intro-note-inline { font-family: system-ui, sans-serif; font-size: 10pt; line-height: 1.75; color: #313130; font-weight: 300; margin-bottom: 20px; }
+.domain-intro-table { margin-top: 4px; margin-bottom: 16px; }
 .domain-intro-row {
   display: grid;
   grid-template-columns: 140px 1fr;
@@ -387,6 +393,7 @@ body {
   border-bottom: 1px solid #e8e6e2;
   font-size: 9.5pt;
 }
+.domain-intro-header { font-weight: 700; border-bottom: 2px solid #1f2328; }
 .domain-intro-name { font-weight: 600; color: #1f2328; }
 .domain-intro-tension { color: #4a6274; font-family: system-ui, sans-serif; font-weight: 300; }
 .intro-note {
@@ -419,14 +426,18 @@ body {
 .legend-label { font-size: 7.5pt; font-weight: 600; color: #1f2328; letter-spacing: 0.04em; }
 .legend-sub { font-size: 7pt; color: #8596a2; font-weight: 300; margin-top: 2px; }
 .map-continuum-wrap { margin-bottom: 28px; }
-.map-bar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 5px;
+.map-bar-domain { font-family: system-ui, sans-serif; font-size: 9.5pt; font-weight: 700; color: #1f2328; margin-bottom: 18px; }
+.map-bar-track-wrap { position: relative; margin-bottom: 6px; padding-top: 18px; }
+.map-bar-orient {
+  position: absolute;
+  top: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  color: #4a6274;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
-.map-bar-domain { font-family: system-ui, sans-serif; font-size: 9.5pt; font-weight: 600; color: #1f2328; }
-.map-bar-orient { font-family: system-ui, sans-serif; font-size: 8.5pt; color: #4a6274; font-weight: 300; }
 .map-bar-track {
   position: relative;
   height: 5px;
@@ -480,7 +491,7 @@ body {
 }
 .domain-title {
   font-size: 20pt;
-  font-weight: 300;
+  font-weight: 700;
   color: #e8e6e2;
   margin-bottom: 4px;
 }
@@ -493,7 +504,7 @@ body {
 .domain-header-badge {
   font-family: system-ui, sans-serif;
   font-size: 8pt;
-  font-weight: 600;
+  font-weight: 700;
   color: #e8e6e2;
   background: #4a6274;
   padding: 5px 14px;
@@ -503,6 +514,21 @@ body {
 .domain-continuum {
   padding: 0 64px;
   margin-bottom: 28px;
+}
+.continuum-track-wrap {
+  position: relative;
+  padding-top: 18px;
+  margin-bottom: 6px;
+}
+.continuum-orient {
+  position: absolute;
+  top: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  color: #4a6274;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
 .continuum-track-inner {
   position: relative;
@@ -683,7 +709,7 @@ body {
 .synthesis-orient-badge {
   font-family: system-ui, sans-serif;
   font-size: 7.5pt;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
   background: #4a6274;
   padding: 4px 12px;
@@ -849,25 +875,54 @@ body {
   <!-- PAGE 2: INTRODUCTION -->
   <div class="intro-page">
     <p class="page-eyebrow">About This Report</p>
-    <h2 class="page-title">Introduction</h2>
+    <h2 class="page-title" style="font-weight:700;">Leadership Patterns Profile</h2>
+    <p class="intro-subhead">What drives your leadership under pressure</p>
     <div class="intro-block">
-      <p>This report describes your leadership patterns across five domains — the areas where leadership responsibility most often becomes difficult to carry.</p>
-      <p>The patterns described here are not measures of leadership capability. They reflect where your leadership attention tends to go when pressure increases and tradeoffs become unavoidable.</p>
-      <p>Most experienced leaders operate from different orientations in different domains. This report helps make those patterns visible.</p>
+      <p>This report describes how your leadership shows up across five domains — situations where pressure makes tradeoffs unavoidable. In these moments, leaders tend to narrow and fall back on familiar ways of leading.</p>
+      <p>The patterns here are not measures of capability. They describe what you rely on when pressure rises, where your confidence comes from, and what you are trying to protect.</p>
     </div>
+    <h3 class="intro-section-head">The Four Leadership Orientations</h3>
     <div class="intro-block">
-      <p>Each domain describes a tension that leaders regularly encounter as responsibility grows. Your responses placed your current orientation somewhere along that tension for each domain.</p>
-      <p>The four orientations — Execution Mode, Orchestration Mode, Navigation Mode, and Integration Mode — reflect different ways leaders anchor their leadership identity under pressure. Each orientation has genuine strengths. Each also has a developmental edge.</p>
+      <p>Within each domain, your responses place you in one of four orientations. These orientations reflect where your confidence tends to anchor when the situation becomes tense.</p>
+    </div>
+    <div class="domain-intro-table" style="margin-bottom:8px;">
+      <div class="domain-intro-row">
+        <span class="domain-intro-name">Execution Mode</span>
+        <span class="domain-intro-tension">Confidence comes from direct involvement in results.</span>
+      </div>
+      <div class="domain-intro-row">
+        <span class="domain-intro-name">Orchestration Mode</span>
+        <span class="domain-intro-tension">Confidence comes from how the work is structured and moves.</span>
+      </div>
+      <div class="domain-intro-row">
+        <span class="domain-intro-name">Navigation Mode</span>
+        <span class="domain-intro-tension">Confidence comes from how your leadership is being read and understood.</span>
+      </div>
+      <div class="domain-intro-row">
+        <span class="domain-intro-name">Integration Mode</span>
+        <span class="domain-intro-tension">Confidence comes from the soundness of the underlying logic, without needing direct involvement.</span>
+      </div>
+    </div>
+    <p class="intro-note-inline">Each orientation makes certain things possible. Each also carries a cost.</p>
+    <h3 class="intro-section-head">Where Leadership Pressure Shows Up</h3>
+    <div class="intro-block">
+      <p>The five domains represent situations where leadership responsibility becomes difficult to carry.</p>
     </div>
     <div class="domain-intro-table">
+      <div class="domain-intro-row domain-intro-header">
+        <span class="domain-intro-name">Domain</span>
+        <span class="domain-intro-tension">Core Tension</span>
+      </div>
       ${[1,2,3,4,5].map(d => `
         <div class="domain-intro-row">
           <span class="domain-intro-name">${DOMAIN_NAMES[d]}</span>
           <span class="domain-intro-tension">${DOMAIN_TENSIONS[d]}</span>
         </div>`).join('')}
     </div>
-    <div class="intro-note">
-      <p>The orientations described in this report are not levels of leadership capability. They describe the patterns leaders tend to rely on when leadership moments become demanding. The goal is not to evaluate capability, but to make these patterns visible so they can be examined and developed.</p>
+    <h3 class="intro-section-head">How to Read This Report</h3>
+    <div class="intro-block">
+      <p>The orientations in this report are not a ranking. Most leaders rely on different orientations in different domains.</p>
+      <p>This report shows where your leadership tends to orient when the situation becomes difficult, what that makes possible, and what it limits. The goal is not to evaluate you, but to make the pattern visible enough to work with.</p>
     </div>
   </div>
 
@@ -899,13 +954,13 @@ body {
       const poles = DOMAIN_POLES[d];
       return `
       <div class="map-continuum-wrap">
-        <div class="map-bar-header">
-          <span class="map-bar-domain">${DOMAIN_NAMES[d]}</span>
-          <span class="map-bar-orient">${ORIENTATION_LABELS[placement] || placement}</span>
-        </div>
-        <div class="map-bar-track">
-          <div class="map-bar-fill" style="width:${pct}%"></div>
-          <div class="map-bar-dot" style="left:${pct}%"></div>
+        <div class="map-bar-domain">${DOMAIN_NAMES[d]}</div>
+        <div class="map-bar-track-wrap">
+          <div class="map-bar-orient" style="left:${pct}%">${ORIENTATION_LABELS[placement] || placement}</div>
+          <div class="map-bar-track">
+            <div class="map-bar-fill" style="width:${pct}%"></div>
+            <div class="map-bar-dot" style="left:${pct}%"></div>
+          </div>
         </div>
         <div class="map-bar-poles">
           <span>${poles.left}</span>
@@ -1119,7 +1174,7 @@ function FormField({label,value,onChange,type="text",placeholder}) {
 function OrientationBadge({placement}) {
   const bgs={"1":C.warmWhite,"2a":"#dce4e0","2b":"#b8c4cc","3":C.slate};
   const fgs={"1":C.midBlue,"2a":C.slate,"2b":C.deepCharcoal,"3":C.offWhite};
-  return <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:500,letterSpacing:"0.05em",padding:"3px 10px",background:bgs[placement]||C.warmWhite,color:fgs[placement]||C.midBlue,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]||placement}</span>;
+  return <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:700,letterSpacing:"0.05em",padding:"3px 10px",background:bgs[placement]||C.warmWhite,color:fgs[placement]||C.midBlue,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]||placement}</span>;
 }
 
 // ── REPORT PAGES ──
@@ -1127,56 +1182,45 @@ function IntroPage() {
   return (
     <div>
       {/* Title block */}
-      <div style={{marginBottom:36}}>
-        <h2 style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:300,color:C.deepCharcoal,marginBottom:8,lineHeight:1.2}}>Leadership Patterns Profile</h2>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,color:C.midBlue,fontWeight:300,fontStyle:"italic",marginBottom:24}}>What drives your leadership in the moments that matter most</p>
-        <div style={{borderLeft:`3px solid ${C.gold}`,paddingLeft:24,marginBottom:28}}>
-          <p style={{fontFamily:"Georgia,serif",fontSize:19,fontWeight:300,color:C.deepCharcoal,lineHeight:1.5,fontStyle:"italic"}}>Leadership becomes most visible when pressure makes trade-offs unavoidable.</p>
-        </div>
+      <div style={{marginBottom:28}}>
+        <h2 style={{fontFamily:"Georgia,serif",fontSize:28,fontWeight:600,color:C.deepCharcoal,marginBottom:6,lineHeight:1.2}}>Leadership Patterns Profile</h2>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:15,fontWeight:600,color:C.nearBlack,marginBottom:16}}>What drives your leadership under pressure</p>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:12}}>This report describes how your leadership shows up across five domains — situations where pressure makes tradeoffs unavoidable. In these moments, leaders tend to narrow and fall back on familiar ways of leading.</p>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600}}>The patterns here are not measures of capability. They describe what you rely on when pressure rises, where your confidence comes from, and what you are trying to protect.</p>
       </div>
 
-      {/* Opening section */}
-      <div style={{marginBottom:32}}>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:15,lineHeight:1.9,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:16}}>Leadership rarely reveals itself in routine moments. It becomes most visible when responsibility intensifies — when decisions carry real consequences, information is incomplete, loyalties compete, and outcomes cannot be fully controlled.</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:15,lineHeight:1.9,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:16}}>In these moments, leadership behavior is less about skill and more about <span style={{fontWeight:500,color:C.slate}}>the internal orientation a leader relies on to carry responsibility.</span></p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:15,lineHeight:1.9,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:16}}>When pressure increases, most leaders do not gain new capabilities. They tend to rely on the orientation that helps them steady themselves when the stakes are high.</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:15,lineHeight:1.9,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:16}}>Sometimes this appears as direct involvement in results. Sometimes it shows up as oversight, structured reasoning, or careful attention to how leadership decisions are perceived. From the outside, these responses often look like leadership competence.</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:15,lineHeight:1.9,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:16}}>None of these responses are inherently right or wrong. They represent different ways leaders carry responsibility when pressure increases.</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:15,lineHeight:1.9,color:C.nearBlack,fontWeight:300,maxWidth:600}}>Leadership development is not primarily about acquiring new skills. It often involves <span style={{fontWeight:500,color:C.slate}}>a shift in the orientation a leader relies on when leadership responsibility becomes difficult to carry.</span></p>
-      </div>
-
-      <div style={{height:1,background:C.warmWhite,marginBottom:32}}/>
+      <div style={{height:1,background:C.warmWhite,marginBottom:28}}/>
 
       {/* Four orientations */}
-      <div style={{marginBottom:36}}>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.16em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:8}}>The Four Leadership Orientations</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580,marginBottom:20}}>These orientations describe the different ways leaders tend to steady themselves when responsibility intensifies.</p>
+      <div style={{marginBottom:28}}>
+        <h3 style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:600,color:C.deepCharcoal,marginBottom:12}}>The Four Leadership Orientations</h3>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:18}}>Within each domain, your responses place you in one of four orientations. These orientations reflect where your confidence tends to anchor when the situation becomes tense.</p>
         <div style={{display:"flex",flexDirection:"column",gap:0}}>
           {[
-            {label:"Execution Mode", desc:"Leadership stabilizes through direct involvement in results."},
-            {label:"Orchestration Mode", desc:"Leadership stabilizes through oversight, structure, and defensibility."},
-            {label:"Navigation Mode", desc:"Leadership stabilizes through how leadership decisions and actions are perceived."},
-            {label:"Integration Mode",  desc:"Leadership stabilizes through designing conditions that allow others to act and decisions to hold without direct involvement."},
+            {label:"Execution Mode",     desc:"Confidence comes from direct involvement in results."},
+            {label:"Orchestration Mode", desc:"Confidence comes from how the work is structured and moves."},
+            {label:"Navigation Mode",    desc:"Confidence comes from how your leadership is being read and understood."},
+            {label:"Integration Mode",   desc:"Confidence comes from the soundness of the underlying logic, without needing direct involvement."},
           ].map((o,i)=>(
-            <div key={i} style={{display:"grid",gridTemplateColumns:"160px 1fr",gap:20,padding:"12px 0",borderBottom:`1px solid ${C.warmWhite}`}}>
-              <div style={{fontFamily:"system-ui,sans-serif",fontSize:12,fontWeight:600,color:C.nearBlack}}>{o.label}</div>
+            <div key={i} style={{display:"grid",gridTemplateColumns:"180px 1fr",gap:20,padding:"12px 0",borderBottom:`1px solid ${C.warmWhite}`}}>
+              <div style={{fontFamily:"system-ui,sans-serif",fontSize:13,fontWeight:600,color:C.nearBlack}}>{o.label}</div>
               <div style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{o.desc}</div>
             </div>
           ))}
         </div>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600,marginTop:16}}>Each orientation makes certain things possible. Each also carries a cost.</p>
       </div>
 
-      <div style={{height:1,background:C.warmWhite,marginBottom:32}}/>
+      <div style={{height:1,background:C.warmWhite,marginBottom:28}}/>
 
-      {/* Where responsibility shows up */}
-      <div style={{marginBottom:36}}>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.16em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:8}}>Where Leadership Responsibility Shows Up</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580,marginBottom:20}}>The five domains represent leadership tensions that become most visible when responsibility increases and tradeoffs cannot be avoided.</p>
-
-        <div style={{border:`1px solid ${C.warmWhite}`,marginBottom:20}}>
+      {/* Where pressure shows up */}
+      <div style={{marginBottom:28}}>
+        <h3 style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:600,color:C.deepCharcoal,marginBottom:12}}>Where Leadership Pressure Shows Up</h3>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:18}}>The five domains represent situations where leadership responsibility becomes difficult to carry.</p>
+        <div style={{border:`1px solid ${C.warmWhite}`}}>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",background:C.deepCharcoal,padding:"10px 16px"}}>
             <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:C.warmWhite}}>DOMAIN</span>
-            <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:C.warmWhite}}>CORE LEADERSHIP TENSION</span>
+            <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:C.warmWhite}}>CORE TENSION</span>
           </div>
           {[
             {d:"Contribution", t:"Visibility ↔ Impact"},
@@ -1191,14 +1235,15 @@ function IntroPage() {
             </div>
           ))}
         </div>
-
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580,marginBottom:12}}>These domains represent the places where leadership responsibility most often becomes difficult to carry.</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580}}>Different leaders rely on different orientations across these domains when pressure increases.</p>
       </div>
 
-      <div style={{background:C.lightSage,padding:"20px 24px",borderLeft:`2px solid ${C.slate}`}}>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:10}}>The orientations described in this report are not levels of leadership capability. They describe the patterns leaders tend to rely on when leadership moments become demanding.</p>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>Most experienced leaders operate from different orientations in different domains. This report helps make those patterns visible.</p>
+      <div style={{height:1,background:C.warmWhite,marginBottom:28}}/>
+
+      {/* How to read */}
+      <div style={{marginBottom:8}}>
+        <h3 style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:600,color:C.deepCharcoal,marginBottom:12}}>How to Read This Report</h3>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:12}}>The orientations in this report are not a ranking. Most leaders rely on different orientations in different domains.</p>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600}}>This report shows where your leadership tends to orient when the situation becomes difficult, what that makes possible, and what it limits. The goal is not to evaluate you, but to make the pattern visible enough to work with.</p>
       </div>
     </div>
   );
@@ -1711,21 +1756,19 @@ function DomainPage({domain, placement}) {
     <div style={{maxWidth:720}}>
       {/* Header */}
       <div style={{background:C.deepCharcoal,padding:"22px 26px",marginBottom:24}}>
-        <h2 style={{fontFamily:"Georgia,serif",fontSize:24,fontWeight:300,color:C.warmWhite,marginBottom:4}}>{DOMAIN_NAMES[domain]}</h2>
+        <h2 style={{fontFamily:"Georgia,serif",fontSize:24,fontWeight:700,color:C.warmWhite,marginBottom:4}}>{DOMAIN_NAMES[domain]}</h2>
         <p style={{fontFamily:"system-ui,sans-serif",fontSize:12,color:C.midBlue,fontWeight:300}}>Leadership tension: {DOMAIN_TENSIONS[domain]}</p>
       </div>
 
       {/* Continuum bar */}
       <div style={{marginBottom:28}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
-          <span style={{fontSize:12,fontWeight:600,color:C.nearBlack}}>{DOMAIN_NAMES[domain]}</span>
-          <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{ORIENTATION_LABELS[placement]}</span>
-        </div>
-        <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:6}}>
+        <span style={{fontSize:12,fontWeight:700,color:C.nearBlack,display:"block",marginBottom:20}}>{DOMAIN_NAMES[domain]}</span>
+        <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:4}}>
           <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:`linear-gradient(to right,${C.warmWhite},${C.slate})`,borderRadius:3}}/>
           <div style={{position:"absolute",top:"50%",left:`${pct}%`,transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:C.gold,border:`2px solid ${C.goldDark}`,boxShadow:"0 1px 3px rgba(0,0,0,0.15)"}}/>
+          <div style={{position:"absolute",top:-22,left:`${pct}%`,transform:"translateX(-50%)",fontSize:11,fontWeight:700,color:C.slate,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]}</div>
         </div>
-        <div style={{display:"flex",justifyContent:"space-between"}}>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
           <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.left}</span>
           <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.right}</span>
         </div>
@@ -1821,9 +1864,9 @@ export default function App() {
   const [screen,setScreen]=useState("landing");
   const [authMode,setAuthMode]=useState("register");
   const [currentUser,setCurrentUser]=useState(null);
-  const [sIndex,setSIndex]=useState(0);
+  const [qIndex,setQIndex]=useState(0);
   const [responses,setResponses]=useState([]);
-  const [singleSel,setSingleSel]=useState(null);
+  const [selected,setSelected]=useState(null);
   const [mostSel,setMostSel]=useState(null);
   const [leastSel,setLeastSel]=useState(null);
   const [animKey,setAnimKey]=useState(0);
@@ -1888,7 +1931,7 @@ export default function App() {
         const p={name:r.name,email:r.email,completed:r.completed,completedAt:r.completed_at,results:r.results};
         setCurrentUser(p);
         setParticipants(prev=>({...prev,[p.email]:p}));
-        p.completed?setScreen("complete"):(setSIndex(0),setResponses([]),setSingleSel(null),setMostSel(null),setLeastSel(null),setAnimKey(k=>k+1),setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin"));
+        p.completed?setScreen("complete"):(setQIndex(0),setResponses([]),setSelected(null),setMostSel(null),setLeastSel(null),setAnimKey(k=>k+1),setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin"));
         return;
       }
     } catch(e){ console.error("Login error:",e); }
@@ -1909,28 +1952,28 @@ export default function App() {
       if(!invite.permanent) setInvites(prev=>({...prev,[code]:{...prev[code],used:true}}));
     } catch(e){ console.error("Register error:",e); }
     setCurrentUser(p);
-    setSIndex(0);setResponses([]);setSingleSel(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
+    setQIndex(0);setResponses([]);setSelected(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
     setScreen(shownBeforeYouBegin?"assessment":"beforeyoubegin");
   }
 
   async function handleNext(){
-    const unit = SCENARIO_UNITS_SHUFFLED[sIndex];
-    const forcedItem = unit.items[0];
-    const singleItem = unit.items[1];
-
-    // Validate: all three conditions must be true
-    if(mostSel===null||leastSel===null||singleSel===null) return;
-
-    // Build two response records
-    const forcedResp = { id: forcedItem[0], domain: forcedItem[1], most: mostSel, least: leastSel };
-    const singleResp = { id: singleItem[0], domain: singleItem[1], selected: singleSel };
-
-    const nr = [...responses, forcedResp, singleResp];
+    const item=ITEMS[qIndex];
+    const type=item[3];
+    // Validate by type
+    if(type==="forced"&&(mostSel===null||leastSel===null))return;
+    if((type==="single"||type==="paired")&&selected===null)return;
+    // Build response record
+    let resp;
+    if(type==="forced"){
+      resp={id:item[0],domain:item[1],most:mostSel,least:leastSel};
+    } else {
+      resp={id:item[0],domain:item[1],selected};
+    }
+    const nr=[...responses,resp];
     setResponses(nr);
-
-    if(sIndex+1 >= SCENARIO_UNITS_SHUFFLED.length){
-      const results = scoreAll(nr);
-      const updated = {...currentUser, completed:true, completedAt:new Date().toISOString(), results};
+    if(qIndex+1>=ITEMS.length){
+      const results=scoreAll(nr);
+      const updated={...currentUser,completed:true,completedAt:new Date().toISOString(),results};
       setCurrentUser(updated);
       setParticipants(prev=>({...prev,[updated.email]:updated}));
       try {
@@ -1938,12 +1981,12 @@ export default function App() {
       } catch(e){ console.error("Save error:",e); }
       setScreen("complete");
     } else {
-      setSIndex(i=>i+1);setSingleSel(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
+      setQIndex(i=>i+1);setSelected(null);setMostSel(null);setLeastSel(null);setAnimKey(k=>k+1);
     }
   }
 
-  const unit = SCENARIO_UNITS_SHUFFLED[sIndex] || SCENARIO_UNITS_SHUFFLED[0];
-  const progress = Math.round((sIndex / SCENARIO_UNITS_SHUFFLED.length) * 100);
+  const item=ITEMS[qIndex]||ITEMS[0];
+  const progress=Math.round((qIndex/ITEMS.length)*100);
 
   if(loading) return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
@@ -1962,7 +2005,7 @@ export default function App() {
           <h1 style={{fontFamily:"Georgia,serif",fontSize:46,fontWeight:300,lineHeight:1.1,color:C.deepCharcoal,marginBottom:8}}>Leadership<br/><em style={{color:C.slate}}>Patterns</em><br/>Profile</h1>
           <p style={{fontSize:13,color:C.midBlue,lineHeight:1.7,marginBottom:36,fontWeight:300,maxWidth:360}}>What drives your leadership in the moments that matter most.</p>
           <div style={{marginBottom:32}}>
-            {["20 items across five leadership domains","Approximately 20–25 minutes to complete","Results reviewed with your coach before sharing","No right answers — only honest ones"].map((t,i)=>(
+            {["25 items across five leadership domains","Approximately 20–25 minutes to complete","Results reviewed with your coach before sharing","No right answers — only honest ones"].map((t,i)=>(
               <div key={i} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10}}>
                 <div style={{width:16,height:1,background:C.slate,marginTop:8,flexShrink:0}}/>
                 <span style={{fontSize:13,color:C.nearBlack,fontWeight:300,lineHeight:1.5}}>{t}</span>
@@ -2050,69 +2093,55 @@ export default function App() {
     </div>
   );
 
-  if(screen==="assessment") {
-    const forcedItem = unit.items[0];
-    const singleItem = unit.items[1];
-    const canContinue = mostSel!==null && leastSel!==null && singleSel!==null;
-    return (
+  if(screen==="assessment") return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
       <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}`}</style>
       <Nav right={<span style={{fontSize:12,color:C.midBlue}}>{currentUser?.name}</span>}/>
       <div style={{height:3,background:C.warmWhite}}><div style={{height:"100%",background:C.slate,width:`${progress}%`,transition:"width 0.4s ease"}}/></div>
-      <div style={{flex:1,display:"flex",alignItems:"flex-start",justifyContent:"center",padding:"44px 28px"}}>
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"44px 28px"}}>
         <div key={animKey} style={{width:"100%",maxWidth:660,animation:"fadeUp 0.3s ease"}}>
-
-          {/* Scenario text — shown once for both questions */}
-          <div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:28,padding:"18px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>
-            {unit.scenarioText}
-          </div>
-
-          {/* Question 1: Forced choice */}
-          <div style={{marginBottom:32}}>
-            <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:400,color:C.deepCharcoal,marginBottom:16,lineHeight:1.45}}>{forcedItem[5]}</div>
-            <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:8}}>
-              <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600}}>MOST</span>
-              <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.midBlue,fontWeight:600}}>LEAST</span>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:9}}>
-              {forcedItem[6].map((opt,i)=>{
-                const isMost=mostSel===i, isLeast=leastSel===i;
-                return (
-                  <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"12px 14px",border:`1px solid ${isMost||isLeast?C.slate:C.warmWhite}`,background:isMost?C.lightSage:isLeast?"#fdf6f0":C.offWhite,transition:"all 0.15s"}}>
-                    <div style={{fontSize:10,fontWeight:600,color:C.midBlue,width:18,flexShrink:0}}>{["A","B","C","D"][i]}</div>
-                    <div style={{flex:1,fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack}}>{opt}</div>
-                    <div style={{display:"flex",gap:8,flexShrink:0}}>
-                      <div onClick={()=>{if(leastSel===i)return;setMostSel(isMost?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isMost?C.slate:C.warmWhite}`,background:isMost?C.slate:"transparent",cursor:leastSel===i?"not-allowed":"pointer",opacity:leastSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isMost?C.offWhite:C.midBlue}}>✓</div>
-                      <div onClick={()=>{if(mostSel===i)return;setLeastSel(isLeast?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isLeast?C.midBlue:C.warmWhite}`,background:isLeast?"#8596a220":"transparent",cursor:mostSel===i?"not-allowed":"pointer",opacity:mostSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isLeast?C.slate:C.midBlue}}>✗</div>
+          {item[4]&&<div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:22,padding:"18px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>{item[4]}</div>}
+          <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:400,color:C.deepCharcoal,marginBottom:22,lineHeight:1.45}}>{item[5]}</div>
+          {item[3]==="forced"?(
+            <div>
+              <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:8}}>
+                <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600}}>MOST</span>
+                <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.midBlue,fontWeight:600}}>LEAST</span>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:9}}>
+                {item[6].map((opt,i)=>{
+                  const isMost=mostSel===i, isLeast=leastSel===i;
+                  return (
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"12px 14px",border:`1px solid ${isMost||isLeast?C.slate:C.warmWhite}`,background:isMost?C.lightSage:isLeast?"#fdf6f0":C.offWhite,transition:"all 0.15s"}}>
+                      <div style={{fontSize:10,fontWeight:600,color:C.midBlue,width:18,flexShrink:0}}>{["A","B","C","D"][i]}</div>
+                      <div style={{flex:1,fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack}}>{opt}</div>
+                      <div style={{display:"flex",gap:8,flexShrink:0}}>
+                        <div onClick={()=>{if(leastSel===i)return;setMostSel(isMost?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isMost?C.slate:C.warmWhite}`,background:isMost?C.slate:"transparent",cursor:leastSel===i?"not-allowed":"pointer",opacity:leastSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isMost?C.offWhite:C.midBlue}}>✓</div>
+                        <div onClick={()=>{if(mostSel===i)return;setLeastSel(isLeast?null:i);}} style={{width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${isLeast?C.midBlue:C.warmWhite}`,background:isLeast?"#8596a220":"transparent",cursor:mostSel===i?"not-allowed":"pointer",opacity:mostSel===i?0.3:1,transition:"all 0.15s",fontSize:14,color:isLeast?C.slate:C.midBlue}}>✗</div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-
-          {/* Question 2: Single select */}
-          <div style={{marginBottom:24}}>
-            <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:400,color:C.deepCharcoal,marginBottom:16,lineHeight:1.45}}>{singleItem[5]}</div>
+          ):(
             <div style={{display:"flex",flexDirection:"column",gap:9}}>
-              {singleItem[6].map((opt,i)=>(
-                <div key={i} onClick={()=>setSingleSel(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${singleSel===i?C.slate:C.warmWhite}`,cursor:"pointer",background:singleSel===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
-                  <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${singleSel===i?C.slate:C.midBlue}`,color:singleSel===i?C.offWhite:C.midBlue,background:singleSel===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
+              {item[6].map((opt,i)=>(
+                <div key={i} onClick={()=>setSelected(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${selected===i?C.slate:C.warmWhite}`,cursor:"pointer",background:selected===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
+                  <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${selected===i?C.slate:C.midBlue}`,color:selected===i?C.offWhite:C.midBlue,background:selected===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
                   <div style={{fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack,paddingTop:2}}>{opt}</div>
                 </div>
               ))}
             </div>
+          )}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:24}}>
+            <span style={{fontSize:12,color:C.midBlue,letterSpacing:"0.06em"}}>{qIndex+1} of {ITEMS.length}</span>
+            <Btn variant="dark" onClick={handleNext} style={{opacity:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?1:0.35,pointerEvents:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?"auto":"none"}}>{qIndex===ITEMS.length-1?"Submit":"Continue"} →</Btn>
           </div>
-
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8}}>
-            <span style={{fontSize:12,color:C.midBlue,letterSpacing:"0.06em"}}>{sIndex+1} of {SCENARIO_UNITS_SHUFFLED.length}</span>
-            <Btn variant="dark" onClick={handleNext} style={{opacity:canContinue?1:0.35,pointerEvents:canContinue?"auto":"none"}}>{sIndex===SCENARIO_UNITS_SHUFFLED.length-1?"Submit":"Continue"} →</Btn>
-          </div>
-
         </div>
       </div>
     </div>
-  );}
+  );
 
   if(screen==="complete") return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
@@ -2164,15 +2193,13 @@ export default function App() {
                   const poles=DOMAIN_POLES[d];
                   return (
                     <div key={d}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
-                        <span style={{fontSize:12,fontWeight:600,color:C.nearBlack,letterSpacing:"0.03em"}}>{DOMAIN_NAMES[d]}</span>
-                        <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{ORIENTATION_LABELS[placement]}</span>
-                      </div>
-                      <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:6}}>
+                      <span style={{fontSize:12,fontWeight:700,color:C.nearBlack,letterSpacing:"0.03em",display:"block",marginBottom:6}}>{DOMAIN_NAMES[d]}</span>
+                      <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:4}}>
                         <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:`linear-gradient(to right,${C.warmWhite},${C.slate})`,borderRadius:3}}/>
                         <div style={{position:"absolute",top:"50%",left:`${pct}%`,transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:C.gold,border:`2px solid ${C.goldDark}`,boxShadow:"0 1px 3px rgba(0,0,0,0.15)"}}/>
+                        <div style={{position:"absolute",top:-22,left:`${pct}%`,transform:"translateX(-50%)",fontSize:11,fontWeight:700,color:C.slate,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]}</div>
                       </div>
-                      <div style={{display:"flex",justifyContent:"space-between"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
                         <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.left}</span>
                         <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.right}</span>
                       </div>
@@ -2207,7 +2234,7 @@ export default function App() {
               {[1,2,3,4,5].map(d=>(
                 <div key={d} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 0",borderBottom:`1px solid ${C.warmWhite}`,gap:16}}>
                   <div>
-                    <div style={{fontSize:14,fontWeight:500,color:C.nearBlack}}>{DOMAIN_NAMES[d]}</div>
+                    <div style={{fontSize:14,fontWeight:700,color:C.nearBlack}}>{DOMAIN_NAMES[d]}</div>
                     <div style={{fontSize:12,color:C.midBlue,marginTop:2,fontStyle:"italic",fontWeight:300}}>{DOMAIN_TENSIONS[d]}</div>
                   </div>
                   <OrientationBadge placement={selectedP.results[d].placement}/>
