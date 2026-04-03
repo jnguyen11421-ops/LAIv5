@@ -35,11 +35,11 @@ const LANG = {
     "3":"Your default is to hold the broader context when local pressure makes it hard to see. You hold to what the broader situation requires, even when your team is carrying real cost, and resist shifting to one side even when your team is under pressure. This reflects a belief that decisions need to serve the broader context, even when they create cost for your team. The cost is that your team may experience your steadiness as distance. When they need you to stand with them, holding the broader view can look like you're not."
   },
   5:{ name:"As the Moment Intensifies", tension:"Reaction ↔ Curiosity",
-    setup:"PLACEHOLDER — to be written next session.",
-    "1":"PLACEHOLDER — Execution Mode portrait for As the Moment Intensifies to be written next session.",
-    "2a":"PLACEHOLDER — Orchestration Mode portrait for As the Moment Intensifies to be written next session.",
-    "2b":"PLACEHOLDER — Navigation Mode portrait for As the Moment Intensifies to be written next session.",
-    "3":"PLACEHOLDER — Integration Mode portrait for As the Moment Intensifies to be written next session."
+    setup:"Pressure builds when something shifts unexpectedly and you have to respond before you fully understand what's happening.",
+    "1":"Your default is to address the tension directly and move the conversation forward. You step in, respond to what's happening, and work to re-establish direction. This reflects a belief that if tension is rising, it's your responsibility to address it so things can move forward. The cost is that moving quickly can close the moment before what's actually driving it has surfaced. The issue gets managed before it gets understood.",
+    "2a":"Your default is to contain the conversation and bring it back into a productive structure. You slow things down, clarify what's being discussed, and create a format that keeps the exchange from escalating. This reflects a belief that a charged moment needs structure to stay productive. The cost is that structuring the conversation can prevent it from going where it needs to go. The exchange stays contained, and what was driving the tension doesn't get addressed.",
+    "2b":"Your default is to stay attuned to how you're coming across in the moment. You track how your tone, timing, and response are landing and adjust in real time to stay credible and composed. This reflects a belief that how you show up in a charged moment shapes what happens next. The cost is that managing how you're being read can get in the way of addressing what's actually happening.",
+    "3":"Your default is to stay with the tension rather than move to resolve it. You hold the moment, ask questions, and let the exchange unfold before drawing a conclusion about what it means. This reflects a belief that what's visible in a charged moment doesn't fully explain what's happening. The cost is that staying with the tension can leave others without the direction they need. The moment passes without clear direction or resolution."
   }
 };
 
