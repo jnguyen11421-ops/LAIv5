@@ -50,28 +50,6 @@ const SYNTHESIS_CONTENT = {
       text: "Your profile suggests that, under pressure, you do not default to one consistent mode across domains. Instead, your response shifts depending on the type of pressure or leadership demand you are in. This is common in experienced leaders and can reflect genuine range. The tradeoff is that without a dominant pattern, your leadership can be harder for others to read and predict. The developmental task is not to pick a mode, but to become more conscious of which one you are using in which situations, and to be more transparent with others about how you are approaching the moment."
     }
   },
-  leverage: {
-    contribution: {
-      title: "Developmental leverage: Contribution",
-      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Contribution. A shift in this domain matters because it shapes how you experience your contribution as leadership becomes less direct and more distributed. A shift here would likely have effects beyond this domain alone. It can change how much oversight you need, how readily ownership and decision-making move to others, and how much your leadership depends on staying close to the work. The key question is whether you can trust that your contribution is real even when you can no longer see your hand in the result."
-    },
-    reasoning: {
-      title: "Developmental leverage: Reasoning",
-      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Reasoning. A shift in this domain matters because it shapes what you rely on when facing uncertainty, how you form and stand behind decisions, and whether others can examine your thinking or mainly align with it. A shift here would likely affect not only the quality of your decisions, but also the quality of dialogue around you. The key question is whether the way you reason under pressure leaves enough room for your assumptions to be examined, by you and by others."
-    },
-    authority: {
-      title: "Developmental leverage: Authority",
-      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Authority. A shift in this domain matters because it shapes whether leadership capacity stays concentrated around you or becomes more widely held across your team and organization. A shift here would likely affect how quickly others grow into judgment, how readily ownership and decision-making move without your involvement, and how much your leadership depends on your direct presence in the work. The key question is whether your current oversight gives others what they truly need, or whether some of it mainly helps you feel reassured."
-    },
-    loyalty: {
-      title: "Developmental leverage: Loyalty",
-      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Loyalty. A shift in this domain matters because it shapes how you hold the tension between your team and the broader organization when their needs pull in different directions. A shift here would likely affect how clearly you can take a position under pressure, how much you soften or over-explain difficult decisions, and whether your team and the organization can both trust where you stand. The key question is whether you can stay present to the cost of a decision without needing to soften or manage it."
-    },
-    presence: {
-      title: "Developmental leverage: Presence",
-      text: "Developmental leverage identifies where a shift in your leadership would have the greatest impact on how you lead overall. The strongest developmental leverage in your profile appears in Presence. A shift in this domain matters because it shapes what happens in real time when challenge or emotional intensity arrives in a conversation. A shift here would likely affect how much space difficult conversations can hold, whether others feel they can bring the real issue forward, and how much learning is possible when the moment is tense. The key question is whether you can stay curious before moving to manage, explain, or resolve the moment."
-    }
-  },
   risks: {
     reasoning_system_authority_process: {
       title: "Open Thinking, Controlled Execution",
@@ -196,8 +174,7 @@ const RISK_RULES = [
 ];
 
 const QUESTION_RULES = [
-  // Match leverage domain directly if a question exists for it
-  // (resolved dynamically in selector — these handle the general fallbacks)
+  // Mode-based question selection
   { test: (p, c) => (c.process||0)  >= 2, key: "general_process"  },
   { test: (p, c) => (c.identity||0) >= 2, key: "general_identity" },
   { test: (p, c) => (c.system||0)   >= 2, key: "general_system"   },
@@ -212,7 +189,7 @@ function runRules(rules, profile, counts) {
 }
 
 // ── SELECTOR FUNCTION ──
-function getSynthesis(results, leverageDomain) {
+function getSynthesis(results) {
   const SC = SYNTHESIS_CONTENT;
 
   // Layer 1 → profile (domain number → placement string)
@@ -236,42 +213,15 @@ function getSynthesis(results, leverageDomain) {
 
   // Run rules to get keys
   const clusterKey = runRules(CLUSTER_RULES, bucketProfile, counts);
-
-  // Leverage: accept explicit override, otherwise auto-detect lowest orientation-order domain
-  let leverageKey;
-  if (leverageDomain && SC.leverage[leverageDomain]) {
-    leverageKey = leverageDomain;
-  } else {
-    const lowestDomain = [1,2,3,4,5].reduce((a, b) =>
-      (ORIENTATION_ORDER[results[a].placement]||0) <= (ORIENTATION_ORDER[results[b].placement]||0) ? a : b
-    );
-    leverageKey = DOMAIN_KEYS[lowestDomain];
-  }
-
   const riskKey = runRules(RISK_RULES, bucketProfile, counts);
-
-  // Question: match leverage domain first, then run general rules
-  const questionKey = (SC.questions[leverageKey])
-    ? leverageKey
-    : runRules(QUESTION_RULES, bucketProfile, counts);
+  const questionKey = runRules(QUESTION_RULES, bucketProfile, counts);
 
   // ── LAYER 3: CONTENT ASSEMBLY ──
   const cluster  = SC.clusters[clusterKey];
-  const leverage = SC.leverage[leverageKey];
   const risk     = SC.risks[riskKey];
   const question = SC.questions[questionKey];
 
-  // Integrative sentence connecting leverage domain to cluster pattern
-  const integrativeMap = {
-    contribution: "How you experience your contribution shapes everything downstream: how much oversight feels necessary, how readily authority moves to others, and whether your leadership depends on your presence in the work.",
-    reasoning:    "How you reason through decisions shapes the quality of conversation around you, and whether others can engage with complexity or mainly follow your lead.",
-    authority:    "How authority moves through your team determines whether your leadership scales, or whether capacity quietly accumulates back toward you under pressure.",
-    loyalty:      "How you hold the tension between your team and the organization shapes whether difficult decisions land with clarity or get softened in ways that cost trust over time.",
-    presence:     "How you respond when pressure enters a conversation shapes whether difficult moments open up or close down, and whether the people around you feel they can bring the real issue forward."
-  };
-  const integrative = integrativeMap[leverageKey] || "";
-
-  return { cluster, leverage, risk, question, integrative };
+  return { cluster, risk, question };
 }
 
 
