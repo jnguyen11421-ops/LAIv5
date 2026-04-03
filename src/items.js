@@ -121,7 +121,7 @@ const ITEMS_SOURCE = [
 
   ["D3-Q13", 3, 3, "forced", "D3-S2",
     "Your boss has raised it. Your direct report doesn't know yet. Select the response MOST like you and LEAST like you.",
-    ["I go back through the decisions that were made and figure out which ones I should have kept. I need to know exactly where the line should have been.",
+    ["I pull the decisions back that should have stayed with me. If my boss is questioning my judgment, I need to be closer to the work, not further from it.",
      "I map out what I delegated and why, so I can walk my boss through the logic of how I structured it and where the handoff decisions were made.",
      "I think about how to respond to my boss in a way that demonstrates I understand what went wrong without making it look like I've lost control of my team.",
      "I sit with it. If my boss is questioning the scope, I want to understand what they were expecting before I decide what needs to change."],
@@ -141,7 +141,7 @@ const ITEMS_SOURCE = [
     ["I'm clear on where I stand before I walk in. If there's real cost to my team, I'll name it myself.",
      "I think through how to lay this out so the tradeoffs are clear, the rationale is explicit, and what changes in the work is concrete.",
      "I think about how to deliver this so my team sees I'm with them without it reading as misaligned with the organization.",
-     "I deliver it straight. This is the decision and where we're going, even if it's hard for my team right now."],
+     "I don't soften it, but I don't shut the door either. I want my team to understand what's driving this and have room to process what it means for them."],
     ["outcome", "process", "identity", "system"]],
 
   ["D4-Q17", 4, 2, "single", "D4-S1",
@@ -149,7 +149,7 @@ const ITEMS_SOURCE = [
     ["I take it back up. If this isn't sustainable, that needs to be said — and I'm the one who should be saying it.",
      "I work with them to map out the load and make the tradeoffs explicit so we're clear on what the work actually demands.",
      "I listen and I'm honest about what I can and can't do, while tracking how I'm coming across in this conversation.",
-     "I acknowledge it directly. The decision isn't changing, and I don't want to give false hope."],
+     "I stay with it. They're right about the cost, and the decision isn't going to change. I want to hold both of those things without pretending either one away."],
     ["outcome", "process", "identity", "system"]],
 
   ["D4-Q18", 4, 3, "forced", "D4-S2",
@@ -157,7 +157,7 @@ const ITEMS_SOURCE = [
     ["I'm honest about where my team stands and I make sure the cost of pushing this through is named before we talk about rollout.",
      "I focus on how to structure the rollout — what decisions are fixed, what can change, and how concerns are surfaced and tracked.",
      "I think about how to position myself so I stay credible with my boss without burning trust with my team.",
-     "I go in ready to move it forward. If this is where we're going, my job is to lead my team there."],
+     "I go in with the full picture. I want to be clear about what this will cost my team without changing the direction."],
     ["outcome", "process", "identity", "system"]],
 
   ["D4-Q19", 4, 4, "single", "D4-S2",
@@ -165,7 +165,7 @@ const ITEMS_SOURCE = [
     ["I respond directly. I tell them where I stand and what I'm moving forward regardless.",
      "I redirect to specifics — what the concerns are, what can change, and what decisions are fixed.",
      "I'm careful about how I respond, tracking how this will land for my team.",
-     "I don't deflect it. I state the position clearly and that we're moving forward."],
+     "I don't deflect it. I acknowledge what's true in what they're saying and stay with both the concern and the direction."],
     ["outcome", "process", "identity", "system"]],
 
   // ── DOMAIN 5: PRESENCE ──
