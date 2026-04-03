@@ -105,7 +105,7 @@ function scoreAll(responses) {
 }
 
 const ORIENTATION_LABELS = {"1":"Execution Mode","2a":"Orchestration Mode","2b":"Navigation Mode","3":"Integration Mode"};
-const DOMAIN_NAMES = {1:"Contribution",2:"Reasoning",3:"Authority",4:"Loyalty",5:"Presence"};
+const DOMAIN_NAMES = {1:"As Visibility Shifts",2:"As Certainty Fades",3:"As Control Decreases",4:"As Priorities Diverge",5:"As the Moment Intensifies"};
 const DOMAIN_TENSIONS = {1:"Visibility ↔ Impact",2:"Correctness ↔ Transparency",3:"Direct Control ↔ System Trust",4:"Your People ↔ The Whole",5:"Reaction ↔ Curiosity"};
 const DOMAIN_POLES = {
   1:{left:"Visibility",right:"Impact"},
@@ -204,13 +204,13 @@ function generatePDF(p) {
       </div>
 
       <div class="section-block avoid-break">
-        <h3 class="section-label">About This Domain</h3>
-        ${dc.about.split('\n\n').map(t => `<p class="body-text">${t}</p>`).join('')}
+        <h3 class="section-label">${DOMAIN_NAMES[domainId]}</h3>
+        <p class="body-text">${LANG[domainId].setup}</p>
       </div>
 
       <div class="section-block avoid-break">
         <h3 class="section-label">Your Orientation: ${ORIENTATION_LABELS[placement]}</h3>
-        <p class="body-text">${pattern}</p>
+        <p class="body-text">${LANG[domainId][placement] || ""}</p>
       </div>
 
       <div class="section-block avoid-break">
@@ -587,6 +587,7 @@ body {
   margin-bottom: 10px;
 }
 .note-text { font-style: italic; color: #4a6274; }
+.assets-table { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 8px; }
 .orientation-table { margin-bottom: 8px; }
 .orientation-row {
   display: grid;
@@ -906,11 +907,11 @@ body {
     <p class="intro-note-inline">Each orientation makes certain things possible. Each also carries a cost.</p>
     <h3 class="intro-section-head">Where Leadership Pressure Shows Up</h3>
     <div class="intro-block">
-      <p>The five domains represent situations where leadership responsibility becomes difficult to carry.</p>
+      <p>These are the five situations where leadership responsibility becomes difficult to carry.</p>
     </div>
     <div class="domain-intro-table">
       <div class="domain-intro-row domain-intro-header">
-        <span class="domain-intro-name">Domain</span>
+        <span class="domain-intro-name">Pressure Condition</span>
         <span class="domain-intro-tension">Core Tension</span>
       </div>
       ${[1,2,3,4,5].map(d => `
@@ -945,7 +946,7 @@ body {
       </div>
       <div class="legend-item">
         <div class="legend-label">Integration Mode</div>
-        <div class="legend-sub">Architecture and structure</div>
+        <div class="legend-sub">Soundness of the underlying logic</div>
       </div>
     </div>
     ${[1,2,3,4,5].map(d => {
@@ -1216,18 +1217,18 @@ function IntroPage() {
       {/* Where pressure shows up */}
       <div style={{marginBottom:28}}>
         <h3 style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:600,color:C.deepCharcoal,marginBottom:12}}>Where Leadership Pressure Shows Up</h3>
-        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:18}}>The five domains represent situations where leadership responsibility becomes difficult to carry.</p>
+        <p style={{fontFamily:"system-ui,sans-serif",fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:600,marginBottom:18}}>These are the five situations where leadership responsibility becomes difficult to carry.</p>
         <div style={{border:`1px solid ${C.warmWhite}`}}>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",background:C.deepCharcoal,padding:"10px 16px"}}>
-            <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:C.warmWhite}}>DOMAIN</span>
+            <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:C.warmWhite}}>PRESSURE CONDITION</span>
             <span style={{fontFamily:"system-ui,sans-serif",fontSize:11,fontWeight:600,letterSpacing:"0.1em",color:C.warmWhite}}>CORE TENSION</span>
           </div>
           {[
-            {d:"Contribution", t:"Visibility ↔ Impact"},
-            {d:"Reasoning",    t:"Correctness ↔ Transparency"},
-            {d:"Authority",    t:"Direct Control ↔ System Trust"},
-            {d:"Loyalty",      t:"Your People ↔ The Whole"},
-            {d:"Presence",     t:"Reaction ↔ Curiosity"},
+            {d:"As Visibility Shifts",      t:"Visibility ↔ Impact"},
+            {d:"As Certainty Fades",        t:"Correctness ↔ Transparency"},
+            {d:"As Control Decreases",      t:"Direct Control ↔ System Trust"},
+            {d:"As Priorities Diverge",     t:"Your People ↔ The Whole"},
+            {d:"As the Moment Intensifies", t:"Reaction ↔ Curiosity"},
           ].map(({d,t},i)=>(
             <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr",padding:"11px 16px",borderTop:`1px solid ${C.warmWhite}`,background:i%2===0?C.offWhite:C.lightSage}}>
               <span style={{fontFamily:"system-ui,sans-serif",fontSize:13,fontWeight:600,color:C.nearBlack}}>{d}</span>
@@ -1776,14 +1777,14 @@ function DomainPage({domain, placement}) {
 
       <HR/>
 
-      {/* 1. About This Domain */}
-      <SH>About This Domain</SH>
-      <MP text={dc.about}/>
+      {/* 1. Domain setup */}
+      <SH>{DOMAIN_NAMES[domain]}</SH>
+      <BT>{LANG[domain].setup}</BT>
       <HR/>
 
       {/* 2. Your Orientation */}
       <SH>Your Orientation: {ORIENTATION_LABELS[placement]}</SH>
-      <BT>{pattern}</BT>
+      <BT>{LANG[domain][placement] || ""}</BT>
       <HR/>
 
       {/* 3. What This Looks Like */}
