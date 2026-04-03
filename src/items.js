@@ -16,7 +16,7 @@ const SCENARIO_TEXT = {
 
   "D3-S1": "You delegated a high-visibility project to a strong direct report three months ago. You gave them real ownership — you meant it. The project is due to land with your boss and two other senior leaders in two weeks. You've been staying out of it, trusting them to run it. Last week you sat in on a check-in and something felt off. The work is moving, but the judgment calls being made are not the ones you would make. Nothing is broken yet. But if it lands the way it's currently heading, the outcome will reflect on your leadership — and not well.",
 
-  "D3-S2": "A direct report is six weeks into leading a piece of work you gave them full ownership over. They're capable — you've seen it. But the last three check-ins have left you uneasy. They're making decisions, but the decisions feel tentative. The work isn't off track, but it's not as sharp as it needs to be. You haven't seen anything you could point to and call wrong. You just know that if you were running it, it would be further along and the thinking would be tighter. Nothing has broken. No one else has noticed. But you're watching it closely.",
+  "D3-S2": "Your boss has been pushing you to delegate more. You took it seriously. Three months ago you gave a direct report meaningful ownership over a significant piece of work — more than you would have handed off on your own timeline, but you trusted the direction. The work has been moving. Last week your boss reviewed it and came to you directly. They're not questioning the quality. They're questioning how much you handed off. In their view, you delegated decisions that should have stayed with you — decisions you're still accountable for. This lands as a question about your judgment.",
 
   "D4-S1": "Your organization has just made a decision that directly affects your team. A restructuring means your team will absorb significant additional workload with no additional headcount. The timeline is immediate. Your team is already stretched. You didn't make this decision — it came from above — but you are the one who has to deliver it and own it in front of your people. Your peers are in the same position. No one pushed back in the room when it was decided.",
 
@@ -80,10 +80,10 @@ const ITEMS_SOURCE = [
 
   ["D2-Q7", 2, 2, "single", "D2-S1",
     "After the meeting, a peer tells you your reasoning was hard to follow. You replay the conversation in your head. Which response is most like you?",
-    ["I think about what I should have said to land the point more cleanly — and how this came across to the people in the room.",
+    ["I reflect on the call I made and whether I should have just pushed for a decision rather than walking through my thinking.",
      "I go back through the argument to find where the logic broke down. If it was hard to follow, something wasn't fully worked through.",
-     "I'm less concerned about how it landed. I think about whether I should have taken a clearer position and moved things forward.",
-     "I consider whether the feedback actually points to something in my thinking — or whether the reasoning itself still holds."],
+     "I think about how I came across and what I should have said differently so the reasoning landed better in the room.",
+     "I sit with the feedback. If it was hard to follow, it might be pointing to something in the thinking I haven't fully resolved yet."],
     ["outcome", "process", "identity", "system"]],
 
   ["D2-Q8", 2, 3, "forced", "D2-S2",
@@ -120,19 +120,19 @@ const ITEMS_SOURCE = [
     ["outcome", "process", "identity", "system"]],
 
   ["D3-Q13", 3, 3, "forced", "D3-S2",
-    "You have another check-in tomorrow. The work is theirs. The outcome is still yours. Select the response MOST like you and LEAST like you.",
-    ["I come in with specific input on the decisions I'm watching. My judgment needs to be in the work.",
-     "I restructure the check-in — tighter agenda, clearer decision points, and explicit criteria for what needs to land by when.",
-     "I think about how to engage without signaling doubt in them or making it look like I'm hovering.",
-     "I ask about the assumptions behind the decisions rather than the decisions themselves. I want to understand what's driving the tentativeness before I do anything."],
+    "Your boss has raised it. Your direct report doesn't know yet. Select the response MOST like you and LEAST like you.",
+    ["I go back through the decisions that were made and figure out which ones I should have kept. I need to know exactly where the line should have been.",
+     "I map out what I delegated and why, so I can walk my boss through the logic of how I structured it and where the handoff decisions were made.",
+     "I think about how to respond to my boss in a way that demonstrates I understand what went wrong without making it look like I've lost control of my team.",
+     "I sit with it. If my boss is questioning the scope, I want to understand what they were expecting before I decide what needs to change."],
     ["outcome", "process", "identity", "system"]],
 
   ["D3-Q14", 3, 4, "single", "D3-S2",
-    "Two weeks later, the work is still moving but still not sharp enough. You're now deciding whether to step in more directly. Which response is most like you?",
-    ["I step in. The work reflects on me and it's not where it needs to be. I correct it directly.",
-     "I add more structure — clearer milestones, more frequent check-ins, and explicit sign-off points before key decisions move forward.",
-     "I think about how stepping in will land and I calibrate accordingly.",
-     "I stay with the discomfort and give it more time. If the system is still holding, stepping in now creates a problem that isn't there yet."],
+    "You now have to decide what to do with your direct report. Which response is most like you?",
+    ["I pull some of the decisions back. If I'm accountable for them, I need to be making them.",
+     "I redefine the scope with them explicitly — what stays with them, what comes back to me, and how decisions get escalated going forward.",
+     "I think carefully about how to have this conversation so it doesn't undermine their confidence or make it look like I'm walking back my own delegation.",
+     "I have a direct conversation about the judgment behind the decisions — including where my own judgment about what to delegate fell short — and what I need to see differently going forward."],
     ["outcome", "process", "identity", "system"]],
 
   // ── DOMAIN 4: LOYALTY ──
