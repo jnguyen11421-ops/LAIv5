@@ -122,7 +122,7 @@ function generatePDF(p) {
   const lastName = nameParts[nameParts.length - 1];
   const firstInitial = nameParts.length > 1 ? nameParts[0][0] : '';
   const pdfFilename = [lastName, firstInitial, 'LPP'].filter(Boolean).join('_');
-  const syn = getSynthesis(p.results, null);
+  const syn = getSynthesis(p.results);
   const date = new Date(p.completedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   function orientBadge(placement) {
@@ -742,15 +742,6 @@ body {
   letter-spacing: 0.06em;
   border-top: 1px solid #e8e6e2;
 }
-.synthesis-integrative {
-  font-family: system-ui, sans-serif;
-  font-size: 9pt;
-  line-height: 1.75;
-  color: #4a6274;
-  font-weight: 300;
-  font-style: italic;
-  margin-top: 6px;
-}
 .synthesis-question {
   margin: 24px 0 0;
   padding: 18px 22px;
@@ -997,12 +988,6 @@ body {
       <div class="synthesis-section">
         <p class="synthesis-section-label">${syn.cluster.title}</p>
         <p class="synthesis-body">${syn.cluster.text}</p>
-      </div>
-
-      <div class="synthesis-section">
-        <p class="synthesis-section-label">${syn.leverage.title}</p>
-        <p class="synthesis-body">${syn.leverage.text}</p>
-        <p class="synthesis-integrative">${syn.integrative}</p>
       </div>
 
       <div class="synthesis-section">
@@ -2241,7 +2226,7 @@ export default function App() {
           )}
 
           {reportTab==="cross"&&(()=>{
-            const syn = getSynthesis(selectedP.results, null);
+            const syn = getSynthesis(selectedP.results);
             return (
             <div>
               <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:6}}>Pattern Summary</h2>
@@ -2258,13 +2243,11 @@ export default function App() {
               <div style={{marginTop:32}}>
                 {[
                   {label:syn.cluster.title, text:syn.cluster.text},
-                  {label:syn.leverage.title, text:syn.leverage.text, integrative:syn.integrative},
                   {label:syn.risk.title, text:syn.risk.text},
                 ].map((s,i)=>(
                   <div key={i} style={{marginBottom:24,padding:"20px 22px",background:i===0?C.lightSage:"transparent",borderLeft:`2px solid ${C.slate}`}}>
                     <p style={{fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:C.slate,fontWeight:600,marginBottom:10}}>{s.label}</p>
-                    <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:s.integrative?8:0}}>{s.text}</p>
-                    {s.integrative&&<p style={{fontSize:13,lineHeight:1.75,color:C.midBlue,fontWeight:300,fontStyle:"italic"}}>{s.integrative}</p>}
+                    <p style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300}}>{s.text}</p>
                   </div>
                 ))}
                 <div style={{marginTop:8,padding:"18px 22px",background:C.deepCharcoal}}>
