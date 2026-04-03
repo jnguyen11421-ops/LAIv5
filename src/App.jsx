@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ITEMS_SOURCE, ITEMS, SCENARIO_TEXT } from './items';
+import { ITEMS_SOURCE, ITEMS, SCENARIO_TEXT, SCENARIO_UNITS_SHUFFLED } from './items';
 import { LANG } from './lang';
 import { SYNTHESIS_CONTENT, CLUSTER_RULES, RISK_RULES, QUESTION_RULES, getSynthesis, DOMAIN_KEYS, ORIENT_BUCKET, ORIENTATION_ORDER } from './synthesis';
 
@@ -1767,7 +1767,7 @@ function DomainPage({domain, placement}) {
         <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:4}}>
           <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:`linear-gradient(to right,${C.warmWhite},${C.slate})`,borderRadius:3}}/>
           <div style={{position:"absolute",top:"50%",left:`${pct}%`,transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:C.gold,border:`2px solid ${C.goldDark}`,boxShadow:"0 1px 3px rgba(0,0,0,0.15)"}}/>
-          <div style={{position:"absolute",top:-22,left:`${pct}%`,transform:"translateX(-50%)",fontSize:11,fontWeight:700,color:C.slate,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]}</div>
+          <div style={{position:"absolute",top:-24,left:`${pct}%`,transform:"translateX(-50%)",fontSize:11,fontWeight:700,color:C.slate,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]}</div>
         </div>
         <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
           <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.left}</span>
@@ -1958,21 +1958,17 @@ export default function App() {
   }
 
   async function handleNext(){
-    const item=ITEMS[qIndex];
-    const type=item[3];
-    // Validate by type
-    if(type==="forced"&&(mostSel===null||leastSel===null))return;
-    if((type==="single"||type==="paired")&&selected===null)return;
-    // Build response record
-    let resp;
-    if(type==="forced"){
-      resp={id:item[0],domain:item[1],most:mostSel,least:leastSel};
-    } else {
-      resp={id:item[0],domain:item[1],selected};
-    }
-    const nr=[...responses,resp];
+    const units = SCENARIO_UNITS_SHUFFLED;
+    const unit = units[qIndex];
+    if(!unit) return;
+    const forcedItem = unit.items[0];
+    const singleItem = unit.items[1];
+    // Build two response records for this unit
+    const forcedResp = {id:forcedItem[0], domain:forcedItem[1], most:mostSel, least:leastSel};
+    const singleResp = {id:singleItem[0], domain:singleItem[1], selected};
+    const nr = [...responses, forcedResp, singleResp];
     setResponses(nr);
-    if(qIndex+1>=ITEMS.length){
+    if(qIndex+1>=units.length){
       const results=scoreAll(nr);
       const updated={...currentUser,completed:true,completedAt:new Date().toISOString(),results};
       setCurrentUser(updated);
@@ -1986,8 +1982,6 @@ export default function App() {
     }
   }
 
-  const item=ITEMS[qIndex]||ITEMS[0];
-  const progress=Math.round((qIndex/ITEMS.length)*100);
 
   if(loading) return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
@@ -2006,7 +2000,7 @@ export default function App() {
           <h1 style={{fontFamily:"Georgia,serif",fontSize:46,fontWeight:300,lineHeight:1.1,color:C.deepCharcoal,marginBottom:8}}>Leadership<br/><em style={{color:C.slate}}>Patterns</em><br/>Profile</h1>
           <p style={{fontSize:13,color:C.midBlue,lineHeight:1.7,marginBottom:36,fontWeight:300,maxWidth:360}}>What drives your leadership in the moments that matter most.</p>
           <div style={{marginBottom:32}}>
-            {["25 items across five leadership domains","Approximately 20–25 minutes to complete","Results reviewed with your coach before sharing","No right answers — only honest ones"].map((t,i)=>(
+            {["20 items across five leadership domains","Approximately 20–25 minutes to complete","Results reviewed with your coach before sharing","No right answers — only honest ones"].map((t,i)=>(
               <div key={i} style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:10}}>
                 <div style={{width:16,height:1,background:C.slate,marginTop:8,flexShrink:0}}/>
                 <span style={{fontSize:13,color:C.nearBlack,fontWeight:300,lineHeight:1.5}}>{t}</span>
@@ -2094,23 +2088,34 @@ export default function App() {
     </div>
   );
 
-  if(screen==="assessment") return (
-    <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}`}</style>
-      <Nav right={<span style={{fontSize:12,color:C.midBlue}}>{currentUser?.name}</span>}/>
-      <div style={{height:3,background:C.warmWhite}}><div style={{height:"100%",background:C.slate,width:`${progress}%`,transition:"width 0.4s ease"}}/></div>
-      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"44px 28px"}}>
-        <div key={animKey} style={{width:"100%",maxWidth:660,animation:"fadeUp 0.3s ease"}}>
-          {item[4]&&SCENARIO_TEXT[item[4]]&&<div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:22,padding:"18px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>{SCENARIO_TEXT[item[4]]}</div>}
-          <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:400,color:C.deepCharcoal,marginBottom:22,lineHeight:1.45}}>{item[5]}</div>
-          {item[3]==="forced"?(
-            <div>
+  if(screen==="assessment") {
+    const units = SCENARIO_UNITS_SHUFFLED;
+    const unit = units[qIndex] || units[0];
+    const forcedItem = unit.items[0];
+    const singleItem = unit.items[1];
+    const progress = Math.round((qIndex / units.length) * 100);
+    const canContinue = mostSel !== null && leastSel !== null && selected !== null;
+
+    return (
+      <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        <Nav right={<span style={{fontSize:12,color:C.midBlue}}>{currentUser?.name}</span>}/>
+        <div style={{height:3,background:C.warmWhite}}><div style={{height:"100%",background:C.slate,width:`${progress}%`,transition:"width 0.4s ease"}}/></div>
+        <div style={{flex:1,display:"flex",justifyContent:"center",padding:"44px 28px"}}>
+          <div key={animKey} style={{width:"100%",maxWidth:660,animation:"fadeUp 0.3s ease"}}>
+
+            {/* Scenario text */}
+            <div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,marginBottom:28,padding:"18px 22px",background:C.lightSage,borderLeft:`2px solid ${C.slate}`}}>{unit.scenarioText}</div>
+
+            {/* Forced choice */}
+            <div style={{marginBottom:32}}>
+              <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:400,color:C.deepCharcoal,marginBottom:16,lineHeight:1.45}}>{forcedItem[5]}</div>
               <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:8}}>
                 <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.slate,fontWeight:600}}>MOST</span>
                 <span style={{width:56,textAlign:"center",fontSize:10,letterSpacing:"0.1em",textTransform:"uppercase",color:C.midBlue,fontWeight:600}}>LEAST</span>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:9}}>
-                {item[6].map((opt,i)=>{
+                {forcedItem[6].map((opt,i)=>{
                   const isMost=mostSel===i, isLeast=leastSel===i;
                   return (
                     <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"12px 14px",border:`1px solid ${isMost||isLeast?C.slate:C.warmWhite}`,background:isMost?C.lightSage:isLeast?"#fdf6f0":C.offWhite,transition:"all 0.15s"}}>
@@ -2125,24 +2130,34 @@ export default function App() {
                 })}
               </div>
             </div>
-          ):(
-            <div style={{display:"flex",flexDirection:"column",gap:9}}>
-              {item[6].map((opt,i)=>(
-                <div key={i} onClick={()=>setSelected(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${selected===i?C.slate:C.warmWhite}`,cursor:"pointer",background:selected===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
-                  <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${selected===i?C.slate:C.midBlue}`,color:selected===i?C.offWhite:C.midBlue,background:selected===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
-                  <div style={{fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack,paddingTop:2}}>{opt}</div>
-                </div>
-              ))}
+
+            {/* Divider */}
+            <div style={{height:1,background:C.warmWhite,marginBottom:28}}/>
+
+            {/* Single select */}
+            <div style={{marginBottom:28}}>
+              <div style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:400,color:C.deepCharcoal,marginBottom:16,lineHeight:1.45}}>{singleItem[5]}</div>
+              <div style={{display:"flex",flexDirection:"column",gap:9}}>
+                {singleItem[6].map((opt,i)=>(
+                  <div key={i} onClick={()=>setSelected(i)} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"14px 16px",border:`1px solid ${selected===i?C.slate:C.warmWhite}`,cursor:"pointer",background:selected===i?C.lightSage:C.offWhite,transition:"all 0.15s"}}>
+                    <div style={{width:24,height:24,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:600,letterSpacing:"0.06em",border:`1px solid ${selected===i?C.slate:C.midBlue}`,color:selected===i?C.offWhite:C.midBlue,background:selected===i?C.slate:"transparent",transition:"all 0.15s"}}>{["A","B","C","D"][i]}</div>
+                    <div style={{fontSize:14,lineHeight:1.7,fontWeight:300,color:C.nearBlack,paddingTop:2}}>{opt}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:24}}>
-            <span style={{fontSize:12,color:C.midBlue,letterSpacing:"0.06em"}}>{qIndex+1} of {ITEMS.length}</span>
-            <Btn variant="dark" onClick={handleNext} style={{opacity:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?1:0.35,pointerEvents:(item[3]==="forced"?(mostSel!==null&&leastSel!==null):(selected!==null))?"auto":"none"}}>{qIndex===ITEMS.length-1?"Submit":"Continue"} →</Btn>
+
+            {/* Footer */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8}}>
+              <span style={{fontSize:12,color:C.midBlue,letterSpacing:"0.06em"}}>{qIndex+1} of {units.length}</span>
+              <Btn variant="dark" onClick={handleNext} style={{opacity:canContinue?1:0.35,pointerEvents:canContinue?"auto":"none"}}>{qIndex===units.length-1?"Submit":"Continue"} →</Btn>
+            </div>
+
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   if(screen==="complete") return (
     <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
@@ -2163,7 +2178,6 @@ export default function App() {
       ["map","Patterns Map"],
       ["domain","Pressure Conditions"],
       ["cross","Cross-Domain Insight"],
-      ["path","Development Path"],
     ];
     return (
       <div style={{fontFamily:"system-ui,sans-serif",background:C.offWhite,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
@@ -2194,11 +2208,11 @@ export default function App() {
                   const poles=DOMAIN_POLES[d];
                   return (
                     <div key={d}>
-                      <span style={{fontSize:12,fontWeight:700,color:C.nearBlack,letterSpacing:"0.03em",display:"block",marginBottom:6}}>{DOMAIN_NAMES[d]}</span>
+                      <span style={{fontSize:14,fontWeight:700,color:C.nearBlack,letterSpacing:"0.03em",display:"block",marginBottom:28}}>{DOMAIN_NAMES[d]}</span>
                       <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:4}}>
                         <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:`linear-gradient(to right,${C.warmWhite},${C.slate})`,borderRadius:3}}/>
                         <div style={{position:"absolute",top:"50%",left:`${pct}%`,transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:C.gold,border:`2px solid ${C.goldDark}`,boxShadow:"0 1px 3px rgba(0,0,0,0.15)"}}/>
-                        <div style={{position:"absolute",top:-22,left:`${pct}%`,transform:"translateX(-50%)",fontSize:11,fontWeight:700,color:C.slate,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]}</div>
+                        <div style={{position:"absolute",top:-24,left:`${pct}%`,transform:"translateX(-50%)",fontSize:11,fontWeight:700,color:C.slate,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]}</div>
                       </div>
                       <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
                         <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.left}</span>
@@ -2262,27 +2276,6 @@ export default function App() {
             );
           })()}
 
-          {reportTab==="path"&&(
-            <div>
-              <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:8}}>Development Path</h2>
-              <p style={{fontSize:14,color:C.midBlue,lineHeight:1.7,fontWeight:300,marginBottom:28,maxWidth:520}}>How leadership identity typically evolves across the developmental continuum.</p>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:2,marginBottom:32}}>
-                {[{l:"Execution Mode",d:"Direct involvement in results. Identity lives in the work itself.",bg:C.warmWhite,fg:C.deepCharcoal},{l:"Orchestration Mode",d:"Oversight and defensibility. Identity lives in competence and coverage.",bg:"#dce4e0",fg:C.deepCharcoal},{l:"Navigation Mode",d:"Managing how leadership appears. Identity lives in reputation and stance.",bg:"#b8c4cc",fg:C.deepCharcoal},{l:"Integration Mode",d:"Designing conditions for others. Identity lives in the health of the whole.",bg:C.slate,fg:C.offWhite}].map((s,i)=>(
-                  <div key={i} style={{background:s.bg,padding:"16px 14px"}}>
-                    <div style={{fontSize:12,fontWeight:600,color:s.fg,marginBottom:6}}>{s.l}</div>
-                    <div style={{fontSize:12,lineHeight:1.6,color:s.fg,opacity:0.85,fontWeight:300}}>{s.d}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{fontSize:14,lineHeight:1.85,color:C.nearBlack,fontWeight:300,maxWidth:580}}>
-                <p style={{marginBottom:14}}>Leadership development is not a single progression. Most leaders move through these orientations at different rates across different domains — and most operate from more than one orientation depending on context and pressure.</p>
-                <p>The domains in this inventory represent the five places where this progression becomes most visible for senior leaders. Development in any domain is not about acquiring a new skill — it is about a shift in where leadership identity stabilizes when pressure makes the tradeoff unavoidable.</p>
-              </div>
-              <div style={{marginTop:28,paddingTop:20,borderTop:`1px solid ${C.warmWhite}`}}>
-                <p style={{fontSize:12,color:C.midBlue,fontWeight:300}}>This inventory was developed by Jen Nguyen as part of the Enterprise Maturity Architecture framework. Results are intended for use within an active coaching relationship. · jnguyen.org</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );
