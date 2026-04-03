@@ -863,7 +863,7 @@ body {
       </div>
     </div>
     <div class="cover-summary">
-      <p class="cover-summary-label">Domain Summary</p>
+      <p class="cover-summary-label">Pressure Condition Summary</p>
       ${[1,2,3,4,5].map(d => `
         <div class="cover-summary-row">
           <span class="cover-domain-name">${DOMAIN_NAMES[d]}</span>
@@ -1042,11 +1042,11 @@ function Wheel({results}) {
   ];
   const RING_IDX={"1":0,"2a":1,"2b":2,"3":3};
   const DOMAINS=[
-    {id:1,name:"Contribution",        s:198,e:270},
-    {id:2,name:"Decision\nReasoning", s:270,e:342},
-    {id:3,name:"Authority",           s:342,e:414},
-    {id:4,name:"Enterprise\nHealth",  s:414,e:486},
-    {id:5,name:"Presence",            s:486,e:558},
+    {id:1,name:"As Visibility Shifts",        s:198,e:270},
+    {id:2,name:"As Certainty Fades", s:270,e:342},
+    {id:3,name:"As Control Decreases",           s:342,e:414},
+    {id:4,name:"As Priorities Diverge",  s:414,e:486},
+    {id:5,name:"As the Moment Intensifies",            s:486,e:558},
   ];
 
   function toRad(d){return d*Math.PI/180;}
@@ -1547,7 +1547,7 @@ const DOMAIN_CONTENT = {
 
     primary: {
       execution: `The impact on your team is front and center. You step in to represent them directly so that cost isn't overlooked or minimized. You make the implications visible and push for a path that doesn't leave them carrying the burden alone. Staying neutral doesn't feel acceptable when your team is affected.`,
-      orchestration: `Focus on how the tension between the team and the organization is being handled. You're less concerned with taking a side and more with making sure the tradeoff is being worked through in a clear and structured way. You clarify the reasoning behind the shift, how the decision is being made, and whether the implications for your team are fully understood. Your instinct is to make sure the decision process holds even when the stakes are high.`,
+      orchestration: `Focus on how the tension between the team and the organization is being handled. You're less concerned with taking a side and more with making sure the tradeoff is being worked through in a clear and structured way. You clarify the reasoning behind the shift, how the decision is being made, and whether the implications for your team are fully understood. Your focus is on making sure the decision process holds even when the stakes are high.`,
       navigation: `Focus on how your position is being interpreted by both your team and your peers. The moment requires you to represent your team while also maintaining credibility with the broader group. You calibrate how you respond so your team feels you are standing with them, while others see you as fair and balanced. It matters that your stance is read as appropriate in both directions.`,
       integration: `The pull to take a side isn't immediate. The strain on your team is real, but so is the broader need driving the change. You stay with the tradeoff and make it visible rather than resolving it too quickly in one direction. If the system-level direction holds, you support it even with local cost. Your team may expect more direct advocacy than you offer in that moment.`
     },
@@ -1622,7 +1622,7 @@ const DOMAIN_CONTENT = {
 
     primary: {
       execution: `Your focus goes to moving the moment forward. The tension in the room creates pressure to respond, and you step in directly to address the challenge and regain momentum. You clarify your position, respond to the concern, and work to bring the conversation back to a clear path. Letting the moment sit unresolved feels unproductive.`,
-      orchestration: `Focus on structuring the interaction so the conversation holds. The tension signals that something in how the discussion is unfolding isn't working, and your instinct is to reset it. You slow things down, clarify what's being debated, and guide the conversation into a more contained and productive format. Without that reset, the moment loses whatever clarity it had.`,
+      orchestration: `Focus on structuring the interaction so the conversation holds. The tension signals that something in how the discussion is unfolding isn't working, and your move is to reset it. You slow things down, clarify what's being debated, and guide the conversation into a more contained and productive format. Without that reset, the moment loses whatever clarity it had.`,
       navigation: `Focus on how you are showing up in the moment and how your response will be interpreted. The public nature of the challenge makes you aware of tone, timing, and how your reaction might land. You adjust how you engage so your response feels measured and steady, even as the tension rises. It matters that your presence reinforces credibility rather than escalating the situation.`,
       integration: `You don't respond right away. The tension signals that something important may not have been fully surfaced. You stay with the moment, asking questions and letting the exchange unfold before moving to resolution. Slowing things down helps you understand what's actually driving the reaction. The group may be ready to move before you are.`
     },
@@ -2017,7 +2017,7 @@ export default function App() {
         </div>
         <div style={{background:C.lightSage,padding:"64px 64px 64px 52px",display:"flex",flexDirection:"column",justifyContent:"center"}}>
           <p style={{fontSize:11,letterSpacing:"0.14em",textTransform:"uppercase",color:C.midBlue,fontWeight:500,marginBottom:24}}>What this measures</p>
-          {[{t:"Leadership Patterns Under Pressure",d:"Each domain represents a place where leadership patterns become visible when responsibility becomes consequential and the right answer is not obvious."},{t:"Five Domains",d:"Contribution · Reasoning · Authority · Loyalty · Presence"},{t:"Developmental Architecture",d:"Results show where your leadership patterns currently stabilize — and where the next developmental shift typically occurs."}].map((b,i)=>(
+          {[{t:"Leadership Patterns Under Pressure",d:"Each pressure condition represents a place where leadership patterns become visible when responsibility becomes consequential and the right answer is not obvious."},{t:"Five Pressure Conditions",d:"As Visibility Shifts · As Certainty Fades · As Control Decreases · As Priorities Diverge · As the Moment Intensifies"},{t:"Developmental Architecture",d:"Results show where your leadership patterns currently stabilize — and where the next developmental shift typically occurs."}].map((b,i)=>(
             <div key={i} style={{borderLeft:`2px solid ${C.slate}40`,paddingLeft:18,marginBottom:22}}>
               <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:400,color:C.deepCharcoal,marginBottom:4}}>{b.t}</div>
               <div style={{fontSize:13,lineHeight:1.7,color:C.nearBlack,fontWeight:300}}>{b.d}</div>
@@ -2161,7 +2161,7 @@ export default function App() {
     const REPORT_TABS=[
       ["intro","How Leadership Changes"],
       ["map","Patterns Map"],
-      ["domain","Domain Profiles"],
+      ["domain","Pressure Conditions"],
       ["cross","Cross-Domain Insight"],
       ["path","Development Path"],
     ];
@@ -2321,7 +2321,7 @@ export default function App() {
                 <div style={{overflowX:"auto"}}>
                   <table style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>
                     <thead>
-                      <tr>{["Participant","Completed","Contribution","Reasoning","Authority","Enterprise Health","Presence"].map(h=>(
+                      <tr>{["Participant","Completed","As Visibility Shifts","As Certainty Fades","As Control Decreases","As Priorities Diverge","As the Moment Intensifies"].map(h=>(
                         <th key={h} style={{fontFamily:"system-ui,sans-serif",fontSize:11,letterSpacing:"0.07em",textTransform:"uppercase",color:C.midBlue,fontWeight:500,padding:"9px 12px",textAlign:"left",borderBottom:`1px solid ${C.warmWhite}`,whiteSpace:"nowrap"}}>{h}</th>
                       ))}</tr>
                     </thead>
