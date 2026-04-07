@@ -231,7 +231,7 @@ function generatePDF(p) {
         </div>
       </div>
 
-      <div class="section-block avoid-break">
+      <div class="section-block">
         <h3 class="section-label">A Leadership Moment</h3>
         <p class="body-text">${dc.scenario}</p>
         <p class="body-text framing-line"><em>${framingLine}</em></p>
@@ -774,7 +774,7 @@ body {
 
 /* ── PRINT ── */
 @media print {
-  @page { size: A4 portrait; margin: 14mm 16mm 14mm 16mm; }
+  @page { size: A4 portrait; margin: 0; }
   html { font-size: 9pt; }
   body { background: white; }
 
@@ -807,14 +807,14 @@ body {
     break-after: avoid;
   }
 
-  /* Tighter padding in print */
+  /* Tighter padding in print — compensate for zero page margins */
   .cover-page, .intro-page, .map-page, .synthesis-page {
-    padding: 40px 48px 32px;
+    padding: 54px 64px;
   }
-  .domain-section { padding: 0 0 32px; }
-  .domain-header { padding: 18px 48px; }
-  .section-block { padding: 0 48px; margin-bottom: 20px; }
-  .domain-continuum { padding: 0 48px; margin-bottom: 20px; }
+  .domain-section { padding: 40px 0 40px; }
+  .domain-header { padding: 18px 64px; }
+  .section-block { padding: 0 64px; margin-bottom: 20px; }
+  .domain-continuum { padding: 0 64px; margin-bottom: 20px; }
 
   /* Tighter body text in print */
   .body-text { font-size: 9pt; line-height: 1.7; margin-bottom: 8px; }
@@ -828,6 +828,20 @@ body {
 
   /* No footer for now — avoid fixed positioning issues */
   .page-footer { display: none; }
+
+  /* Synthesis page — tighten to fit on one page */
+  .synthesis-inner { padding: 36px 64px 0; }
+  .synthesis-page { min-height: auto; }
+  .synthesis-title { font-size: 18pt; margin-bottom: 20px; }
+  .synthesis-domain-grid { margin-bottom: 22px; }
+  .synthesis-domain-row { padding: 7px 0; }
+  .synthesis-domain-name { font-size: 9.5pt; }
+  .synthesis-section { margin-bottom: 14px; padding: 10px 16px; }
+  .synthesis-section-label { margin-bottom: 6px; }
+  .synthesis-body { font-size: 9pt; line-height: 1.65; }
+  .synthesis-question { margin: 14px 0 0; padding: 12px 18px; }
+  .synthesis-question-text { font-size: 10pt; line-height: 1.6; }
+  .synthesis-footer { margin-top: 18px; }
 
   /* Force background colors */
   .cover-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -871,7 +885,7 @@ body {
     <p class="intro-subhead">What drives your leadership under pressure</p>
     <div class="intro-block">
       <p>This report describes how your leadership shows up across five domains — situations where pressure makes tradeoffs unavoidable. In these moments, leaders tend to narrow and fall back on familiar ways of leading.</p>
-      <p>The patterns here are not measures of capability. They describe what you rely on when pressure rises, where your confidence comes from, and what you are trying to protect.</p>
+      <p>The patterns here are not measures of capability. They describe what you rely on when pressure rises, where your confidence comes from, and what you are trying to protect. The goal is not to evaluate you, but to make the pattern visible enough to work with.</p>
     </div>
     <h3 class="intro-section-head">The Four Leadership Orientations</h3>
     <div class="intro-block">
@@ -910,11 +924,6 @@ body {
           <span class="domain-intro-name">${DOMAIN_NAMES[d]}</span>
           <span class="domain-intro-tension">${DOMAIN_TENSIONS[d]}</span>
         </div>`).join('')}
-    </div>
-    <h3 class="intro-section-head">How to Read This Report</h3>
-    <div class="intro-block">
-      <p>The orientations in this report are not a ranking. Most leaders rely on different orientations in different domains.</p>
-      <p>This report shows where your leadership tends to orient when the situation becomes difficult, what that makes possible, and what it limits. The goal is not to evaluate you, but to make the pattern visible enough to work with.</p>
     </div>
   </div>
 
