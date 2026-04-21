@@ -293,7 +293,7 @@ body {
   height: 8px;
   display: none;
 }
-.cover-inner { padding: 64px 64px 0; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.cover-inner { padding: 64px 64px 0; flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
 .cover-eyebrow {
   font-family: system-ui, sans-serif;
   font-size: 8pt;
@@ -326,10 +326,7 @@ body {
   margin-bottom: 56px;
 }
 .cover-summary {
-  background: #f4f6f1;
-  border-left: 4px solid #1f2328;
-  padding: 24px 28px;
-  margin: 0 64px 32px;
+  margin-top: 48px;
 }
 .cover-summary-label {
   font-family: system-ui, sans-serif;
@@ -337,19 +334,37 @@ body {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #4a6274;
-  margin-bottom: 16px;
+  margin-bottom: 6px;
 }
+.cover-summary-title {
+  font-family: Georgia, serif;
+  font-size: 20pt;
+  font-weight: 300;
+  color: #1f2328;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+.cover-summary-grid { }
 .cover-summary-row {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  padding: 8px 0;
+  align-items: center;
+  padding: 10px 0;
   border-bottom: 1px solid #e8e6e2;
   font-size: 9.5pt;
 }
 .cover-summary-row:last-child { border-bottom: none; }
-.cover-domain-name { color: #313130; font-weight: 300; }
-.cover-orient { color: #4a6274; font-family: system-ui, sans-serif; font-size: 8pt; font-weight: 700; }
+.cover-domain-name { font-weight: 300; color: #313130; }
+.cover-tension { font-family: system-ui, sans-serif; font-size: 8pt; color: #8596a2; font-weight: 300; margin-left: 12px; }
+.cover-orient {
+  font-family: system-ui, sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  color: #ffffff;
+  background: #4a6274;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
 .cover-footer {
   font-family: system-ui, sans-serif;
   font-size: 7.5pt;
@@ -403,78 +418,6 @@ body {
   border-left: 3px solid #4a6274;
 }
 .intro-note p { font-size: 9.5pt; line-height: 1.7; color: #313130; font-family: system-ui, sans-serif; font-weight: 300; }
-
-/* ── MAP PAGE ── */
-.map-page {
-  min-height: 100vh;
-  background: #f8f7f5;
-  padding: 64px 64px 48px;
-}
-.orientation-legend {
-  display: flex;
-  gap: 0;
-  margin-bottom: 32px;
-  border: 1px solid #e8e6e2;
-}
-.legend-item {
-  flex: 1;
-  padding: 10px 14px;
-  border-right: 1px solid #e8e6e2;
-  font-family: system-ui, sans-serif;
-}
-.legend-item:last-child { border-right: none; }
-.legend-label { font-size: 7.5pt; font-weight: 600; color: #1f2328; letter-spacing: 0.04em; }
-.legend-sub { font-size: 7pt; color: #8596a2; font-weight: 300; margin-top: 2px; }
-.map-continuum-wrap { margin-bottom: 28px; }
-.map-bar-domain { font-family: system-ui, sans-serif; font-size: 9.5pt; font-weight: 700; color: #1f2328; margin-bottom: 18px; }
-.map-bar-track-wrap { position: relative; margin-bottom: 6px; padding-top: 18px; }
-.map-bar-orient {
-  position: absolute;
-  top: 0;
-  font-family: system-ui, sans-serif;
-  font-size: 7.5pt;
-  font-weight: 700;
-  color: #4a6274;
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
-.map-bar-track {
-  position: relative;
-  height: 5px;
-  background: #e8e6e2;
-  border-radius: 3px;
-  margin-bottom: 5px;
-}
-.map-bar-fill {
-  position: absolute;
-  left: 0; top: 0; height: 100%;
-  background: linear-gradient(to right, #e8e6e2, #4a6274);
-  border-radius: 3px;
-}
-.map-bar-dot {
-  position: absolute;
-  top: 50%; transform: translate(-50%, -50%);
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: #c8a84a;
-  border: 2px solid #a88830;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
-}
-.map-bar-poles {
-  display: flex;
-  justify-content: space-between;
-  font-family: system-ui, sans-serif;
-  font-size: 7.5pt;
-  color: #8596a2;
-  font-weight: 300;
-}
-.map-note {
-  margin-top: 16px;
-  padding: 16px 20px;
-  border-left: 3px solid #4a6274;
-  background: #f4f6f1;
-}
-.map-note p { font-family: system-ui, sans-serif; font-size: 9pt; color: #4a6274; font-weight: 300; line-height: 1.7; }
 
 /* ── DOMAIN SECTIONS ── */
 .domain-section {
@@ -783,7 +726,6 @@ body {
   /* Each major section starts on a new page */
   .cover-page,
   .intro-page,
-  .map-page,
   .page-break-before,
   .synthesis-page {
     page-break-before: always;
@@ -795,8 +737,7 @@ body {
   .avoid-break,
   .orientation-row,
   .synthesis-section,
-  .pull-quote,
-  .map-continuum-wrap {
+  .pull-quote {
     page-break-inside: avoid;
     break-inside: avoid;
   }
@@ -808,7 +749,7 @@ body {
   }
 
   /* Tighter padding in print — compensate for zero page margins */
-  .cover-page, .intro-page, .map-page, .synthesis-page {
+  .cover-page, .intro-page, .synthesis-page {
     padding: 54px 64px;
   }
   .domain-section { padding: 40px 0 40px; }
@@ -846,7 +787,6 @@ body {
   /* Force background colors */
   .cover-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .intro-page { background: #f4f6f1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .map-page { background: #f8f7f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .domain-section { background: #f8f7f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .synthesis-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -866,14 +806,20 @@ body {
         <div class="cover-rule"></div>
         <p class="cover-quote">"Leadership becomes visible when pressure makes tradeoffs unavoidable."</p>
       </div>
-    </div>
-    <div class="cover-summary">
-      <p class="cover-summary-label">Pressure Condition Summary</p>
-      ${[1,2,3,4,5].map(d => `
-        <div class="cover-summary-row">
-          <span class="cover-domain-name">${DOMAIN_NAMES[d]}</span>
-          <span class="cover-orient">${ORIENTATION_LABELS[p.results[d].placement] || p.results[d].placement}</span>
-        </div>`).join('')}
+      <div class="cover-summary">
+        <p class="cover-summary-label">Your Leadership Pattern Summary</p>
+        <h2 class="cover-summary-title">Pattern Summary</h2>
+        <div class="cover-summary-grid">
+          ${[1,2,3,4,5].map(d => `
+            <div class="cover-summary-row">
+              <div>
+                <span class="cover-domain-name">${DOMAIN_NAMES[d]}</span>
+                <span class="cover-tension">${DOMAIN_TENSIONS[d]}</span>
+              </div>
+              <span class="cover-orient">${ORIENTATION_LABELS[p.results[d].placement] || p.results[d].placement}</span>
+            </div>`).join('')}
+        </div>
+      </div>
     </div>
     <p class="cover-footer">Jen Nguyen · Executive Coaching · jnguyen.org</p>
   </div>
@@ -927,54 +873,7 @@ body {
     </div>
   </div>
 
-  <!-- PAGE 3: PATTERNS MAP -->
-  <div class="map-page">
-    <p class="page-eyebrow">Leadership Development Map</p>
-    <h2 class="page-title">Your Leadership Patterns</h2>
-    <div class="orientation-legend">
-      <div class="legend-item">
-        <div class="legend-label">Execution Mode</div>
-        <div class="legend-sub">Direct connection to results</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-label">Orchestration Mode</div>
-        <div class="legend-sub">Visibility into how work unfolds</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-label">Navigation Mode</div>
-        <div class="legend-sub">How leadership is understood</div>
-      </div>
-      <div class="legend-item">
-        <div class="legend-label">Integration Mode</div>
-        <div class="legend-sub">Soundness of the underlying logic</div>
-      </div>
-    </div>
-    ${[1,2,3,4,5].map(d => {
-      const placement = p.results[d].placement;
-      const pct = { "1": 15, "2a": 38, "2b": 63, "3": 85 }[placement] || 0;
-      const poles = DOMAIN_POLES[d];
-      return `
-      <div class="map-continuum-wrap">
-        <div class="map-bar-domain">${DOMAIN_NAMES[d]}</div>
-        <div class="map-bar-track-wrap">
-          <div class="map-bar-orient" style="left:${pct}%">${ORIENTATION_LABELS[placement] || placement}</div>
-          <div class="map-bar-track">
-            <div class="map-bar-fill" style="width:${pct}%"></div>
-            <div class="map-bar-dot" style="left:${pct}%"></div>
-          </div>
-        </div>
-        <div class="map-bar-poles">
-          <span>${poles.left}</span>
-          <span>${poles.right}</span>
-        </div>
-      </div>`;
-    }).join('')}
-    <div class="map-note">
-      <p>Each bar reflects the tension your leadership navigates in that domain — and where your responses most often landed. The dot shows your current orientation placement. These patterns reflect tendencies under pressure, not fixed traits.</p>
-    </div>
-  </div>
-
-  <!-- PAGES 4–8: DOMAIN SECTIONS -->
+  <!-- PAGES 3–7: DOMAIN SECTIONS -->
   ${[1,2,3,4,5].map(d => domainSection(d)).join('\n')}
 
   <!-- FINAL PAGE: SYNTHESIS -->
@@ -2169,7 +2068,6 @@ export default function App() {
   if(screen==="report"&&selectedP) {
     const REPORT_TABS=[
       ["intro","How Leadership Changes"],
-      ["map","Patterns Map"],
       ["domain","Pressure Conditions"],
       ["cross","Cross-Domain Insight"],
     ];
@@ -2189,39 +2087,6 @@ export default function App() {
           </div>
 
           {reportTab==="intro"&&<IntroPage/>}
-
-          {reportTab==="map"&&(
-            <div>
-              <h2 style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:300,color:C.deepCharcoal,marginBottom:8}}>Your Leadership Patterns Map</h2>
-              <p style={{fontSize:14,color:C.midBlue,lineHeight:1.7,fontWeight:300,marginBottom:32,maxWidth:560}}>Each line represents a leadership tension that becomes more visible when the stakes are high. The dot shows where your responses most often landed along that continuum.</p>
-              <div style={{display:"flex",flexDirection:"column",gap:28,maxWidth:640}}>
-                {[1,2,3,4,5].map(d=>{
-                  const placement=selectedP.results[d].placement;
-                  const pos=ORIENTATION_ORDER[placement]||0;
-                  const pct=[15,38,63,85][pos];
-                  const poles=DOMAIN_POLES[d];
-                  return (
-                    <div key={d}>
-                      <span style={{fontSize:14,fontWeight:700,color:C.nearBlack,letterSpacing:"0.03em",display:"block",marginBottom:28}}>{DOMAIN_NAMES[d]}</span>
-                      <div style={{position:"relative",height:6,background:C.warmWhite,borderRadius:3,marginBottom:4}}>
-                        <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:`linear-gradient(to right,${C.warmWhite},${C.slate})`,borderRadius:3}}/>
-                        <div style={{position:"absolute",top:"50%",left:`${pct}%`,transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:C.gold,border:`2px solid ${C.goldDark}`,boxShadow:"0 1px 3px rgba(0,0,0,0.15)"}}/>
-                        <div style={{position:"absolute",top:-24,left:`${pct}%`,transform:"translateX(-50%)",fontSize:11,fontWeight:700,color:C.slate,whiteSpace:"nowrap"}}>{ORIENTATION_LABELS[placement]}</div>
-                      </div>
-                      <div style={{display:"flex",justifyContent:"space-between",marginTop:8}}>
-                        <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.left}</span>
-                        <span style={{fontSize:11,color:C.midBlue,fontWeight:300}}>{poles.right}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{height:1,background:C.warmWhite,margin:"36px 0"}}/>
-              <div style={{background:C.lightSage,padding:"20px 24px",borderLeft:`2px solid ${C.slate}`,maxWidth:640}}>
-                <p style={{fontSize:14,lineHeight:1.8,color:C.nearBlack,fontWeight:300}}>These patterns are not fixed. They reflect where your leadership currently tends to default when responsibility becomes difficult to carry. The goal is not to evaluate capability, but to make these tendencies visible.</p>
-              </div>
-            </div>
-          )}
 
           {reportTab==="domain"&&(
             <div>
