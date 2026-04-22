@@ -709,6 +709,88 @@ body {
   font-style: italic;
 }
 
+/* ── PRACTICE PAGE (From Pattern to Agency) ── */
+.practice-page {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 0 0 48px;
+  color: #313130;
+  border-top: 6px solid #c8a84a;
+}
+.practice-inner { padding: 48px 64px 0; }
+.practice-title {
+  font-size: 22pt;
+  font-weight: 300;
+  color: #1f2328;
+  margin-bottom: 28px;
+  line-height: 1.2;
+}
+.practice-body {
+  font-family: system-ui, sans-serif;
+  font-size: 10pt;
+  line-height: 1.75;
+  color: #313130;
+  font-weight: 300;
+  margin-bottom: 14px;
+}
+.practice-body strong {
+  font-weight: 700;
+  color: #1f2328;
+}
+.practice-section {
+  margin: 28px 0 24px;
+  padding: 20px 24px;
+  background: #f4f6f1;
+  border-left: 3px solid #c8a84a;
+}
+.practice-section-head {
+  font-family: Georgia, serif;
+  font-size: 13pt;
+  font-weight: 700;
+  color: #1f2328;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+.practice-subtitle {
+  font-family: Georgia, serif;
+  font-size: 16pt;
+  font-weight: 700;
+  color: #1f2328;
+  margin: 36px 0 16px;
+  line-height: 1.25;
+}
+.practice-step {
+  margin-bottom: 24px;
+  padding: 20px 24px;
+  background: #f8f7f5;
+  border-left: 3px solid #4a6274;
+}
+.practice-step-head {
+  font-family: Georgia, serif;
+  font-size: 14pt;
+  font-weight: 700;
+  color: #1f2328;
+  margin-bottom: 12px;
+}
+.practice-prompt {
+  font-family: Georgia, serif;
+  font-size: 11pt;
+  font-style: italic;
+  color: #1f2328;
+  margin: 18px 0 10px;
+  line-height: 1.5;
+}
+.practice-write-line {
+  border-bottom: 1px solid #b0b0b0;
+  height: 26px;
+  margin-bottom: 5px;
+}
+.practice-close {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e8e6e2;
+}
+
 /* ── SCREEN: show section dividers ── */
 @media screen {
   .domain-section { border-top: 4px solid #1f2328; }
@@ -784,11 +866,26 @@ body {
   .synthesis-question-text { font-size: 10pt; line-height: 1.6; }
   .synthesis-footer { margin-top: 18px; }
 
+  /* Practice page — print tightening */
+  .practice-page { min-height: auto; }
+  .practice-inner { padding: 36px 64px 32px; }
+  .practice-title { font-size: 18pt; margin-bottom: 20px; }
+  .practice-body { font-size: 9pt; line-height: 1.65; margin-bottom: 10px; }
+  .practice-section { margin: 20px 0 18px; padding: 14px 18px; }
+  .practice-section-head { font-size: 11.5pt; margin-bottom: 10px; }
+  .practice-subtitle { font-size: 14pt; margin: 24px 0 12px; }
+  .practice-step { margin-bottom: 18px; padding: 14px 18px; }
+  .practice-step-head { font-size: 12pt; margin-bottom: 9px; }
+  .practice-prompt { font-size: 10pt; margin: 14px 0 8px; }
+  .practice-write-line { height: 22px; margin-bottom: 5px; }
+  .practice-close { margin-top: 22px; padding-top: 16px; }
+
   /* Force background colors */
   .cover-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .intro-page { background: #f4f6f1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .domain-section { background: #f8f7f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .synthesis-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .practice-page { background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
@@ -906,6 +1003,80 @@ body {
       <div class="synthesis-question">
         <p class="synthesis-question-label">A question worth sitting with</p>
         <p class="synthesis-question-text">${syn.question}</p>
+      </div>
+    </div>
+    <div class="synthesis-footer">Jen Nguyen · Executive Coaching · jnguyen.org</div>
+  </div>
+
+  <!-- FINAL PAGES: PRACTICE (From Pattern to Agency) -->
+  <div class="practice-page page-break-before">
+    <div class="practice-inner">
+      <p class="page-eyebrow">Practice</p>
+      <h2 class="practice-title">From Pattern to Agency</h2>
+
+      <p class="practice-body">In this section you will learn a practice that helps you access more of your capacity under pressure, rather than defaulting. This is not a one-time exercise. With repetition, the practice becomes internal. You can access it in real time, when it matters.</p>
+
+      <p class="practice-body">The profile above describes what your leadership does under pressure. It does not tell you what to do about it.</p>
+
+      <p class="practice-body">That is deliberate. No mode is better than another. <strong>Execution Mode</strong>, <strong>Orchestration Mode</strong>, <strong>Navigation Mode</strong>, and <strong>Integration Mode</strong> each surface for a reason, and each carries its own strengths and costs. What matters is not which mode you default to. What matters is whether you are defaulting or choosing.</p>
+
+      <p class="practice-body">The pattern is not the problem. The danger is when the pattern is in the driver's seat instead of you.</p>
+
+      <p class="practice-body">The practice that follows is not about becoming a different kind of leader. It's about building your capacity to notice your default in the moment it is happening, so you can act with intention rather than letting the pattern drive.</p>
+
+      <div class="practice-section avoid-break">
+        <p class="practice-section-head">Before moving into the practice, choose your starting point.</p>
+        <p class="practice-body">Look back at your Pattern Summary. It shows your default mode in five different pressure situations. Choose one row — one pressure situation and the default mode that shows up there — to hold as the focus of this practice.</p>
+        <p class="practice-body">The choice is yours. You might choose the row that surprised you. Or the one where the cost feels most present. Or the one you are most curious to see running. What matters is not the criterion. What matters is that the choice is yours, and that the row is one you actually want to see more clearly.</p>
+        <p class="practice-prompt">Which row did you choose, and what's important about that?</p>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+      </div>
+
+      <h3 class="practice-subtitle">The Practice</h3>
+
+      <p class="practice-body">Awareness is where the work begins. Without it, responses default to habit, conditioning, and automatic impulse. The leader is still making the call. But from pattern, not deliberate choice.</p>
+
+      <p class="practice-body">This practice builds that awareness. It has three steps. They are not a checklist and they do not have to be done in order. Each one is available to you in real time, in the pressure of a live moment.</p>
+
+      <div class="practice-step avoid-break">
+        <p class="practice-step-head">Notice.</p>
+        <p class="practice-body">Start by learning the signals that your default is activating. The body often knows before the mind does. Tight jaw. Shallow breath. A particular kind of forward lean, or a particular kind of stillness. A sentence that forms in your head before you have decided whether to say it.</p>
+        <p class="practice-body">The question is not <em>am I under pressure</em>. The question is <em>what does my default feel like when it is beginning to run</em>.</p>
+        <p class="practice-prompt">What signals indicate that your default is activated? What do you notice in your body, your thinking, or your speech?</p>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+      </div>
+
+      <div class="practice-step avoid-break">
+        <p class="practice-step-head">Pause.</p>
+        <p class="practice-body">A pause is not a stop. It is a gap wide enough to let awareness catch up. One moment where you take charge of your attention so the automatic sentence does not leave your mouth.</p>
+        <p class="practice-body">Engaging your senses can help your nervous system settle so you can stay present, instead of defaulting. For example: subtly lengthen your out-breath, or feel the weight of your body in the chair or on the ground.</p>
+        <p class="practice-body">This is the move the report cannot do for you. The pattern will run unless something interrupts it, and what interrupts it is you.</p>
+        <p class="practice-prompt">What do you notice when you pause, even now?</p>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+      </div>
+
+      <div class="practice-step avoid-break">
+        <p class="practice-step-head">Ask.</p>
+        <p class="practice-body">Once there is a pause, one question: <em>am I defaulting or choosing right now?</em></p>
+        <p class="practice-body">The answer is not the point. The asking is. Each time you ask, you build the capacity to see your default while it is happening. Over time, that seeing becomes available to you earlier — before the pattern has fully taken the wheel.</p>
+        <p class="practice-prompt">What is clearer to you now?</p>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+      </div>
+
+      <div class="practice-close avoid-break">
+        <p class="practice-body">Awareness is the ground everything else grows from. Acting differently under pressure is a further capacity, one that builds over time and usually with support. For now, the practice is to notice when the pattern is driving. From there, taking the wheel becomes possible.</p>
+        <p class="practice-prompt">What are you learning about yourself?</p>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
+        <div class="practice-write-line"></div>
       </div>
     </div>
     <div class="synthesis-footer">Jen Nguyen · Executive Coaching · jnguyen.org</div>
