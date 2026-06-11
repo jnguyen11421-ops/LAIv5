@@ -1,4 +1,15 @@
-// LPP Assessment Items — v18 Restoration
+// LPP Assessment Items — v19 Item Rewrite Pass
+// Applies the approved rewrites from LPP_Item_Improvement_Plan.md (WS1, WS2, WS3)
+// on top of the v18 baseline + the six interim revisions from items (4).js.
+// Changed options: D1-Q1 B, D1-Q3 C, D1-Q4 D, D2-Q5 B/C/D, D2-Q6 C, D2-Q7 D,
+//   D3-Q12 D, D4-Q16 C/D, D5-Q17 C, D5-Q18 C, D5-Q19 B/C/D, D5-Q20 C/D.
+//   D2-Q7 D re-anchored to Integration ("information, not crisis") per the
+//   Pattern Descriptions doc — approved.
+// WS6: unit-level scenario stems added to SCENARIO_TEXT (9 units; D1-U2 is
+//   self-contained). D3-Q11 prompt trimmed (boss-concern context moved to stem).
+//
+// Previous header (v18) retained below for history:
+// v18 Restoration
 // This version reverts the v17 "Universal Prompt Redesign," which replaced the
 // original 20 scenario-grounded items with 24 generic, self-contained items and
 // new (unreviewed) response options. That rewrite was out of scope.
@@ -24,9 +35,20 @@
 //   D5 — As the Moment Intensifies | Tension: Reaction ↔ Curiosity
 
 // ── SCENARIO TEXT ──
-// Items are self-contained per the approved audit. Retained as empty object
-// for structural compatibility with the app's rendering code.
-const SCENARIO_TEXT = {};
+// WS6: unit-level scenario stems, keyed by unitId. Rendered once above each
+// unit's two items (App renders unit.scenarioText when non-null).
+// D1-U2 has no stem — its prompts (D1-Q3/Q4) are fully self-contained.
+const SCENARIO_TEXT = {
+  "D1-U1": "You and a peer co-built a major proposal over the past month. You learn — secondhand — that your peer is presenting it to senior leadership this morning as a near-final recommendation.",
+  "D2-U1": "In a leadership meeting, a decision lands on you. The data is incomplete, every option carries real risk, and the room has turned to look at you.",
+  "D2-U2": "A call you made with conviction has turned out to be wrong. The analysis everyone signed off on had a flaw, and the cost is now visible.",
+  "D3-U1": "You delegated a high-visibility project to a strong direct report. Midway through, you can see calls being made that you wouldn't have made — not wrong, exactly, but not how you'd do it.",
+  "D3-U2": "Three months ago you handed a major workstream to a direct report — publicly and deliberately. Your boss has just told you they're concerned about how some of the decisions are being made.",
+  "D4-U1": "The organization has set a new priority that lands hard on your team: more work, fewer resources, and a direction some of them argued against. The decision is final.",
+  "D4-U2": "The rollout is underway. Your team's resistance hasn't gone away, and your boss expects you to carry the priority without daylight between you and the organization.",
+  "D5-U1": "A team member you trust asks for twenty minutes. A few minutes in, it's clear this isn't a status update — they're telling you something difficult about how the last few months have been for them.",
+  "D5-U2": "In a team meeting, a normally even-keeled team member pushes back hard on a decision you made — voice raised, visibly frustrated, in front of everyone.",
+};
 
 // ── ASSESSMENT ITEMS ──
 // Format:
@@ -40,7 +62,7 @@ const ITEMS_SOURCE = [
   ["D1-Q1", 1, 1, "forced", null,
     "Your boss is in that room right now. You have about ten minutes before the presentation starts. Select the response MOST like you and LEAST like you.",
     ["I call my boss. Ten minutes is enough to at least get on the same page before they're in the room.",
-     "I open the deck and go through it. If the structure is off, I want to know before it gets in front of that group.",
+     "I find out how it's being presented — what's being shown, in what order, and whether it's framed as final or as a draft. What happens next depends on that.",
      "I check whether my name is on it. If it's not, that's a conversation I need to have with my boss — just not right now.",
      "I don't do anything. Either the argument is solid enough to survive the room on its own, or it isn't."],
     ["outcome", "process", "identity", "system"]],
@@ -73,16 +95,16 @@ const ITEMS_SOURCE = [
   ["D2-Q5", 2, 1, "forced", null,
     "You have thirty seconds before the silence becomes its own answer. Select the response MOST like you and LEAST like you.",
     ["I take a position. We have enough. The longer we sit here, the more this costs us.",
-     "I start talking through where I actually am. I'm not ready to give a clean answer — I'd rather show my thinking than manufacture certainty.",
-     "I take a beat and read the room. I want a sense of who's already dug in before I put myself out there.",
-     "I say what I'm still working through. I'm not going to manufacture certainty I don't have just because the room is waiting."],
+     "I lay out how we get to an answer — what we know, what's still missing, and what would settle it. If I can't give the room certainty, I can give it a path.",
+     "I ask the room a question first — partly because I need the answer, partly because I want to know where people stand before I plant a flag.",
+     "I let the pause sit. The room being uncomfortable isn't the same as the decision being ready, and I'm not going to let the first one decide the second."],
     ["outcome", "process", "identity", "system"]],
 
   ["D2-Q6", 2, 2, "single", null,
     "After the meeting, a peer tells you your reasoning was hard to follow. You replay the conversation in your head. Which response is most like you?",
     ["I wonder if I overthought it. Maybe I should have just led with a call rather than all the reasoning.",
      "I go back through it. If it was hard to follow, there's a gap somewhere — I need to find where.",
-     "I replay it. I know what I was trying to say — I'm trying to figure out where I lost them.",
+     "What stays with me is how it landed. 'Hard to follow' has a way of becoming 'I'm not sure about their judgment,' and I want to get ahead of that.",
      "I take it seriously. If it was hard to follow, that might be telling me something about the thinking itself — not just how I explained it."],
     ["outcome", "process", "identity", "system"]],
 
@@ -91,7 +113,7 @@ const ITEMS_SOURCE = [
     ["I focus on what's next. I'd rather spend ten minutes on what went wrong and the rest on what we do about it.",
      "I go back through it before I'm in front of anyone. I need to know exactly where the reasoning failed.",
      "I think carefully about how to walk them through it. I need to be honest about what went wrong without it reading like I didn't know what I was doing.",
-     "I go in prepared to be direct about it. If there was a flaw in the analysis, I'd rather name it plainly than have someone else find it."],
+     "I walk them through it as information, not damage control. What happened tells us something — about the decision, the conditions, maybe how we make calls like this — and that's worth more to the room than a clean defense."],
     ["outcome", "process", "identity", "system"]],
 
   ["D2-Q8", 2, 4, "single", null,
@@ -120,7 +142,7 @@ const ITEMS_SOURCE = [
     ["outcome", "process", "identity", "system"]],
 
   ["D3-Q11", 3, 3, "forced", null,
-    "Your boss has raised it. Your direct report doesn't know yet. Select the response MOST like you and LEAST like you.",
+    "Your direct report doesn't know yet. Select the response MOST like you and LEAST like you.",
     ["I pull back some of what I handed off. If this is how it's landing with my boss, the delegation went too far.",
      "I map out what I handed off and what I kept, so I can walk my boss through the reasoning before I decide what to change.",
      "I think through what to say to my boss. I need to show I understand the concern — but without making it sound like I've been out of the loop.",
@@ -132,7 +154,7 @@ const ITEMS_SOURCE = [
     ["I take back the decisions that should have stayed with me. The delegation was wrong and I need to correct it.",
      "I sit down with them and redraw the line — what's theirs, what's mine, and what comes back through me from here.",
      "I think about how to have this conversation without it landing as a withdrawal of confidence. I gave them real ownership — I don't want this to feel like I'm taking it back.",
-     "I'm honest with them — including about where my own judgment fell short. I handed them something I maybe wasn't ready to hand off, and that's on me too."],
+     "I'm honest about my part in it — and I'm more interested in what this revealed about how we both make calls than in deciding whose fault it was."],
     ["outcome", "process", "identity", "system"]],
 
   // ── DOMAIN 4: PRIORITIES ──
@@ -164,8 +186,8 @@ const ITEMS_SOURCE = [
     "You bring the priority to your team. The pushback is immediate and pointed. A respected team member says directly: \"I don't think you actually believe in this either.\" Which response is most like you?",
     ["I answer directly. I tell them where I actually stand and that we're moving forward regardless.",
      "I redirect to specifics — what's on the table and what isn't. I want to separate real concerns from ones about a decision that's already been made.",
-     "I take a beat. The rest of the room is watching and what I say next is going to shape how the rest of this conversation goes.",
-     "I don't deflect it. There's something true in what they said and I'd rather acknowledge that than talk past it."],
+     "I answer evenly, with the whole room in mind. What I say to this one person is really being said to everyone watching.",
+     "I don't deflect it. Before I answer, I want to understand what they're seeing that made them say it — that read came from somewhere."],
     ["outcome", "process", "identity", "system"]],
 
   // ── DOMAIN 5: PRESENCE ──
@@ -173,7 +195,7 @@ const ITEMS_SOURCE = [
     "They've just said something that lands harder than anything else in the conversation. The room is quiet. Select the response MOST like you and LEAST like you.",
     ["I respond to it. I name what I just heard and ask what they need from me right now.",
      "I slow it down. I ask a question — not to redirect, but to make sure I understand what they're actually telling me before I respond.",
-     "I'm aware that how I respond in the next few seconds is going to determine whether this opens or closes.",
+     "I respond — but I choose the words carefully. They'll remember how I handled this longer than they'll remember anything said before it.",
      "I don't move to fix it or reframe it. I stay with what they said. I want to understand what's underneath it before I do anything."],
     ["outcome", "process", "identity", "system"]],
 
@@ -181,24 +203,24 @@ const ITEMS_SOURCE = [
     "The twenty minutes is up. The conversation isn't resolved. They're still in it emotionally. Your next meeting is with your boss. Which response is most like you?",
     ["I wrap it up. I tell them I heard them, I'll follow up, and I have to go.",
      "I name where we are — what got said, what's still open, and when we're coming back to it. I want them to know it isn't just being dropped.",
-     "I'm thinking about how this ends for them. I don't want to walk out and leave them feeling like I just handled a situation.",
+     "I take the extra two minutes to land it well. How they feel when they walk out of this room will shape the relationship more than anything I said in it.",
      "I don't push to a close. If the conversation needs more time, I weigh in the moment whether the next meeting can slide."],
     ["outcome", "process", "identity", "system"]],
 
   ["D5-Q19", 5, 3, "forced", null,
     "The room is waiting. The team member is still visibly activated. Select the response MOST like you and LEAST like you.",
     ["I address it. I acknowledge what just happened and move the group forward — it doesn't need to derail everything.",
-     "I slow the meeting down. I name what just happened and give it a few minutes before I try to move on.",
-     "I'm aware the group is watching me. I don't want to overreact, but I also don't want to brush past it.",
-     "I don't move to contain it. Something just surfaced and I'm not ready to say what it means yet. I give it room."],
+     "I name what just happened and put structure around it — a few minutes for it now, a real conversation after. It needs a container, not just air.",
+     "I acknowledge it evenly and keep the group steady. The room is taking its cue from me right now.",
+     "I don't move to contain it. Something just surfaced and I'm not ready to say what it means yet. I give it room — even if that costs us the agenda."],
     ["outcome", "process", "identity", "system"]],
 
   ["D5-Q20", 5, 4, "single", null,
     "The team member has said what they needed to say. The room is still quiet. The emotion hasn't fully left. Which response is most like you?",
     ["I acknowledge it and move us forward. The work is still there and we need to get back to it.",
      "I name where we are — what just happened, what's still open, what we're doing next.",
-     "I'm careful about the next thing I say. The room is still in it and I don't want to misdirect it.",
-     "I don't rush it. Something real just happened in this room and I'd rather give it a moment than move past it too fast."],
+     "I say something measured — enough to honor what happened without reopening it.",
+     "I don't rush it. If the next agenda item slips, it slips. Something real just happened, and pushing past it would cost more than ten minutes."],
     ["outcome", "process", "identity", "system"]],
 ];
 
@@ -258,7 +280,7 @@ function buildShuffledUnits() {
       result.push({
         unitId: unit.unitId,
         domain: unit.domain,
-        scenarioText: null,
+        scenarioText: SCENARIO_TEXT[unit.unitId] || null,
         items: unit.items.map(id => itemMap[id]),
       });
     });
